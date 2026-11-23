@@ -1,7 +1,6 @@
 # Stage 2 — Concept: learner value first
 
 Angle: give the most value to segment A, software engineers who move into AI.
-Input: stage 1 facts. Six lessons, no backend, static typed content, two widgets.
 
 ## 1. Concept and promise
 
@@ -9,7 +8,7 @@ Input: stage 1 facts. Six lessons, no backend, static typed content, two widgets
 
 **Promise.** "In one afternoon you learn to find the failed layer, choose a design, and defend its cost and latency."
 
-Each lesson maps a new AI idea onto a skill that the reader already has. Retrieval is a cache with a ranking step. Evaluation is a test suite. An agent is a loop with tools and a stop rule. Inference cost is a load budget. The promise is concrete. The learner leaves with six artifacts and one sentence of proof per lesson.
+Each lesson maps a new AI idea onto a known skill. Retrieval is a cache with a ranking step. Evaluation is a test suite. An agent is a loop with tools and a stop rule. Inference cost is a load budget. The learner leaves with six artifacts and one proof sentence per lesson.
 
 The build keeps each stage 1 constraint:
 
@@ -19,7 +18,7 @@ The build keeps each stage 1 constraint:
 
 ## 2. The learning loop
 
-Each lesson runs one loop. Each step has a gate, so the reader cannot jump to the end.
+Each lesson runs one loop. Each step has a gate. The reader cannot jump to the end.
 
 | Step | Learner action | Gate |
 | --- | --- | --- |
@@ -28,7 +27,7 @@ Each lesson runs one loop. Each step has a gate, so the reader cannot jump to th
 | Build | Completes one scoped task with a checklist | All boxes tick |
 | Prove | Writes one sentence: "I changed X; the result was Y" | The note is saved |
 
-The prove step is the value core. A learner who writes that sentence owns the idea. The site does not grade the sentence. The sentence makes the learner produce evidence.
+The prove step is the value core. A learner who writes that sentence owns the idea. The site does not grade it. The learner produces the evidence.
 
 After the core path, the learner can:
 
@@ -71,7 +70,7 @@ Each topic gives one outcome and one small artifact. The artifact is the proof.
 ### 3.6 Inference cost and latency
 
 **After this lesson you can** estimate the monthly cost and p95 latency of a feature at 10x traffic, and name three levers that reduce both.
-**Artifact:** a filled budget sheet. It holds tokens per request, requests per day, unit price, monthly total, and a latency budget split across steps. The second widget produces these numbers. The learner records them in the prove note.
+**Artifact:** a filled budget sheet: tokens per request, requests per day, unit price, monthly total, and a latency split across steps. The second widget gives these numbers. The learner records them in the prove note.
 
 ## 4. Features, ranked by value and effort
 
@@ -87,13 +86,12 @@ Each topic gives one outcome and one small artifact. The artifact is the proof.
 | Cost and latency widget | High: defend a number | Medium | Must |
 | Reference solution per task | High: unblock a stuck learner | Low | Must |
 | Roadmap of later topics | Medium: shows the path | Low | Must |
-| Keyboard next and previous | Medium | Low | Later |
 | Client-side search | Medium | Medium | Later |
 | Accounts and cloud sync | Low for a demo | High | Cut |
 | Live model calls | Negative: cost, keys, flakiness | High | Cut |
 | Video | Low: wrong medium | High | Cut |
 
-The two Must widgets are the retrieval explorer and the cost and latency calculator. Every other feature is text, layout or local state.
+Two widgets are Must: the retrieval explorer and the cost calculator. All other features are text, layout or local state.
 
 ## 5. Core demo flow
 
@@ -125,4 +123,4 @@ Three moments must land.
 | Overreach | Search, accounts or live calls consume the build time | The cut list stays cut. The roadmap shows later work without building it |
 | Lost progress | Reload clears the ticks | One localStorage module. Test a reload before the demo |
 
-The largest risk is shallow content. A thin lesson breaks the promise at step 1 of section 6. The fix is fewer lessons with real trade-offs, not more lessons.
+The largest risk is shallow content. A thin lesson breaks the first moment in section 6. The fix is fewer lessons with real trade-offs.
