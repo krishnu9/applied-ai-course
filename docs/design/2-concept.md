@@ -70,7 +70,7 @@ $0.94 → $0.71. Every number is fixed sample data, labelled "sample evaluation,
 
 | # | Lesson (topic title) | Outcome | Artifact |
 | --- | --- | --- | --- |
-| 1 | Evaluation you can trust | Turn a quality claim into a test set and a pass rate | `eval_set.json` with 8 cases and a stub scorer |
+| 1 | Evaluation you can trust | Turn a quality claim into a test set and a pass rate | `eval_set.json` with 41 cases and a stub scorer |
 | 2 | Prompt design as a contract | Write a prompt with role, output shape and refusal rule | `prompt.md` v2 with a 3-case edge table |
 | 3 | Retrieval that earns its keep (flagship) | Chunk, rank and cite sources in a retrieval pipeline | 40-line `search.py` over 12 fixed documents |
 | 4 | Agents with a stop rule | Describe an agent as a loop and add a budget guard | `agent_loop.py` with two tools and three stop conditions |
