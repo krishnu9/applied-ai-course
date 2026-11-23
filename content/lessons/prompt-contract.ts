@@ -3,8 +3,21 @@ import { deepFreeze } from "../freeze";
 
 export const promptContractLesson = deepFreeze({
   slug: "prompt-contract",
-  order: 2,
+  order: 11,
   title: "Prompt design as a contract",
+  chapterId: "ch-05",
+  chapterOrder: 5,
+  status: "live",
+  terms: [
+    { term: "prompt contract", definition: "An interface with a role, input fields, an output shape and a refusal rule." },
+    { term: "output shape", definition: "The exact keys and allowed values the caller reads." },
+    { term: "refusal rule", definition: "The rule that sends an unclear ticket to the fallback label." },
+    { term: "edge table", definition: "A small file of unusual inputs with expected outputs." },
+  ],
+  evalCase: {
+    id: "case-prompt",
+    brief: "Repair a prompt that a ticket can override.",
+  },
   outcome: "You can write a prompt with a role, an output shape and a refusal rule.",
   artifact: "A prompt file and a three-case edge table.",
   readingMinutes: 9,
@@ -14,6 +27,7 @@ export const promptContractLesson = deepFreeze({
     {
       id: "read-the-loose-prompt",
       title: "Read: the loose prompt",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -42,6 +56,7 @@ export const promptContractLesson = deepFreeze({
     {
       id: "read-the-contract",
       title: "Read: the four parts",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -80,6 +95,7 @@ export const promptContractLesson = deepFreeze({
     {
       id: "check-the-shape",
       title: "Check: test the edge",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -109,6 +125,7 @@ export const promptContractLesson = deepFreeze({
     {
       id: "build-the-check",
       title: "Build: check the shape",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -175,6 +192,7 @@ export const promptContractLesson = deepFreeze({
     {
       id: "prove-the-contract",
       title: "Prove: name the change",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -204,6 +222,7 @@ export const promptContractLesson = deepFreeze({
   checks: [
     {
       id: "check-1",
+      kind: "definition",
       prompt: "Which part of the contract stops the parser error?",
       options: [
         { id: "option-a", label: "A longer role sentence" },
@@ -217,6 +236,7 @@ export const promptContractLesson = deepFreeze({
     },
     {
       id: "check-2",
+      kind: "apply",
       prompt: "A ticket is in a language the model cannot label. What should the contract do?",
       options: [
         { id: "option-a", label: "Return the nearest label with high confidence" },

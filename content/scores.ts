@@ -1,99 +1,53 @@
 import type {
-  Layer,
-  LayerId,
+  EvaluationStage,
   LessonSlug,
   SampleMetrics,
+  StageId,
 } from "@/lib/types";
-import { deepFreeze } from "./freeze";
+import { BASELINE, CAPSTONE_STAGES } from "@/lib/course-registry";
 
-/** The broken start state shared by every layer. Fixed sample data. */
-export const BASELINE: SampleMetrics = deepFreeze({
-  passRate: 0.41,
-  costPer1k: 0.94,
-  p95Ms: 2400,
-});
+export { BASELINE };
 
-/**
- * Six layers in course order. Each repair moves one layer from its baseline
- * to its repaired pair. Values are fixed sample data.
- */
-export const LAYERS: readonly Layer[] = deepFreeze([
-  {
-    id: "layer-01",
-    order: 1,
-    name: "Evaluation",
-    lessonSlug: "evaluation",
-    baseline: BASELINE,
-    repaired: { passRate: 0.49, costPer1k: 0.92, p95Ms: 2300 },
-  },
-  {
-    id: "layer-02",
-    order: 2,
-    name: "Prompt contract",
-    lessonSlug: "prompt-contract",
-    baseline: BASELINE,
-    repaired: { passRate: 0.53, costPer1k: 0.86, p95Ms: 2100 },
-  },
-  {
-    id: "layer-03",
-    order: 3,
-    name: "Retrieval",
-    lessonSlug: "retrieval",
-    baseline: BASELINE,
-    repaired: { passRate: 0.58, costPer1k: 0.71, p95Ms: 1400 },
-  },
-  {
-    id: "layer-04",
-    order: 4,
-    name: "Agents",
-    lessonSlug: "agents",
-    baseline: BASELINE,
-    repaired: { passRate: 0.63, costPer1k: 0.68, p95Ms: 1600 },
-  },
-  {
-    id: "layer-05",
-    order: 5,
-    name: "Fine-tuning",
-    lessonSlug: "fine-tuning",
-    baseline: BASELINE,
-    repaired: { passRate: 0.72, costPer1k: 0.79, p95Ms: 1100 },
-  },
-  {
-    id: "layer-06",
-    order: 6,
-    name: "Cost and latency",
-    lessonSlug: "cost",
-    baseline: BASELINE,
-    repaired: { passRate: 0.74, costPer1k: 0.31, p95Ms: 900 },
-  },
-]);
+/** The six capstone evaluation stages, in course order. Fixed sample data. */
+export const EVALUATION_STAGES: readonly EvaluationStage[] = CAPSTONE_STAGES;
 
-const LAYER_BY_ID = new Map<LayerId, Layer>(
-  LAYERS.map((layer) => [layer.id, layer]),
+/** Compatibility alias for the old layer list. */
+export const LAYERS: readonly EvaluationStage[] = EVALUATION_STAGES;
+
+const STAGE_BY_ID = new Map<StageId, EvaluationStage>(
+  EVALUATION_STAGES.map((stage) => [stage.id, stage]),
 );
-const LAYER_BY_LESSON = new Map<LessonSlug, Layer>(
-  LAYERS.map((layer) => [layer.lessonSlug, layer]),
+const STAGE_BY_LESSON = new Map<LessonSlug, EvaluationStage>(
+  EVALUATION_STAGES.map((stage) => [stage.lessonSlug, stage]),
 );
 
-export function getLayerById(layerId: LayerId): Layer | undefined {
-  return LAYER_BY_ID.get(layerId);
+export function getEvaluationStages(): readonly EvaluationStage[] {
+  return EVALUATION_STAGES;
 }
 
-export function getLayerByLesson(slug: LessonSlug): Layer | undefined {
-  return LAYER_BY_LESSON.get(slug);
+export function getStageById(stageId: StageId): EvaluationStage | undefined {
+  return STAGE_BY_ID.get(stageId);
 }
+
+export function getStageByLesson(slug: LessonSlug): EvaluationStage | undefined {
+  return STAGE_BY_LESSON.get(slug);
+}
+
+/** Compatibility aliases for code that still says "layer". */
+export const getLayerById = getStageById;
+export const getLayerByLesson = getStageByLesson;
 
 /**
- * Return the repaired pair of the repaired layer with the highest order.
+ * Return the repaired pair of the repaired stage with the highest order.
  * An empty list, or a list with no known slug, returns the baseline.
  * Duplicate slugs count once because the lookup is by lesson.
  */
 export function scoreSummary(repaired: readonly LessonSlug[]): SampleMetrics {
-  let best: Layer | undefined;
+  let best: EvaluationStage | undefined;
   for (const slug of repaired) {
-    const layer = LAYER_BY_LESSON.get(slug);
-    if (layer && (!best || layer.order > best.order)) {
-      best = layer;
+    const stage = STAGE_BY_LESSON.get(slug);
+    if (stage && (!best || stage.order > best.order)) {
+      best = stage;
     }
   }
   return best ? best.repaired : BASELINE;

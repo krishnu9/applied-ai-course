@@ -3,8 +3,21 @@ import { deepFreeze } from "../freeze";
 
 export const fineTuningLesson = deepFreeze({
   slug: "fine-tuning",
-  order: 5,
+  order: 17,
   title: "Fine-tuning: when it pays",
+  chapterId: "ch-07",
+  chapterOrder: 7,
+  status: "live",
+  terms: [
+    { term: "fine-tuning", definition: "A training run that moves a stable behaviour into model weights." },
+    { term: "SFT", definition: "Supervised fine-tuning on input and expected output pairs." },
+    { term: "held-out set", definition: "Examples kept out of training to test the result." },
+    { term: "rung", definition: "One step on the prompt, retrieval and fine-tune ladder." },
+  ],
+  evalCase: {
+    id: "case-finetune",
+    brief: "Choose the rung for tone drift and defend the cost.",
+  },
   outcome: "You can choose between prompting, retrieval and fine-tuning.",
   artifact: "A three-row decision table and a small labeled example file.",
   readingMinutes: 10,
@@ -14,6 +27,7 @@ export const fineTuningLesson = deepFreeze({
     {
       id: "read-the-tempting-lever",
       title: "Read: the tempting lever",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -42,6 +56,7 @@ export const fineTuningLesson = deepFreeze({
     {
       id: "read-the-three-rungs",
       title: "Read: the three rungs",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -84,6 +99,7 @@ export const fineTuningLesson = deepFreeze({
     {
       id: "check-the-choice",
       title: "Check: choose the rung",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -114,6 +130,7 @@ export const fineTuningLesson = deepFreeze({
     {
       id: "build-the-decision",
       title: "Build: the decision check",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -172,6 +189,7 @@ export const fineTuningLesson = deepFreeze({
     {
       id: "prove-the-saving",
       title: "Prove: name the choice",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -201,6 +219,7 @@ export const fineTuningLesson = deepFreeze({
   checks: [
     {
       id: "check-1",
+      kind: "apply",
       prompt: "Which failure points to fine-tuning first?",
       options: [
         { id: "option-a", label: "The answer needs a fact from yesterday" },
@@ -214,6 +233,7 @@ export const fineTuningLesson = deepFreeze({
     },
     {
       id: "check-2",
+      kind: "diagnose",
       prompt: "What does fine-tuning not fix?",
       options: [
         { id: "option-a", label: "The tone of a reply" },

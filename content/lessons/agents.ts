@@ -3,8 +3,22 @@ import { deepFreeze } from "../freeze";
 
 export const agentsLesson = deepFreeze({
   slug: "agents",
-  order: 4,
+  order: 16,
   title: "Agents with a stop rule",
+  chapterId: "ch-06",
+  chapterOrder: 6,
+  status: "live",
+  terms: [
+    { term: "agent", definition: "A loop around a model with tools and a stop rule." },
+    { term: "tool call", definition: "One named action with typed arguments that the model chooses." },
+    { term: "stop condition", definition: "A rule that ends the loop with a stated reason." },
+    { term: "step budget", definition: "The maximum number of tool calls one run may make." },
+    { term: "transcript", definition: "The record of goals, actions and results in one run." },
+  ],
+  evalCase: {
+    id: "case-agents",
+    brief: "Repair a loop that repeats a failed tool call.",
+  },
   outcome: "You can describe an agent as a loop and add a budget guard.",
   artifact: "An agent loop with two tools and three stop conditions.",
   readingMinutes: 11,
@@ -14,6 +28,7 @@ export const agentsLesson = deepFreeze({
     {
       id: "read-the-unbounded-loop",
       title: "Read: the unbounded loop",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -42,6 +57,7 @@ export const agentsLesson = deepFreeze({
     {
       id: "read-the-stop-rule",
       title: "Read: three stop conditions",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -70,6 +86,7 @@ export const agentsLesson = deepFreeze({
         },
         {
           kind: "diagram",
+          variant: "flow",
           id: "agent-loop",
           spec: {
             nodes: [
@@ -98,6 +115,7 @@ export const agentsLesson = deepFreeze({
     {
       id: "check-the-stop",
       title: "Check: test the stop",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -128,6 +146,7 @@ export const agentsLesson = deepFreeze({
     {
       id: "build-the-guard",
       title: "Build: the budget guard",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -208,6 +227,7 @@ export const agentsLesson = deepFreeze({
     {
       id: "prove-the-loop",
       title: "Prove: name the stop",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -237,6 +257,7 @@ export const agentsLesson = deepFreeze({
   checks: [
     {
       id: "check-1",
+      kind: "diagnose",
       prompt: "A tool returns the same result twice. Which stop condition should fire first?",
       options: [
         { id: "option-a", label: "Budget, after the step limit" },
@@ -250,6 +271,7 @@ export const agentsLesson = deepFreeze({
     },
     {
       id: "check-2",
+      kind: "definition",
       prompt: "Where should the step budget live?",
       options: [
         { id: "option-a", label: "In the prompt text" },

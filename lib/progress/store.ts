@@ -1,8 +1,8 @@
 import type { LessonProgress, LessonSlug, ProgressState, TaskItemId } from "@/lib/types";
+import { MAX_CHECKS_PER_LESSON, TASK_ITEM_IDS } from "@/lib/course-registry";
 import {
   EPOCH,
   ID_PATTERN,
-  TICK_IDS,
   createEmptyState,
   isLessonSlug,
   normaliseProofNote,
@@ -64,7 +64,7 @@ function createEntry(): LessonProgress {
 }
 
 function isTickId(value: string): value is TaskItemId {
-  return (TICK_IDS as readonly string[]).includes(value);
+  return (TASK_ITEM_IDS as readonly string[]).includes(value);
 }
 
 function statesEqual(a: ProgressState, b: ProgressState): boolean {
@@ -159,7 +159,7 @@ export function createStore(initial: ProgressSnapshot): ProgressStore {
     const entry = snapshot.state.lessons[slug] ?? createEntry();
     const answers = entry.checkAnswers;
     const existing = answers[checkId];
-    if (!existing && Object.keys(answers).length >= 3) return;
+    if (!existing && Object.keys(answers).length >= MAX_CHECKS_PER_LESSON) return;
     if (existing && existing.selectedOptionId === selectedOptionId) return;
 
     const nextEntry: LessonProgress = {
@@ -177,7 +177,7 @@ export function createStore(initial: ProgressSnapshot): ProgressStore {
     if (ticks.has(itemId)) ticks.delete(itemId);
     else ticks.add(itemId);
 
-    const taskTicks = TICK_IDS.filter((tick) => ticks.has(tick));
+    const taskTicks = TASK_ITEM_IDS.filter((tick) => ticks.has(tick));
     const nextEntry: LessonProgress = { ...entry, taskTicks: [...taskTicks] };
     commitEntry(slug, nextEntry);
   }

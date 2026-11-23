@@ -3,8 +3,22 @@ import { deepFreeze } from "../freeze";
 
 export const retrievalLesson = deepFreeze({
   slug: "retrieval",
-  order: 3,
+  order: 14,
   title: "Retrieval that earns its keep",
+  chapterId: "ch-06",
+  chapterOrder: 6,
+  status: "live",
+  terms: [
+    { term: "chunk", definition: "A short part of a document that carries its source id." },
+    { term: "embedding", definition: "A list of numbers that places text in a vector space." },
+    { term: "top-k", definition: "The number of chunks that reach the prompt." },
+    { term: "fusion", definition: "A step that combines two ranked lists into one." },
+    { term: "reranker", definition: "A slower model that scores a query and a candidate together." },
+  ],
+  evalCase: {
+    id: "case-retrieval",
+    brief: "Fix the refund policy ranking and prove recall at k.",
+  },
   outcome: "You can chunk, rank and cite sources in a retrieval pipeline.",
   artifact: "A 40-line search.py over 12 fixed documents.",
   readingMinutes: 25,
@@ -14,6 +28,7 @@ export const retrievalLesson = deepFreeze({
     {
       id: "read-the-feature",
       title: "Read: one broken triage feature",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -57,6 +72,7 @@ export const retrievalLesson = deepFreeze({
     {
       id: "read-the-index",
       title: "Read: chunks, vectors and top-k",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -95,6 +111,7 @@ export const retrievalLesson = deepFreeze({
         },
         {
           kind: "diagram",
+          variant: "flow",
           id: "retrieval-flow",
           spec: {
             nodes: [
@@ -142,6 +159,7 @@ export const retrievalLesson = deepFreeze({
     {
       id: "trace-one-query",
       title: "Trace one query",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -189,6 +207,7 @@ export const retrievalLesson = deepFreeze({
     {
       id: "check-the-ranking",
       title: "Check: rank the candidates",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -211,6 +230,7 @@ export const retrievalLesson = deepFreeze({
     {
       id: "build-the-fix",
       title: "Build: repair the ranking",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -303,6 +323,7 @@ export const retrievalLesson = deepFreeze({
     {
       id: "run-the-explorer",
       title: "Run the explorer",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -336,6 +357,7 @@ export const retrievalLesson = deepFreeze({
     {
       id: "check-the-limit",
       title: "Check: name the limit",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -376,6 +398,7 @@ export const retrievalLesson = deepFreeze({
     {
       id: "prove-the-change",
       title: "Prove: state your change",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -403,6 +426,7 @@ export const retrievalLesson = deepFreeze({
   checks: [
     {
       id: "check-1",
+      kind: "apply",
       prompt: "Which order matches the expected ranking for the query refund policy?",
       options: [
         { id: "option-a", label: "doc-02, doc-07, doc-08" },
@@ -416,6 +440,7 @@ export const retrievalLesson = deepFreeze({
     },
     {
       id: "check-2",
+      kind: "diagnose",
       prompt: "A relevant document sits at rank six with k set to three. What happens to that document?",
       options: [
         { id: "option-a", label: "The model still cites it" },
@@ -429,6 +454,7 @@ export const retrievalLesson = deepFreeze({
     },
     {
       id: "check-3",
+      kind: "apply",
       prompt: "A reader asks about one product area, but the index mixes all areas. Which lever removes wrong candidates without extra tokens?",
       options: [
         { id: "option-a", label: "Raise k from three to fifty" },

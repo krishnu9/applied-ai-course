@@ -3,8 +3,21 @@ import { deepFreeze } from "../freeze";
 
 export const evaluationLesson = deepFreeze({
   slug: "evaluation",
-  order: 1,
+  order: 6,
   title: "Evaluation you can trust",
+  chapterId: "ch-03",
+  chapterOrder: 3,
+  status: "live",
+  terms: [
+    { term: "eval set", definition: "A fixed set of cases with known labels that a run repeats." },
+    { term: "pass rate", definition: "The share of cases whose output matches the expected label." },
+    { term: "held-out set", definition: "A second case file that tuning never touches." },
+    { term: "label", definition: "The expected output written by a person for one case." },
+  ],
+  evalCase: {
+    id: "case-eval",
+    brief: "Pick a metric for triage labels and name its blind spot.",
+  },
   outcome: "You can turn a vague quality claim into a repeatable score.",
   artifact: "A small eval set and the command that runs it.",
   readingMinutes: 10,
@@ -14,6 +27,7 @@ export const evaluationLesson = deepFreeze({
     {
       id: "read-the-vague-score",
       title: "Read: the vague score",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -52,6 +66,7 @@ export const evaluationLesson = deepFreeze({
     {
       id: "read-the-frozen-set",
       title: "Read: the frozen set",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -96,6 +111,7 @@ export const evaluationLesson = deepFreeze({
     {
       id: "check-the-label",
       title: "Check: the label you can keep",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -125,6 +141,7 @@ export const evaluationLesson = deepFreeze({
     {
       id: "build-the-harness",
       title: "Build: the smallest harness",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -185,6 +202,7 @@ export const evaluationLesson = deepFreeze({
     {
       id: "prove-the-score",
       title: "Prove: state the change",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -214,6 +232,7 @@ export const evaluationLesson = deepFreeze({
   checks: [
     {
       id: "check-1",
+      kind: "diagnose",
       prompt:
         "A teammate shows one good answer and calls the feature better. What is missing?",
       options: [
@@ -228,6 +247,7 @@ export const evaluationLesson = deepFreeze({
     },
     {
       id: "check-2",
+      kind: "apply",
       prompt: "Which case earns a place in the eval set?",
       options: [
         { id: "option-a", label: "The easiest ticket, which always passes" },

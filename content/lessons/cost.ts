@@ -3,8 +3,22 @@ import { deepFreeze } from "../freeze";
 
 export const costLesson = deepFreeze({
   slug: "cost",
-  order: 6,
+  order: 21,
   title: "Cost and latency budget",
+  chapterId: "ch-09",
+  chapterOrder: 9,
+  status: "live",
+  terms: [
+    { term: "TTFT", definition: "Time from the request to the first output token." },
+    { term: "TPOT", definition: "Time per output token after the first token." },
+    { term: "p95", definition: "The latency value that 95 percent of requests stay under." },
+    { term: "goodput", definition: "Throughput that still meets the latency target." },
+    { term: "prefill", definition: "The pass that reads the input and fills the context." },
+  ],
+  evalCase: {
+    id: "case-cost",
+    brief: "Diagnose a p95 miss with a healthy average.",
+  },
   outcome: "You can estimate cost and p95 at ten times traffic and name three levers.",
   artifact: "A filled budget sheet from the calculator.",
   readingMinutes: 9,
@@ -14,6 +28,7 @@ export const costLesson = deepFreeze({
     {
       id: "read-the-bill",
       title: "Read: the bill that surprises",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -42,6 +57,7 @@ export const costLesson = deepFreeze({
     {
       id: "read-two-clocks",
       title: "Read: cost and latency",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -68,6 +84,7 @@ export const costLesson = deepFreeze({
     {
       id: "draw-the-budget",
       title: "Draw: the budget",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -81,6 +98,7 @@ export const costLesson = deepFreeze({
         },
         {
           kind: "diagram",
+          variant: "flow",
           id: "cost-budget",
           spec: {
             nodes: [
@@ -118,6 +136,7 @@ export const costLesson = deepFreeze({
     {
       id: "check-the-levers",
       title: "Check: choose the lever",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -146,6 +165,7 @@ export const costLesson = deepFreeze({
     {
       id: "build-the-budget",
       title: "Build: set the budget",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -205,6 +225,7 @@ export const costLesson = deepFreeze({
     {
       id: "prove-the-saving",
       title: "Prove: name the saving",
+      register: "standard",
       blocks: [
         {
           kind: "paragraph",
@@ -234,6 +255,7 @@ export const costLesson = deepFreeze({
   checks: [
     {
       id: "check-1",
+      kind: "calculate",
       prompt: "Traffic grows ten times and every other input stays the same. What happens to the cost per request?",
       options: [
         { id: "option-a", label: "It grows ten times" },
@@ -247,6 +269,7 @@ export const costLesson = deepFreeze({
     },
     {
       id: "check-2",
+      kind: "diagnose",
       prompt: "Which lever targets decode time?",
       options: [
         { id: "option-a", label: "A shorter output" },

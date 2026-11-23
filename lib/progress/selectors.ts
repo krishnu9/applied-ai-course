@@ -1,5 +1,4 @@
 import type { Lesson, LessonSlug, ProgressState } from "@/lib/types";
-import { TICK_IDS } from "./storage";
 
 /** True when the lesson entry is marked repaired. */
 export function isRepaired(progress: ProgressState, slug: LessonSlug): boolean {
@@ -28,7 +27,10 @@ export function canRepair(lesson: Lesson, progress: ProgressState): boolean {
   );
   if (!checksCorrect) return false;
 
-  const allTicks = TICK_IDS.every((tick) => entry.taskTicks.includes(tick));
+  const requiredTicks = lesson.task.items.map((item) => item.id);
+  const allTicks =
+    requiredTicks.length > 0 &&
+    requiredTicks.every((tick) => entry.taskTicks.includes(tick));
   if (!allTicks) return false;
 
   return entry.proofNote.trim().length > 0;

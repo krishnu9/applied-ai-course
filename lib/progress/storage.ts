@@ -1,25 +1,26 @@
-import type { LessonProgress, LessonSlug, ProgressState } from "@/lib/types";
+import type { LessonProgress, TaskItemId, ProgressState } from "@/lib/types";
+import {
+  MAX_CHECKS_PER_LESSON,
+  TASK_ITEM_IDS,
+  isLessonSlug,
+} from "@/lib/course-registry";
+
+export { isLessonSlug };
 
 export type StorageStatus = "ok" | "unavailable";
 
-export const STORAGE_KEY = "lastminute.progress.v1";
+export const STORAGE_KEY = "lastminute.progress.v2";
+export const LEGACY_STORAGE_KEY = "lastminute.progress.v1";
 export const MAX_PROOF = 280;
-export const MAX_BYTES = 8192;
+export const MAX_BYTES = 65536;
 export const EPOCH = "1970-01-01T00:00:00.000Z";
 export const ID_PATTERN = /^[a-z][a-z0-9-]{0,40}$/;
-export const TICK_IDS = ["item-1", "item-2", "item-3", "item-4", "item-5"] as const;
+
+/** Compatibility alias for the dynamic tick list. */
+export const TICK_IDS: readonly TaskItemId[] = TASK_ITEM_IDS;
 
 /** null = not tested, true = usable, false = stop all storage for the session. */
 let available: boolean | null = null;
-
-const LESSON_SLUGS = [
-  "evaluation",
-  "prompt-contract",
-  "retrieval",
-  "agents",
-  "fine-tuning",
-  "cost",
-] as const satisfies readonly LessonSlug[];
 
 const CONTROL_CHARS = /[\u0000-\u0009\u000B-\u001F\u007F]/g;
 const MAX_OPTION_ID = 64;
@@ -32,16 +33,12 @@ export interface ReadProgressResult {
 /** A frozen-friendly empty state. The update time defaults to the fixed epoch. */
 export function createEmptyState(updatedAt: string = EPOCH): ProgressState {
   return {
-    version: 1,
+    version: 2,
     lessons: {},
     lastLessonSlug: null,
     lastSectionId: null,
     updatedAt,
   };
-}
-
-export function isLessonSlug(value: unknown): value is LessonSlug {
-  return typeof value === "string" && (LESSON_SLUGS as readonly string[]).includes(value);
 }
 
 /** Strip control characters except a newline, then cut to the proof limit. */
@@ -71,7 +68,7 @@ function normaliseEntry(raw: Record<string, unknown>): LessonProgress {
   const checkAnswers: Record<string, { selectedOptionId: string }> = {};
   if (isPlainObject(raw.checkAnswers)) {
     for (const [id, answer] of Object.entries(raw.checkAnswers)) {
-      if (Object.keys(checkAnswers).length >= 3) break;
+      if (Object.keys(checkAnswers).length >= MAX_CHECKS_PER_LESSON) break;
       if (!ID_PATTERN.test(id) || !isPlainObject(answer)) continue;
       const selectedOptionId = answer.selectedOptionId;
       if (
@@ -86,7 +83,7 @@ function normaliseEntry(raw: Record<string, unknown>): LessonProgress {
   }
 
   const rawTicks: unknown[] = Array.isArray(raw.taskTicks) ? raw.taskTicks : [];
-  const taskTicks = TICK_IDS.filter((tick) => rawTicks.includes(tick));
+  const taskTicks = TASK_ITEM_IDS.filter((tick) => rawTicks.includes(tick));
 
   const proofNote =
     typeof raw.proofNote === "string" ? normaliseProofNote(raw.proofNote) : "";
@@ -97,12 +94,16 @@ function normaliseEntry(raw: Record<string, unknown>): LessonProgress {
 }
 
 /**
- * Validate and normalise an untrusted value into a ProgressState.
- * Every rejection falls back to a safe value; this function never throws.
+ * Validate and normalise an untrusted value into a version 2 ProgressState.
+ * A version 1 payload maps across unchanged, because every old slug still
+ * exists. Every rejection falls back to a safe value; this function never throws.
  */
 export function normalise(value: unknown): ProgressState {
   try {
-    if (!isPlainObject(value) || value.version !== 1) {
+    if (
+      !isPlainObject(value) ||
+      (value.version !== 1 && value.version !== 2)
+    ) {
       return createEmptyState();
     }
 
@@ -121,7 +122,7 @@ export function normalise(value: unknown): ProgressState {
         : null;
     const updatedAt = isIsoString(value.updatedAt) ? value.updatedAt : EPOCH;
 
-    return { version: 1, lessons, lastLessonSlug, lastSectionId, updatedAt };
+    return { version: 2, lessons, lastLessonSlug, lastSectionId, updatedAt };
   } catch {
     return createEmptyState();
   }
@@ -147,6 +148,19 @@ function getStorage(): Storage | null {
   }
 }
 
+function storageUnavailable(): boolean {
+  return available === false;
+}
+
+function readKey(storage: Storage, key: string): string | null {
+  try {
+    return storage.getItem(key);
+  } catch {
+    available = false;
+    return null;
+  }
+}
+
 export function readProgress(): ReadProgressResult {
   const storage = getStorage();
   if (!storage) {
@@ -156,19 +170,26 @@ export function readProgress(): ReadProgressResult {
     };
   }
 
-  let raw: string | null;
-  try {
-    raw = storage.getItem(STORAGE_KEY);
-  } catch {
-    available = false;
+  const rawV2 = readKey(storage, STORAGE_KEY);
+  if (available === false) {
     return { state: createEmptyState(), status: "unavailable" };
   }
-
-  if (raw === null) {
-    return { state: createEmptyState(), status: "ok" };
+  if (rawV2 !== null) {
+    return { state: parseProgress(rawV2), status: "ok" };
   }
 
-  return { state: parseProgress(raw), status: "ok" };
+  const rawV1 = readKey(storage, LEGACY_STORAGE_KEY);
+  if (storageUnavailable()) {
+    return { state: createEmptyState(), status: "unavailable" };
+  }
+  if (rawV1 !== null) {
+    const state = parseProgress(rawV1);
+    // Write the mapped state to v2 and leave v1 untouched.
+    writeProgress(state);
+    return { state, status: "ok" };
+  }
+
+  return { state: createEmptyState(), status: "ok" };
 }
 
 export function writeProgress(state: ProgressState): StorageStatus {
@@ -204,24 +225,37 @@ export function writeProgress(state: ProgressState): StorageStatus {
   }
 }
 
+/**
+ * Reset progress by writing an empty v2 state. The version 1 key stays
+ * untouched, and the empty v2 state wins on the next read.
+ */
 export function resetProgress(): void {
   const storage = getStorage();
   if (!storage) return;
   try {
-    storage.removeItem(STORAGE_KEY);
+    storage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(createEmptyState(new Date().toISOString())),
+    );
   } catch {
     available = false;
   }
 }
 
-/** Listen for cross-tab storage changes on this key. Returns an unsubscribe function. */
+/** Listen for cross-tab storage changes on either key. Returns an unsubscribe function. */
 export function subscribeToStorage(onChange: () => void): () => void {
   if (typeof window === "undefined" || getStorage() === null) {
     return () => {};
   }
   try {
     const handler = (event: StorageEvent): void => {
-      if (event.key === null || event.key === STORAGE_KEY) onChange();
+      if (
+        event.key === null ||
+        event.key === STORAGE_KEY ||
+        event.key === LEGACY_STORAGE_KEY
+      ) {
+        onChange();
+      }
     };
     window.addEventListener("storage", handler);
     return () => {

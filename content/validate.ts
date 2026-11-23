@@ -1,82 +1,42 @@
 import type {
   Block,
+  CheckKind,
   CostModel,
   Course,
-  Layer,
-  LayerId,
+  DiagramVariant,
+  EvaluationStage,
   Lesson,
   LessonSlug,
   MappingRow,
   PresetQuery,
   RetrievalDoc,
   SampleMetrics,
-  TaskItemId,
+  Chapter,
 } from "@/lib/types";
-import { BASELINE, scoreSummary } from "./scores";
+import {
+  BASELINE,
+  CAPSTONE_STAGES,
+  CHAPTERS,
+  EXPECTED_LESSON_COUNT,
+  FLAGSHIP_SLUGS,
+  INTERACTIVE_WIDGET_IDS,
+  LESSONS as REGISTRY_LESSONS,
+  LESSON_SLUGS,
+  MAX_CHECKS_PER_LESSON,
+  TASK_ITEM_IDS,
+} from "@/lib/course-registry";
+import { scoreSummary } from "./scores";
 
 export interface ContentSnapshot {
   course: Course;
-  layers: readonly Layer[];
+  allLessons: readonly Lesson[];
+  chapters: readonly Chapter[];
+  stages: readonly EvaluationStage[];
   docs: readonly RetrievalDoc[];
   queries: readonly PresetQuery[];
   model: CostModel;
   mapping: readonly MappingRow[];
 }
-
-const LESSON_SLUGS: readonly LessonSlug[] = [
-  "evaluation",
-  "prompt-contract",
-  "retrieval",
-  "agents",
-  "fine-tuning",
-  "cost",
-];
-
-const LAYER_IDS: readonly LayerId[] = [
-  "layer-01",
-  "layer-02",
-  "layer-03",
-  "layer-04",
-  "layer-05",
-  "layer-06",
-];
-
-const ITEM_IDS: readonly TaskItemId[] = [
-  "item-1",
-  "item-2",
-  "item-3",
-  "item-4",
-  "item-5",
-];
-
-const MINUTES: Readonly<Record<LessonSlug, number>> = {
-  evaluation: 10,
-  "prompt-contract": 9,
-  retrieval: 25,
-  agents: 11,
-  "fine-tuning": 10,
-  cost: 9,
-};
-
-const REPAIRED: Readonly<Record<LayerId, SampleMetrics>> = {
-  "layer-01": { passRate: 0.49, costPer1k: 0.92, p95Ms: 2300 },
-  "layer-02": { passRate: 0.53, costPer1k: 0.86, p95Ms: 2100 },
-  "layer-03": { passRate: 0.58, costPer1k: 0.71, p95Ms: 1400 },
-  "layer-04": { passRate: 0.63, costPer1k: 0.68, p95Ms: 1600 },
-  "layer-05": { passRate: 0.72, costPer1k: 0.79, p95Ms: 1100 },
-  "layer-06": { passRate: 0.74, costPer1k: 0.31, p95Ms: 900 },
-};
-
-const DIAGRAM_IDS: Partial<Record<LessonSlug, string>> = {
-  retrieval: "retrieval-flow",
-  agents: "agent-loop",
-  cost: "cost-budget",
-};
-
-const WIDGETS: Partial<Record<LessonSlug, string>> = {
-  retrieval: "retrieval-explorer",
-  cost: "cost-calculator",
-};
 
 const SLUG_PATTERN = /^[a-z][a-z0-9-]*$/;
 const SECTION_ID_PATTERN = /^[a-z][a-z0-9-]{0,40}$/;
@@ -85,6 +45,38 @@ const TAG_PATTERN = /^[a-z][a-z-]*$/;
 const CODE_OUTPUT_LABEL = "Sample output. Fixed data.";
 const NOTE_LABEL = "Proof saved on this device.";
 const PROVE_PLACEHOLDER = "I changed X; the result was Y.";
+
+const CHECK_KINDS: readonly CheckKind[] = [
+  "definition",
+  "apply",
+  "diagnose",
+  "calculate",
+];
+
+const ACTIVE_CHECK_KINDS: readonly CheckKind[] = ["apply", "diagnose", "calculate"];
+
+const DIAGRAM_VARIANTS: readonly DiagramVariant[] = [
+  "flow",
+  "stack",
+  "matrix",
+  "timeline",
+  "bars",
+];
+
+const LEGACY_WIDGET_IDS = ["retrieval-explorer", "cost-calculator"] as const;
+
+const MIN_TERMS = 4;
+const MAX_TERMS = 6;
+const MIN_ELI5_SECTIONS = 2;
+const MAX_ELI5_SECTIONS = 3;
+const MIN_FINAL_CHECKS = 4;
+const MAX_INTERVIEW_ITEMS = 4;
+const STANDARD_WORDS = { min: 1100, max: 1500 } as const;
+const FLAGSHIP_WORDS = { min: 1900, max: 2400 } as const;
+
+function isFinalCourse(): boolean {
+  return process.env.COURSE_FINAL === "1";
+}
 
 function words(text: string): number {
   return text.trim().split(/\s+/).filter(Boolean).length;
@@ -103,10 +95,15 @@ function sameMetrics(a: SampleMetrics, b: SampleMetrics): boolean {
   );
 }
 
+function isKnown<T extends string>(values: readonly T[], value: string): value is T {
+  return (values as readonly string[]).includes(value);
+}
+
 /**
  * Count the prose words in a lesson. Prose is section titles, paragraphs,
- * list items, callout titles and text, note text and diagram captions.
- * Code, checks, task labels and page copy are not prose.
+ * list items, callout titles and text, note text, diagram captions, analogy
+ * text, table text and interview text. Code, checks, task labels and page copy
+ * are not prose.
  */
 export function countProseWords(lesson: Lesson): number {
   let total = 0;
@@ -130,6 +127,21 @@ export function countProseWords(lesson: Lesson): number {
         case "diagram":
           total += words(block.caption);
           break;
+        case "analogy":
+          total += words(block.text);
+          total += words(block.breaks);
+          break;
+        case "table":
+          if (block.caption) total += words(block.caption);
+          total += words(block.columns.join(" "));
+          for (const row of block.rows) total += words(row.join(" "));
+          break;
+        case "interview":
+          for (const item of block.items) {
+            total += words(item.question);
+            total += words(item.answer);
+          }
+          break;
         default:
           break;
       }
@@ -142,320 +154,659 @@ function blocksOf(lesson: Lesson): readonly Block[] {
   return lesson.sections.flatMap((section) => section.blocks);
 }
 
-function validateLesson(
-  lesson: Lesson,
-  index: number,
-  faults: string[],
-): void {
+function validateIdentity(lesson: Lesson, index: number, faults: string[]): void {
   const at = `lesson "${lesson.slug}"`;
+  const expected = REGISTRY_LESSONS[index];
 
-  if (lesson.slug !== LESSON_SLUGS[index]) {
-    faults.push(
-      `content: lesson ${index + 1} has slug "${lesson.slug}", expected "${LESSON_SLUGS[index]}"`,
-    );
+  if (!expected) {
+    faults.push(`course: ${at} is at position ${index + 1} with no registry entry`);
+  } else {
+    if (lesson.slug !== expected.slug) {
+      faults.push(
+        `${at} field "slug": position ${index + 1} must be "${expected.slug}"`,
+      );
+    }
+    if (lesson.chapterId !== expected.chapterId) {
+      faults.push(
+        `${at} field "chapterId": "${lesson.chapterId}", expected "${expected.chapterId}"`,
+      );
+    }
+    const chapter = CHAPTERS.find((candidate) => candidate.id === expected.chapterId);
+    if (chapter && lesson.chapterOrder !== chapter.order) {
+      faults.push(
+        `${at} field "chapterOrder": ${lesson.chapterOrder}, expected ${chapter.order}`,
+      );
+    }
   }
+
   if (!SLUG_PATTERN.test(lesson.slug)) {
-    faults.push(`content: ${at} slug does not match the slug pattern`);
+    faults.push(`${at} field "slug": does not match the slug pattern`);
   }
   if (lesson.order !== index + 1) {
-    faults.push(`content: ${at} has order ${lesson.order}, expected ${index + 1}`);
+    faults.push(`${at} field "order": ${lesson.order}, expected ${index + 1}`);
   }
-  if (lesson.readingMinutes !== MINUTES[lesson.slug]) {
+  if (!lesson.title.trim()) {
+    faults.push(`${at} field "title": is empty`);
+  }
+  if (!lesson.outcome.trim()) {
+    faults.push(`${at} field "outcome": is empty`);
+  }
+  if (!lesson.artifact.trim()) {
+    faults.push(`${at} field "artifact": is empty`);
+  }
+  if (!Number.isInteger(lesson.readingMinutes) || lesson.readingMinutes < 1) {
     faults.push(
-      `content: ${at} has ${lesson.readingMinutes} minutes, expected ${MINUTES[lesson.slug]}`,
-    );
-  }
-  const expectedDifficulty = lesson.slug === "retrieval" ? "advanced" : "core";
-  if (lesson.difficulty !== expectedDifficulty) {
-    faults.push(
-      `content: ${at} has difficulty "${lesson.difficulty}", expected "${expectedDifficulty}"`,
-    );
-  }
-  if (lesson.layerId !== LAYER_IDS[index]) {
-    faults.push(`content: ${at} maps to ${lesson.layerId}, expected ${LAYER_IDS[index]}`);
-  }
-  if (!lesson.title.trim() || !lesson.outcome.trim() || !lesson.artifact.trim()) {
-    faults.push(`content: ${at} is missing a title, outcome or artifact`);
-  }
-
-  const expectedSections = lesson.slug === "retrieval" ? 8 : 3;
-  const maxSections = lesson.slug === "retrieval" ? 8 : 8;
-  if (lesson.sections.length < expectedSections || lesson.sections.length > maxSections) {
-    faults.push(
-      `content: ${at} has ${lesson.sections.length} sections; expected ${expectedSections} to ${maxSections}`,
+      `${at} field "readingMinutes": ${lesson.readingMinutes}, expected a positive integer`,
     );
   }
 
+  const stage = CAPSTONE_STAGES.find((candidate) => candidate.lessonSlug === lesson.slug);
+  if (stage) {
+    if (lesson.layerId !== stage.id) {
+      faults.push(
+        `${at} field "layerId": "${lesson.layerId ?? ""}", expected "${stage.id}" for capstone lesson`,
+      );
+    }
+  } else if (lesson.layerId !== undefined) {
+    faults.push(
+      `${at} field "layerId": "${lesson.layerId}" on a lesson with no capstone stage`,
+    );
+  }
+}
+
+function validateTerms(lesson: Lesson, faults: string[]): void {
+  const at = `lesson "${lesson.slug}"`;
+  const terms = lesson.terms ?? [];
+  if (terms.length < MIN_TERMS || terms.length > MAX_TERMS) {
+    faults.push(
+      `${at} field "terms": ${terms.length}, expected ${MIN_TERMS} to ${MAX_TERMS}`,
+    );
+  }
+  const seen = new Set<string>();
+  for (const term of terms) {
+    if (!term.term.trim()) {
+      faults.push(`${at} field "terms": a term has no name`);
+    }
+    if (!term.definition.trim()) {
+      faults.push(`${at} field "terms": term "${term.term}" has no definition`);
+    }
+    const key = term.term.trim().toLowerCase();
+    if (seen.has(key)) {
+      faults.push(`${at} field "terms": duplicate term "${term.term}"`);
+    }
+    seen.add(key);
+  }
+}
+
+function validateSectionsAndBlocks(lesson: Lesson, faults: string[]): void {
+  const at = `lesson "${lesson.slug}"`;
   const sectionIds = new Set<string>();
   const blockIds = new Set<string>();
+
+  if (lesson.sections.length === 0) {
+    faults.push(`${at} field "sections": has no sections`);
+  }
+
   for (const section of lesson.sections) {
     if (!SECTION_ID_PATTERN.test(section.id)) {
-      faults.push(`content: ${at} has an invalid section id "${section.id}"`);
+      faults.push(`${at} field "sections": invalid section id "${section.id}"`);
     }
     if (sectionIds.has(section.id)) {
-      faults.push(`content: duplicate section id "${section.id}" in ${at}`);
+      faults.push(`${at} field "sections": duplicate section id "${section.id}"`);
     }
     sectionIds.add(section.id);
     if (!section.title.trim()) {
-      faults.push(`content: ${at} section "${section.id}" has no title`);
+      faults.push(`${at} field "sections": section "${section.id}" has no title`);
+    }
+    if (
+      section.register !== undefined &&
+      section.register !== "standard" &&
+      section.register !== "eli5"
+    ) {
+      faults.push(
+        `${at} field "sections": section "${section.id}" has an unknown register`,
+      );
     }
     for (const block of section.blocks) {
       if (blockIds.has(block.id)) {
-        faults.push(`content: duplicate block id "${block.id}" in ${at}`);
+        faults.push(`${at} field "blocks": duplicate block id "${block.id}"`);
       }
       blockIds.add(block.id);
     }
   }
+}
 
+function validateBlocks(lesson: Lesson, faults: string[]): void {
+  const at = `lesson "${lesson.slug}"`;
   const blocks = blocksOf(lesson);
-  const codeBlocks = blocks.filter((block) => block.kind === "code");
-  const noteBlocks = blocks.filter((block) => block.kind === "note");
-  const calloutBlocks = blocks.filter((block) => block.kind === "callout");
-  const diagramBlocks = blocks.filter((block) => block.kind === "diagram");
-  const widgetBlocks = blocks.filter((block) => block.kind === "widget");
-  const checkBlocks = blocks.filter((block) => block.kind === "check");
-  const taskBlocks = blocks.filter((block) => block.kind === "task");
 
-  if (codeBlocks.length !== 1) {
-    faults.push(`content: ${at} has ${codeBlocks.length} code blocks, expected 1`);
-  } else {
-    const block = codeBlocks[0];
-    if (block.kind === "code") {
-      if (block.output.label !== CODE_OUTPUT_LABEL) {
-        faults.push(`content: ${at} code block has the wrong output label`);
-      }
-      if (!block.output.text.trim()) {
-        faults.push(`content: ${at} code block has no sample output`);
-      }
-      if (!block.code.trim() || !block.filename.trim() || !block.language.trim()) {
-        faults.push(`content: ${at} code block is missing a filename, language or code`);
-      }
+  const codeBlocks = blocks.filter((block) => block.kind === "code");
+  for (const block of codeBlocks) {
+    if (block.kind !== "code") continue;
+    if (block.output.label !== CODE_OUTPUT_LABEL) {
+      faults.push(`${at} field "blocks": code block has the wrong output label`);
+    }
+    if (!block.output.text.trim()) {
+      faults.push(`${at} field "blocks": code block has no sample output`);
+    }
+    if (!block.code.trim() || !block.filename.trim() || !block.language.trim()) {
+      faults.push(
+        `${at} field "blocks": code block is missing a filename, language or code`,
+      );
     }
   }
 
-  if (noteBlocks.length !== 1) {
-    faults.push(`content: ${at} has ${noteBlocks.length} note blocks, expected 1`);
-  }
-  if (calloutBlocks.length < 2 || calloutBlocks.length > 4) {
-    faults.push(`content: ${at} has ${calloutBlocks.length} callouts, expected 2 to 4`);
-  }
+  const taskBlocks = blocks.filter((block) => block.kind === "task");
   if (taskBlocks.length !== 1) {
-    faults.push(`content: ${at} has ${taskBlocks.length} task blocks, expected 1`);
+    faults.push(`${at} field "blocks": ${taskBlocks.length} task blocks, expected 1`);
   }
 
-  const expectedDiagram = DIAGRAM_IDS[lesson.slug];
-  const expectedDiagrams = expectedDiagram ? 1 : 0;
-  if (diagramBlocks.length !== expectedDiagrams) {
+  const diagramBlocks = blocks.filter((block) => block.kind === "diagram");
+  if (diagramBlocks.length > 1) {
     faults.push(
-      `content: ${at} has ${diagramBlocks.length} diagram blocks, expected ${expectedDiagrams}`,
+      `${at} field "blocks": ${diagramBlocks.length} static diagrams, expected at most 1`,
     );
   }
   for (const block of diagramBlocks) {
     if (block.kind !== "diagram") continue;
-    if (expectedDiagram && block.id !== expectedDiagram) {
-      faults.push(
-        `content: ${at} diagram id "${block.id}" must be "${expectedDiagram}"`,
-      );
+    if (block.variant !== undefined && !isKnown(DIAGRAM_VARIANTS, block.variant)) {
+      faults.push(`${at} field "blocks": diagram has an unknown variant`);
     }
     const nodeIds = new Set(block.spec.nodes.map((node) => node.id));
     if (block.spec.nodes.length < 4 || block.spec.nodes.length > 7) {
-      faults.push(`content: ${at} diagram has ${block.spec.nodes.length} nodes, expected 4 to 7`);
+      faults.push(
+        `${at} field "blocks": diagram has ${block.spec.nodes.length} nodes, expected 4 to 7`,
+      );
     }
     if (nodeIds.size !== block.spec.nodes.length) {
-      faults.push(`content: ${at} diagram has duplicate node ids`);
+      faults.push(`${at} field "blocks": diagram has duplicate node ids`);
     }
     for (const node of block.spec.nodes) {
       if (!node.id.trim() || !node.label.trim()) {
-        faults.push(`content: ${at} diagram has a node without an id or label`);
+        faults.push(`${at} field "blocks": diagram has a node without an id or label`);
       }
     }
     for (const [from, to] of block.spec.edges) {
       if (!nodeIds.has(from) || !nodeIds.has(to)) {
-        faults.push(`content: ${at} diagram edge ${from} -> ${to} names a missing node`);
+        faults.push(
+          `${at} field "blocks": diagram edge ${from} -> ${to} names a missing node`,
+        );
       }
     }
     if (block.spec.edges.length === 0) {
-      faults.push(`content: ${at} diagram has no edges`);
+      faults.push(`${at} field "blocks": diagram has no edges`);
     }
     if (block.caption.length > 120) {
-      faults.push(`content: ${at} diagram caption is longer than 120 characters`);
+      faults.push(`${at} field "blocks": diagram caption is longer than 120 characters`);
     }
     if (!block.alt.trim()) {
-      faults.push(`content: ${at} diagram has no alt text`);
+      faults.push(`${at} field "blocks": diagram has no alt text`);
     }
   }
 
-  const expectedWidget = WIDGETS[lesson.slug];
-  const expectedWidgets = expectedWidget ? 1 : 0;
-  if (widgetBlocks.length !== expectedWidgets) {
-    faults.push(
-      `content: ${at} has ${widgetBlocks.length} widget blocks, expected ${expectedWidgets}`,
-    );
+  const interactiveBlocks = blocks.filter((block) => block.kind === "interactive");
+  for (const block of interactiveBlocks) {
+    if (block.kind !== "interactive") continue;
+    if (!isKnown(INTERACTIVE_WIDGET_IDS, block.widget)) {
+      faults.push(`${at} field "blocks": unknown interactive widget "${block.widget}"`);
+    }
+    if (!block.caption.trim()) {
+      faults.push(`${at} field "blocks": interactive block has no caption`);
+    }
   }
+
+  const widgetBlocks = blocks.filter((block) => block.kind === "widget");
   for (const block of widgetBlocks) {
     if (block.kind !== "widget") continue;
-    if (expectedWidget && block.widget !== expectedWidget) {
-      faults.push(
-        `content: ${at} widget "${block.widget}" must be "${expectedWidget}"`,
-      );
+    if (!isKnown(LEGACY_WIDGET_IDS, block.widget)) {
+      faults.push(`${at} field "blocks": unknown widget "${block.widget}"`);
     }
     if (block.caption.length > 120) {
-      faults.push(`content: ${at} widget caption is longer than 120 characters`);
+      faults.push(`${at} field "blocks": widget caption is longer than 120 characters`);
     }
   }
 
-  const expectedChecks = lesson.slug === "retrieval" ? 3 : 2;
-  if (lesson.checks.length !== expectedChecks) {
+  const analogyBlocks = blocks.filter((block) => block.kind === "analogy");
+  for (const block of analogyBlocks) {
+    if (block.kind !== "analogy") continue;
+    if (!block.text.trim()) {
+      faults.push(`${at} field "blocks": analogy has no text`);
+    }
+    if (!block.breaks.trim()) {
+      faults.push(`${at} field "blocks": analogy has no "breaks" line`);
+    }
+  }
+
+  const tableBlocks = blocks.filter((block) => block.kind === "table");
+  for (const block of tableBlocks) {
+    if (block.kind !== "table") continue;
+    if (block.columns.length < 2) {
+      faults.push(`${at} field "blocks": table has fewer than 2 columns`);
+    }
+    if (block.rows.length === 0) {
+      faults.push(`${at} field "blocks": table has no rows`);
+    }
+    for (const row of block.rows) {
+      if (row.length !== block.columns.length) {
+        faults.push(`${at} field "blocks": table row width does not match its columns`);
+      }
+    }
+  }
+
+  const interviewBlocks = blocks.filter((block) => block.kind === "interview");
+  for (const block of interviewBlocks) {
+    if (block.kind !== "interview") continue;
+    for (const item of block.items) {
+      if (!item.question.trim() || !item.answer.trim()) {
+        faults.push(`${at} field "blocks": interview item is incomplete`);
+      }
+    }
+  }
+}
+
+function validateChecks(lesson: Lesson, faults: string[]): void {
+  const at = `lesson "${lesson.slug}"`;
+  const blocks = blocksOf(lesson);
+  const checkBlocks = blocks.filter((block) => block.kind === "check");
+
+  if (lesson.checks.length < 1 || lesson.checks.length > MAX_CHECKS_PER_LESSON) {
     faults.push(
-      `content: ${at} has ${lesson.checks.length} checks, expected ${expectedChecks}`,
+      `${at} field "checks": ${lesson.checks.length}, expected 1 to ${MAX_CHECKS_PER_LESSON}`,
     );
   }
   if (checkBlocks.length !== lesson.checks.length) {
     faults.push(
-      `content: ${at} has ${checkBlocks.length} check blocks for ${lesson.checks.length} checks`,
+      `${at} field "checks": ${checkBlocks.length} check blocks for ${lesson.checks.length} checks`,
     );
   }
+
   const checkIds = new Set<string>();
   const referencedCheckIds = new Set<string>();
   for (const check of lesson.checks) {
     if (checkIds.has(check.id)) {
-      faults.push(`content: duplicate check id "${check.id}" in ${at}`);
+      faults.push(`${at} field "checks": duplicate check id "${check.id}"`);
     }
     checkIds.add(check.id);
     if (!check.prompt.trim()) {
-      faults.push(`content: ${at} check "${check.id}" has no prompt`);
+      faults.push(`${at} field "checks": check "${check.id}" has no prompt`);
+    }
+    if (check.kind !== undefined && !isKnown(CHECK_KINDS, check.kind)) {
+      faults.push(`${at} field "checks": check "${check.id}" has an unknown kind`);
     }
     if (check.options.length < 3 || check.options.length > 4) {
       faults.push(
-        `content: ${at} check "${check.id}" has ${check.options.length} options, expected 3 or 4`,
+        `${at} field "checks": check "${check.id}" has ${check.options.length} options, expected 3 or 4`,
       );
     }
     if (!check.options.some((option) => option.id === check.correctOptionId)) {
       faults.push(
-        `content: ${at} check "${check.id}" has no option "${check.correctOptionId}"`,
+        `${at} field "checks": check "${check.id}" has no option "${check.correctOptionId}"`,
       );
     }
     const optionIds = new Set(check.options.map((option) => option.id));
     if (optionIds.size !== check.options.length) {
-      faults.push(`content: ${at} check "${check.id}" has duplicate option ids`);
+      faults.push(`${at} field "checks": check "${check.id}" has duplicate option ids`);
+    }
+    for (const option of check.options) {
+      if (!option.label.trim()) {
+        faults.push(
+          `${at} field "checks": check "${check.id}" option "${option.id}" has no label`,
+        );
+      }
     }
     if (sentenceCount(check.explanation) < 2) {
       faults.push(
-        `content: ${at} check "${check.id}" explanation must hold 2 sentences or more`,
+        `${at} field "checks": check "${check.id}" explanation must hold 2 sentences or more`,
       );
     }
-    if (!check.explanation.trim()) {
-      faults.push(`content: ${at} check "${check.id}" has no explanation`);
-    }
   }
+
   for (const block of checkBlocks) {
     if (block.kind !== "check") continue;
     if (!checkIds.has(block.checkId)) {
-      faults.push(`content: ${at} check block names unknown check "${block.checkId}"`);
+      faults.push(
+        `${at} field "checks": check block names unknown check "${block.checkId}"`,
+      );
     }
     if (referencedCheckIds.has(block.checkId)) {
-      faults.push(`content: ${at} check "${block.checkId}" is placed twice`);
+      faults.push(`${at} field "checks": check "${block.checkId}" is placed twice`);
     }
     referencedCheckIds.add(block.checkId);
   }
   for (const id of checkIds) {
     if (!referencedCheckIds.has(id)) {
-      faults.push(`content: ${at} check "${id}" has no block`);
+      faults.push(`${at} field "checks": check "${id}" has no block`);
     }
   }
+}
 
+function validateTask(lesson: Lesson, faults: string[]): void {
+  const at = `lesson "${lesson.slug}"`;
   const task = lesson.task;
   if (!task.scope.trim()) {
-    faults.push(`content: ${at} task has no scope sentence`);
+    faults.push(`${at} field "task": has no scope sentence`);
   }
-  if (task.items.length !== 5) {
-    faults.push(`content: ${at} task has ${task.items.length} items, expected 5`);
+  if (task.items.length !== TASK_ITEM_IDS.length) {
+    faults.push(
+      `${at} field "task": ${task.items.length} items, expected ${TASK_ITEM_IDS.length}`,
+    );
   }
-  for (let item = 0; item < task.items.length; item += 1) {
-    if (task.items[item].id !== ITEM_IDS[item]) {
+  for (let index = 0; index < task.items.length; index += 1) {
+    const item = task.items[index];
+    if (item.id !== TASK_ITEM_IDS[index]) {
       faults.push(
-        `content: ${at} task item ${item + 1} has id "${task.items[item].id}", expected "${ITEM_IDS[item]}"`,
+        `${at} field "task": item ${index + 1} has id "${item.id}", expected "${TASK_ITEM_IDS[index]}"`,
       );
     }
-    if (!task.items[item].label.trim()) {
-      faults.push(`content: ${at} task item ${item + 1} has no label`);
+    if (!item.label.trim()) {
+      faults.push(`${at} field "task": item ${index + 1} has no label`);
     }
   }
-  if (!task.solution.filename.trim() || !task.solution.language.trim() || !task.solution.code.trim()) {
-    faults.push(`content: ${at} task solution is incomplete`);
+  if (
+    !task.solution.filename.trim() ||
+    !task.solution.language.trim() ||
+    !task.solution.code.trim()
+  ) {
+    faults.push(`${at} field "task": solution is incomplete`);
   }
+}
 
+function validateProveAndCitation(lesson: Lesson, faults: string[]): void {
+  const at = `lesson "${lesson.slug}"`;
   if (lesson.prove.placeholder !== PROVE_PLACEHOLDER) {
-    faults.push(`content: ${at} prove placeholder is wrong`);
+    faults.push(`${at} field "prove": placeholder is wrong`);
   }
   if (lesson.prove.maxLength !== 280) {
-    faults.push(`content: ${at} prove maxLength is not 280`);
+    faults.push(`${at} field "prove": maxLength is not 280`);
   }
   if (lesson.prove.debounceMs !== 800) {
-    faults.push(`content: ${at} prove debounceMs is not 800`);
+    faults.push(`${at} field "prove": debounceMs is not 800`);
   }
   if (lesson.prove.savedMessage !== NOTE_LABEL) {
-    faults.push(`content: ${at} prove savedMessage is wrong`);
+    faults.push(`${at} field "prove": savedMessage is wrong`);
   }
   if (!lesson.prove.prompt.trim()) {
-    faults.push(`content: ${at} prove prompt is empty`);
+    faults.push(`${at} field "prove": prompt is empty`);
   }
 
   if (lesson.citation.includes("\n")) {
-    faults.push(`content: ${at} citation must be one line`);
+    faults.push(`${at} field "citation": must be one line`);
   }
   if (lesson.citation.length > 160) {
-    faults.push(`content: ${at} citation is longer than 160 characters`);
+    faults.push(`${at} field "citation": is longer than 160 characters`);
   }
-  if (!lesson.citation.includes("Chip Huyen") || !lesson.citation.includes("AI Engineering")) {
-    faults.push(`content: ${at} citation must name AI Engineering by Chip Huyen`);
-  }
-
-  const prose = countProseWords(lesson);
-  const min = lesson.slug === "retrieval" ? 1800 : 700;
-  const max = lesson.slug === "retrieval" ? 2200 : 1000;
-  if (prose < min || prose > max) {
+  if (
+    !lesson.citation.includes("Chip Huyen") ||
+    !lesson.citation.includes("AI Engineering")
+  ) {
     faults.push(
-      `content: ${at} has ${prose} prose words, expected ${min} to ${max}`,
+      `${at} field "citation": must name AI Engineering by Chip Huyen`,
     );
   }
 }
 
-function validateLayers(layers: readonly Layer[], faults: string[]): void {
-  if (layers.length !== 6) {
-    faults.push(`content: ${layers.length} layers, expected 6`);
-    return;
+function validateLiveBase(lesson: Lesson, faults: string[]): void {
+  const at = `lesson "${lesson.slug}"`;
+  validateTerms(lesson, faults);
+
+  if (
+    !lesson.evalCase ||
+    !lesson.evalCase.id.trim() ||
+    !lesson.evalCase.brief.trim()
+  ) {
+    faults.push(`${at} field "evalCase": must have an id and a brief`);
   }
-  const seenLessons = new Set<LessonSlug>();
-  for (let index = 0; index < layers.length; index += 1) {
-    const layer = layers[index];
-    const at = `layer "${layer.id}"`;
-    if (layer.id !== LAYER_IDS[index]) {
-      faults.push(`content: ${at} is at position ${index + 1}, expected ${LAYER_IDS[index]}`);
+
+  validateSectionsAndBlocks(lesson, faults);
+  validateBlocks(lesson, faults);
+  validateChecks(lesson, faults);
+  validateTask(lesson, faults);
+  validateProveAndCitation(lesson, faults);
+}
+
+function validateLiveTemplate(lesson: Lesson, faults: string[]): void {
+  const at = `lesson "${lesson.slug}"`;
+  const flagship = FLAGSHIP_SLUGS.includes(lesson.slug);
+  const blocks = blocksOf(lesson);
+
+  const eli5Sections = lesson.sections.filter((section) => section.register === "eli5");
+  const standardSections = lesson.sections.filter(
+    (section) => section.register === "standard",
+  );
+  if (
+    eli5Sections.length < MIN_ELI5_SECTIONS ||
+    eli5Sections.length > MAX_ELI5_SECTIONS
+  ) {
+    faults.push(
+      `${at} field "sections": ${eli5Sections.length} ELI5 sections, expected ${MIN_ELI5_SECTIONS} to ${MAX_ELI5_SECTIONS}`,
+    );
+  }
+  if (standardSections.length < 1) {
+    faults.push(`${at} field "sections": needs at least one standard section`);
+  }
+  for (const section of lesson.sections) {
+    if (section.register === undefined) {
+      faults.push(
+        `${at} field "sections": section "${section.id}" has no register`,
+      );
     }
-    if (layer.order !== index + 1) {
-      faults.push(`content: ${at} has order ${layer.order}, expected ${index + 1}`);
+  }
+  for (const section of eli5Sections) {
+    const analogies = section.blocks.filter((block) => block.kind === "analogy");
+    if (analogies.length !== 1) {
+      faults.push(
+        `${at} field "sections": ELI5 section "${section.id}" has ${analogies.length} analogies, expected 1`,
+      );
     }
-    if (!layer.name.trim() || layer.name.length > 20) {
-      faults.push(`content: ${at} name must hold 1 to 20 characters`);
+  }
+
+  const diagrams = blocks.filter((block) => block.kind === "diagram");
+  if (diagrams.length !== 1) {
+    faults.push(`${at} field "blocks": ${diagrams.length} static diagrams, expected 1`);
+  }
+  for (const block of diagrams) {
+    if (block.kind !== "diagram") continue;
+    if (block.variant === undefined || !isKnown(DIAGRAM_VARIANTS, block.variant)) {
+      faults.push(`${at} field "blocks": static diagram needs a known variant`);
     }
-    if (!LESSON_SLUGS.includes(layer.lessonSlug)) {
-      faults.push(`content: ${at} has an unknown lesson slug "${layer.lessonSlug}"`);
+    if (!block.alt.trim()) {
+      faults.push(`${at} field "blocks": static diagram needs alt text`);
     }
-    if (seenLessons.has(layer.lessonSlug)) {
-      faults.push(`content: ${at} repeats lesson slug "${layer.lessonSlug}"`);
+  }
+
+  const interactive = blocks.filter((block) => block.kind === "interactive");
+  const expectedInteractive = flagship ? 1 : 0;
+  if (interactive.length !== expectedInteractive) {
+    faults.push(
+      `${at} field "blocks": ${interactive.length} interactive blocks, expected ${expectedInteractive}`,
+    );
+  }
+
+  if (
+    lesson.checks.length < MIN_FINAL_CHECKS ||
+    lesson.checks.length > MAX_CHECKS_PER_LESSON
+  ) {
+    faults.push(
+      `${at} field "checks": ${lesson.checks.length}, expected ${MIN_FINAL_CHECKS} to ${MAX_CHECKS_PER_LESSON}`,
+    );
+  }
+  const hasActiveKind = lesson.checks.some(
+    (check) => check.kind !== undefined && ACTIVE_CHECK_KINDS.includes(check.kind),
+  );
+  if (!hasActiveKind) {
+    faults.push(
+      `${at} field "checks": needs at least one apply, diagnose or calculate check`,
+    );
+  }
+
+  const interviews = blocks.filter((block) => block.kind === "interview");
+  if (interviews.length !== 1) {
+    faults.push(
+      `${at} field "blocks": ${interviews.length} interview blocks, expected 1`,
+    );
+  }
+  for (const block of interviews) {
+    if (block.kind !== "interview") continue;
+    if (block.items.length !== MAX_INTERVIEW_ITEMS) {
+      faults.push(
+        `${at} field "blocks": interview has ${block.items.length} items, expected ${MAX_INTERVIEW_ITEMS}`,
+      );
     }
-    seenLessons.add(layer.lessonSlug);
-    if (!sameMetrics(layer.baseline, BASELINE)) {
-      faults.push(`content: ${at} baseline must be 41/0.94/2400`);
+  }
+
+  const prose = countProseWords(lesson);
+  const budget = flagship ? FLAGSHIP_WORDS : STANDARD_WORDS;
+  if (prose < budget.min || prose > budget.max) {
+    faults.push(
+      `${at} field "prose": ${prose} words, expected ${budget.min} to ${budget.max}`,
+    );
+  }
+}
+
+function validateCourseStructure(data: ContentSnapshot, faults: string[]): void {
+  if (REGISTRY_LESSONS.length !== EXPECTED_LESSON_COUNT) {
+    faults.push(
+      `course field "lessonCount": registry holds ${REGISTRY_LESSONS.length}, expected ${EXPECTED_LESSON_COUNT}`,
+    );
+  }
+  if (data.allLessons.length !== EXPECTED_LESSON_COUNT) {
+    faults.push(
+      `course field "lessonCount": content holds ${data.allLessons.length}, expected ${EXPECTED_LESSON_COUNT}`,
+    );
+  }
+
+  const seenSlugs = new Set<LessonSlug>();
+  for (const lesson of data.allLessons) {
+    if (seenSlugs.has(lesson.slug)) {
+      faults.push(`course field "lessons": duplicate lesson slug "${lesson.slug}"`);
     }
-    if (!sameMetrics(layer.repaired, REPAIRED[layer.id])) {
-      faults.push(`content: ${at} repaired pair is not the declared sample pair`);
-    }
+    seenSlugs.add(lesson.slug);
   }
   for (const slug of LESSON_SLUGS) {
-    if (!seenLessons.has(slug)) {
-      faults.push(`content: no layer maps to lesson "${slug}"`);
+    if (!seenSlugs.has(slug)) {
+      faults.push(`course field "lessons": no content for registry slug "${slug}"`);
+    }
+  }
+
+  if (data.chapters.length !== CHAPTERS.length) {
+    faults.push(
+      `course field "chapters": ${data.chapters.length}, expected ${CHAPTERS.length}`,
+    );
+  } else {
+    data.chapters.forEach((chapter, index) => {
+      const expected = CHAPTERS[index];
+      const at = `chapter "${chapter.id}"`;
+      if (chapter.id !== expected.id) {
+        faults.push(`${at} field "id": expected "${expected.id}"`);
+      }
+      if (chapter.order !== index + 1) {
+        faults.push(`${at} field "order": ${chapter.order}, expected ${index + 1}`);
+      }
+      if (chapter.number !== index + 1) {
+        faults.push(`${at} field "number": ${chapter.number}, expected ${index + 1}`);
+      }
+      if (chapter.bookChapter !== expected.bookChapter) {
+        faults.push(
+          `${at} field "bookChapter": ${chapter.bookChapter}, expected ${expected.bookChapter}`,
+        );
+      }
+      if (!chapter.title.trim()) {
+        faults.push(`${at} field "title": is empty`);
+      }
+      const expectedSlugs = REGISTRY_LESSONS.filter(
+        (lesson) => lesson.chapterId === expected.id,
+      ).map((lesson) => lesson.slug);
+      if (chapter.lessonSlugs.join(",") !== expectedSlugs.join(",")) {
+        faults.push(
+          `${at} field "lessonSlugs": ${chapter.lessonSlugs.join(", ")}, expected ${expectedSlugs.join(", ")}`,
+        );
+      }
+    });
+  }
+
+  const chapterSlugs = data.chapters.flatMap((chapter) => chapter.lessonSlugs);
+  const uniqueChapterSlugs = new Set(chapterSlugs);
+  if (uniqueChapterSlugs.size !== chapterSlugs.length) {
+    faults.push(`course field "chapters": a lesson belongs to two chapters`);
+  }
+  if (chapterSlugs.length !== EXPECTED_LESSON_COUNT) {
+    faults.push(
+      `course field "chapters": ${chapterSlugs.length} chapter lessons, expected ${EXPECTED_LESSON_COUNT}`,
+    );
+  }
+  for (const slug of LESSON_SLUGS) {
+    if (!uniqueChapterSlugs.has(slug)) {
+      faults.push(`course field "chapters": lesson "${slug}" is in no chapter`);
+    }
+  }
+
+  if (data.stages.length !== CAPSTONE_STAGES.length) {
+    faults.push(
+      `course field "stages": ${data.stages.length}, expected ${CAPSTONE_STAGES.length}`,
+    );
+  } else {
+    const stageLessons = new Set<LessonSlug>();
+    data.stages.forEach((stage, index) => {
+      const expected = CAPSTONE_STAGES[index];
+      const at = `stage "${stage.id}"`;
+      if (stage.id !== expected.id) {
+        faults.push(`${at} field "id": expected "${expected.id}"`);
+      }
+      if (stage.order !== index + 1) {
+        faults.push(`${at} field "order": ${stage.order}, expected ${index + 1}`);
+      }
+      if (!stage.name.trim()) {
+        faults.push(`${at} field "name": is empty`);
+      }
+      if (!LESSON_SLUGS.includes(stage.lessonSlug)) {
+        faults.push(`${at} field "lessonSlug": unknown lesson "${stage.lessonSlug}"`);
+      }
+      if (stageLessons.has(stage.lessonSlug)) {
+        faults.push(`${at} field "lessonSlug": repeats "${stage.lessonSlug}"`);
+      }
+      stageLessons.add(stage.lessonSlug);
+      if (!sameMetrics(stage.baseline, BASELINE)) {
+        faults.push(`${at} field "baseline": must be 41/0.94/2400`);
+      }
+      if (!sameMetrics(stage.repaired, expected.repaired)) {
+        faults.push(`${at} field "repaired": is not the declared sample pair`);
+      }
+    });
+    const liveSlugs = new Set(
+      data.allLessons.filter((lesson) => lesson.status === "live").map((lesson) => lesson.slug),
+    );
+    for (const stage of data.stages) {
+      if (!liveSlugs.has(stage.lessonSlug)) {
+        faults.push(
+          `course field "stages": lesson "${stage.lessonSlug}" is not live`,
+        );
+      }
+    }
+  }
+
+  const liveLessons = data.allLessons.filter((lesson) => lesson.status === "live");
+  if (data.course.lessons.length !== liveLessons.length) {
+    faults.push(
+      `course field "lessons": ${data.course.lessons.length} live lessons, expected ${liveLessons.length}`,
+    );
+  }
+  const minutes = liveLessons.reduce(
+    (total, lesson) => total + lesson.readingMinutes,
+    0,
+  );
+  if (data.course.totalMinutes !== minutes) {
+    faults.push(
+      `course field "totalMinutes": ${data.course.totalMinutes}, expected ${minutes}`,
+    );
+  }
+  if (data.course.planned.length !== 4) {
+    faults.push(
+      `course field "planned": ${data.course.planned.length} topics, expected 4`,
+    );
+  }
+  for (const topic of data.course.planned) {
+    if (!topic.id.trim() || !topic.title.trim()) {
+      faults.push(`course field "planned": topic "${topic.id}" is incomplete`);
     }
   }
 }
@@ -561,27 +912,27 @@ function validateCost(model: CostModel, faults: string[]): void {
 }
 
 function validateScores(data: ContentSnapshot, faults: string[]): void {
-  const layerFor = (slug: LessonSlug): Layer | undefined =>
-    data.layers.find((layer) => layer.lessonSlug === slug);
+  const stageFor = (slug: LessonSlug): EvaluationStage | undefined =>
+    data.stages.find((stage) => stage.lessonSlug === slug);
 
   if (!sameMetrics(scoreSummary([]), BASELINE)) {
     faults.push("content: scoreSummary([]) must return the baseline");
   }
-  const retrieval = layerFor("retrieval");
+  const retrieval = stageFor("retrieval");
   if (retrieval && !sameMetrics(scoreSummary(["retrieval"]), retrieval.repaired)) {
-    faults.push("content: scoreSummary(['retrieval']) must return the layer-03 pair");
+    faults.push("content: scoreSummary(['retrieval']) must return the stage-03 pair");
   }
   if (
     retrieval &&
     !sameMetrics(scoreSummary(["evaluation", "retrieval"]), retrieval.repaired)
   ) {
-    faults.push("content: scoreSummary must pick the highest repaired layer");
+    faults.push("content: scoreSummary must pick the highest repaired stage");
   }
-  const cost = layerFor("cost");
+  const cost = stageFor("cost");
   if (cost && !sameMetrics(scoreSummary(["cost", "retrieval"]), cost.repaired)) {
-    faults.push("content: scoreSummary must pick the highest layer whatever the order");
+    faults.push("content: scoreSummary must pick the highest stage whatever the order");
   }
-  const evaluation = layerFor("evaluation");
+  const evaluation = stageFor("evaluation");
   if (
     evaluation &&
     !sameMetrics(scoreSummary(["evaluation", "evaluation"]), evaluation.repaired)
@@ -612,29 +963,22 @@ function validateMapping(mapping: readonly MappingRow[], faults: string[]): void
 /** Return one line per fault. An empty list means the content is valid. */
 export function validateContent(data: ContentSnapshot): string[] {
   const faults: string[] = [];
+  const final = isFinalCourse();
 
-  if (data.course.lessons.length !== 6) {
-    faults.push(`content: ${data.course.lessons.length} lessons, expected 6`);
-  }
-  data.course.lessons.forEach((lesson, index) => validateLesson(lesson, index, faults));
+  validateCourseStructure(data, faults);
 
-  const minutes = data.course.lessons.reduce(
-    (total, lesson) => total + lesson.readingMinutes,
-    0,
-  );
-  if (data.course.totalMinutes !== 74 || minutes !== 74) {
-    faults.push(`content: the course must total 74 minutes, found ${data.course.totalMinutes}`);
-  }
-  if (data.course.planned.length !== 4) {
-    faults.push(`content: ${data.course.planned.length} planned topics, expected 4`);
-  }
-  for (const topic of data.course.planned) {
-    if (!topic.id.trim() || !topic.title.trim()) {
-      faults.push(`content: planned topic "${topic.id}" is incomplete`);
+  data.allLessons.forEach((lesson, index) => {
+    validateIdentity(lesson, index, faults);
+    if (lesson.status === "live") {
+      validateLiveBase(lesson, faults);
+      if (final) validateLiveTemplate(lesson, faults);
+    } else if (final) {
+      faults.push(
+        `lesson "${lesson.slug}" field "status": is draft; COURSE_FINAL=1 requires 24 live lessons`,
+      );
     }
-  }
+  });
 
-  validateLayers(data.layers, faults);
   validateRetrieval(data, faults);
   validateCost(data.model, faults);
   validateScores(data, faults);
