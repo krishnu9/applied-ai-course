@@ -8,6 +8,7 @@ import {
 } from "@/content";
 import { Spine } from "@/components/shell";
 import {
+  LessonActionBar,
   LessonArticle,
   LessonKeyboardNav,
   LessonPosition,
@@ -70,6 +71,18 @@ export default async function LessonPage({ params }: PageProps) {
           <LessonToc sections={sections} />
         </aside>
       </div>
+
+      <LessonActionBar
+        slug={lesson.slug}
+        layerName={layer.name}
+        checks={lesson.checks.map((check) => ({
+          id: check.id,
+          correctOptionId: check.correctOptionId,
+        }))}
+        taskItemIds={lesson.task.items.map((item) => item.id)}
+        next={next}
+        declared={layer.repaired}
+      />
 
       <LessonPosition slug={lesson.slug} sectionIds={sectionIds} />
       <LessonKeyboardNav

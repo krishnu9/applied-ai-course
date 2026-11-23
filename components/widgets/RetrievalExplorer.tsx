@@ -135,7 +135,7 @@ export function RetrievalExplorer({
         </p>
       </div>
 
-      <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+      <div className="mt-3 flex flex-wrap gap-2">
         {presets.map((preset) => (
           <Button
             key={preset.id}

@@ -43,7 +43,7 @@ export function SpineNode({
           isCurrent && "bg-[var(--surface)]",
         )}
       >
-        <span className="flex items-center justify-between gap-1">
+        <span className="flex flex-wrap items-center justify-between gap-1">
           <span className="flex items-center gap-1.5">
             <span
               aria-hidden="true"
@@ -53,17 +53,17 @@ export function SpineNode({
               {String(layer.order).padStart(2, "0")}
             </span>
           </span>
-          <span className="[font-family:var(--font-mono-stack)] text-[length:var(--text-micro)] text-[var(--ink-muted)]">
+          <span className="min-w-0 break-words [hyphens:auto] [font-family:var(--font-mono-stack)] text-[length:var(--text-micro)] text-[var(--ink-muted)]">
             {stateWord}
           </span>
         </span>
 
-        <span className="break-words text-[length:var(--text-small)] font-medium leading-tight text-[var(--ink)]">
+        <span className="break-words [hyphens:auto] text-[length:var(--text-small)] font-medium leading-tight text-[var(--ink)]">
           <span aria-hidden="true">{shortName}</span>
           <span className="sr-only">{layer.name}</span>
         </span>
 
-        <span className="flex flex-col [font-family:var(--font-mono-stack)] text-[length:var(--text-micro)] leading-tight tabular-nums text-[var(--ink-muted)]">
+        <span className="flex min-w-0 flex-col break-words [hyphens:auto] [font-family:var(--font-mono-stack)] text-[length:var(--text-micro)] leading-tight tabular-nums text-[var(--ink-muted)]">
           <span>Pass {formatPercent(metrics.passRate)}</span>
           <span>Cost {formatUsd(metrics.costPer1k)} / 1k</span>
           <span>p95 {formatSeconds(metrics.p95Ms)}</span>

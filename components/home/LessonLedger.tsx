@@ -43,7 +43,7 @@ export function LessonLedger({ className }: LessonLedgerProps) {
               <div className="min-w-0">
                 <Link
                   href={`/lessons/${lesson.slug}`}
-                  className="break-words [font-family:var(--font-serif-stack)] text-[length:var(--text-h3)] font-semibold text-[var(--ink)] no-underline hover:underline"
+                  className="flex min-h-11 items-center break-words [font-family:var(--font-serif-stack)] text-[length:var(--text-h3)] font-semibold text-[var(--ink)] no-underline hover:underline"
                 >
                   {lesson.title}
                 </Link>

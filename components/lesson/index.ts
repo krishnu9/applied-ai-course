@@ -28,6 +28,8 @@ export { ProveNote } from "./ProveNote";
 export type { ProveNoteProps } from "./ProveNote";
 export { RepairButton } from "./RepairButton";
 export type { RepairButtonProps, RepairCheck } from "./RepairButton";
+export { LessonActionBar } from "./LessonActionBar";
+export type { LessonActionBarProps } from "./LessonActionBar";
 export { LessonToc } from "./LessonToc";
 export type { LessonTocProps, LessonTocSection } from "./LessonToc";
 export { LessonPosition } from "./LessonPosition";

@@ -5,11 +5,9 @@ import { Button } from "@/components/ui";
 import { useProgress } from "@/lib/progress";
 import { formatPercent, formatSeconds, formatUsd } from "@/lib/format";
 import type { LessonSlug, SampleMetrics } from "@/lib/types";
+import { deriveRepairGate, type RepairCheck } from "./repairGate";
 
-export type RepairCheck = {
-  id: string;
-  correctOptionId: string;
-};
+export type { RepairCheck };
 
 export type RepairButtonProps = {
   slug: LessonSlug;
@@ -32,17 +30,13 @@ export function RepairButton({
   const baseId = useId();
   const headingId = `${baseId}-repair-title`;
 
-  const record = state.lessons[slug];
-  const answers = record?.checkAnswers ?? {};
-  const checksPass = checks.every(
-    (check) => answers[check.id]?.selectedOptionId === check.correctOptionId,
+  const { repaired, canRepair } = deriveRepairGate(
+    state,
+    ready,
+    slug,
+    checks,
+    taskItemIds,
   );
-  const ticks = new Set<string>(record?.taskTicks ?? []);
-  const taskPass =
-    taskItemIds.length === 5 && taskItemIds.every((id) => ticks.has(id));
-  const proofPass = (record?.proofNote ?? "").trim().length > 0;
-  const repaired = record?.status === "repaired";
-  const canRepair = ready && checksPass && taskPass && proofPass && !repaired;
 
   function handleRepair() {
     repair(slug);

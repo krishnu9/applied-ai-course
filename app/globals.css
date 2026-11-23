@@ -20,6 +20,8 @@
 }
 @media (prefers-reduced-motion: reduce) { :root { --dur-hover:0ms; --dur-panel:0ms;
   --dur-number:0ms; --dur-trace:0ms; } }
+/* Phone prose target: 17 px. The display, heading and UI sizes stay fixed. */
+@media (max-width:767.98px) { :root { --text-body:1.0625rem; } }
 
 /* next/font variable stacks: the loaded family first, then the token fallback. */
 :root {
@@ -37,6 +39,12 @@
     color:var(--ink); font-family:var(--font-sans-stack); font-size:var(--text-body);
     line-height:var(--lh-body); flex-direction:column; }
   #main { flex:1 0 auto; }
+  /* Phone action bar is fixed; the body padding keeps the footer clear of it. */
+  @media (max-width:767.98px) {
+    body:has(.lesson-actionbar) {
+      padding-bottom:calc(var(--actionbar-h) + env(safe-area-inset-bottom));
+    }
+  }
   h1,h2,h3 { font-family:var(--font-serif-stack); font-weight:600;
     line-height:var(--lh-display); }
   h1 { font-size:var(--text-h1); }

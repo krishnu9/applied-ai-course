@@ -128,6 +128,7 @@ export function CheckBlock({ slug, check }: CheckBlockProps) {
         <ul className="mt-4 flex list-none flex-col gap-2 p-0">
           {check.options.map((option) => {
             const inputId = `${baseId}-${option.id}`;
+            const mark = markFor(option.id);
             return (
               <li key={option.id} className="min-w-0">
                 <label
@@ -144,8 +145,12 @@ export function CheckBlock({ slug, check }: CheckBlockProps) {
                     onChange={() => handleSelect(option.id)}
                     className="mt-1 size-4 shrink-0 accent-[var(--accent)]"
                   />
-                  <span className="min-w-0 flex-1">{option.label}</span>
-                  {markFor(option.id)}
+                  <span className="min-w-0 flex-1">
+                    {option.label}
+                    {mark ? (
+                      <span className="ml-2 inline-flex align-middle">{mark}</span>
+                    ) : null}
+                  </span>
                 </label>
               </li>
             );

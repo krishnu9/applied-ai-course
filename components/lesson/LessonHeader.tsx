@@ -12,7 +12,9 @@ export function LessonHeader({ lesson }: LessonHeaderProps) {
       <nav aria-label="Breadcrumb">
         <ol className="flex min-w-0 list-none flex-wrap items-center gap-2 p-0 text-[length:var(--text-small)] text-[var(--ink-muted)]">
           <li>
-            <Link href="/">Course</Link>
+            <Link href="/" className="inline-flex min-h-11 items-center">
+              Course
+            </Link>
           </li>
           <li aria-hidden="true">/</li>
           <li>
