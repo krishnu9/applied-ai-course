@@ -8,9 +8,9 @@ Binding: `4-hld.md` and `3-prd.md`. Scope: `components/lesson/**` and
 | File | Kind | Job |
 | --- | --- | --- |
 | `index.ts` | module | Public exports. |
-| `LessonArticle.tsx` | server | Main column and action order. |
+| `LessonArticle.tsx` | server | Header, sections, prove, repair, prev/next. |
 | `LessonHeader.tsx` | server | Breadcrumb, H1, outcome, artifact. |
-| `MetaRow.tsx` | server | Time, difficulty, layer. |
+| `MetaRow.tsx` | server | About N minutes, difficulty, layer. |
 | `SectionRenderer.tsx` | server | One H2 and its blocks. |
 | `BlockRenderer.tsx` | server | Block-to-component map. |
 | `Prose.tsx` | server | Paragraph and list text. |
@@ -25,11 +25,11 @@ Binding: `4-hld.md` and `3-prd.md`. Scope: `components/lesson/**` and
 | `RepairButton.tsx` | client | Gate and `repair`. |
 | `LessonToc.tsx` | client | Links and active section. |
 | `LessonPosition.tsx` | client | Position write and restore. |
-| `PrevNext.tsx` | server | Neighbour links. |
+| `PrevNext.tsx` | server | Lesson 1 "Start of the path"; lesson 6 "End of the path", "Open the roadmap". |
 | `LessonKeyboardNav.tsx` | client | P1 bracket keys. |
 | `app/lessons/[slug]/page.tsx` | server | Static route and metadata. |
 
-`Prose` wraps the shell primitive. The page imports only public module exports.
+`Prose` wraps the shell primitive.
 
 ## 2. Server and client split
 
@@ -37,7 +37,7 @@ Server files: `LessonArticle`, `LessonHeader`, `MetaRow`, `SectionRenderer`, `Bl
 `Prose`, `Callout`, `CodeBlock`, `OutputPanel`, `Diagram`, `PrevNext` and the route page. They
 render fixed text, code and links, and ship no JavaScript.
 
-Client files:
+These eight files carry `'use client'`:
 
 - `CheckBlock`: selection, verdict, retry and focus.
 - `TaskChecklist`: ticks and disclosure.
@@ -48,8 +48,7 @@ Client files:
 - `LessonPosition`: observer and throttle.
 - `LessonKeyboardNav`: key listener (P1).
 
-`LessonKeyboardNav` is the only P1 file. The core list matches HLD section 2. All client leaves
-take serializable props.
+`LessonKeyboardNav` is the only P1 file. The core list matches HLD section 2.
 
 ## 3. Props and render map
 
@@ -57,21 +56,22 @@ Content shapes:
 
 ```ts
 interface Section { id: string; heading: string; blocks: Block[] }
-type Block = ParagraphBlock | ListBlock | CodeBlockData | CalloutData | DiagramData
-  | CheckRef | TaskRef | WidgetRef | NoteBlock;
+type Block = ParagraphBlock | ListBlock | CodeBlockData | CalloutBlock | DiagramBlock
+  | CheckRef | TaskBlock | WidgetBlock | NoteBlock;
 interface CodeBlockData { kind: 'code'; id: string; filename: string; language: string;
   code: string; output: { label: string; text: string } }
-interface CalloutData { kind: 'callout'; id: string;
+interface CalloutBlock { kind: 'callout'; id: string;
   tone: 'note' | 'warning' | 'production-tip'; title: string; body: string }
-interface DiagramData { kind: 'diagram'; id: string; caption: string;
+interface DiagramBlock { kind: 'diagram'; id: string; caption: string;
   nodes: { id: string; label: string }[]; edges: [string, string][] }
 interface CheckRef { kind: 'check'; id: string; checkId: string }
-interface TaskRef { kind: 'task'; id: string }
-interface WidgetRef { kind: 'widget'; id: string; widget: 'retrieval' | 'cost' }
+interface TaskBlock { kind: 'task'; id: string }
+interface WidgetBlock { kind: 'widget'; id: string; widget: 'retrieval' | 'cost' }
 interface ProveConfig { id: string; prompt: string; placeholder: string; maxLength: 280 }
 ```
 
 Paragraph, list and note blocks carry `{ kind, id }` plus `text`, or `ordered` and `items`.
+`CodeBlockData` and `CheckRef` alias the content `CodeBlock` and `CheckBlock`.
 
 ```ts
 type LessonArticleProps = { lesson: Lesson; layer: Layer; neighbours: Neighbours };
@@ -82,11 +82,11 @@ type SectionRendererProps = { section: Section; lesson: Lesson };
 type BlockRendererProps = { block: Block; lesson: Lesson };
 type ProseProps = { kind: 'paragraph'; text: string }
   | { kind: 'list'; ordered: boolean; items: string[] };
-type CalloutProps = Omit<CalloutData, 'kind' | 'id'>;
+type CalloutProps = Omit<CalloutBlock, 'kind' | 'id'>;
 type CodeBlockProps = Omit<CodeBlockData, 'kind' | 'id'>;
 type OutputPanelProps = CodeBlockData['output'];
 type CopyButtonProps = { code: string; label?: string };
-type DiagramProps = Omit<DiagramData, 'kind' | 'id'>;
+type DiagramProps = Omit<DiagramBlock, 'kind' | 'id'>;
 type CheckBlockProps = { slug: LessonSlug; check: Check };
 type TaskChecklistProps = { slug: LessonSlug; task: Task };
 type ProveNoteProps = { slug: LessonSlug; prove: ProveConfig };
@@ -101,9 +101,10 @@ type LessonKeyboardNavProps = { prevHref: string | null; nextHref: string | null
 
 `LessonSummary` is `{ slug, title }`.
 
-Render map: `paragraph` and `list` use `Prose`; `code` uses `CodeBlock`; `callout` uses `Callout`;
-`diagram` uses `Diagram`; `check` uses `CheckBlock` by `checkId`; `task` uses `TaskChecklist`;
-`widget` uses `RetrievalExplorer` or `CostCalculator`; `note` uses `Callout` with the note tone.
+Render map: a `Section[]` maps to one `SectionRenderer` per section. `paragraph` and `list` use
+`Prose`; `code` uses `CodeBlock`; `callout` uses `Callout`; `diagram` uses `Diagram`. `check` uses
+`CheckBlock` by `checkId`; `task` uses `TaskChecklist`. `widget` uses `RetrievalExplorer` or
+`CostCalculator`; `note` uses `Callout` with the note tone.
 
 ```tsx
 default: {
@@ -149,7 +150,7 @@ Five native checkboxes use tick id `${task.id}:${index}`. The live counter reads
 are filtered against the item ids.
 
 The solution starts closed. "Show reference solution" is disabled below 5 of 5, with helper
-"Tick all 5 steps to open the solution." At 5 of 5 it enables. A click opens a region labelled
+"Tick all 5 steps to open the solution." (LLD copy). At 5 of 5 it enables. A click opens a region labelled
 "Reference solution" with the filename and a `<pre>`, and the button reads "Hide".
 `aria-expanded` and `aria-controls` track the panel. Space toggles a tick. Enter or Space opens
 the disclosure. Focus stays on the button.
@@ -160,11 +161,11 @@ The textarea is controlled and capped at 280 characters. A change slices the val
 800 ms timer. Blur and unmount flush a pending value. The flush calls `setProof(slug, text)` with
 the raw text. A blank value saves an empty string. The gate trims the text.
 
-Empty shows the placeholder "I changed X; the result was Y." with no status. At the timer the live
-region shows "Saving…". A non-empty save shows "Proof saved on this device.". A blank save shows
-"Proof cleared." (LLD copy). A stored note applies when `ready` turns true, without a save. The
-region uses `aria-live="polite"` and `useId`. When `storage !== 'ok'` the text reads "Proof saved
-for this session.".
+Empty shows the placeholder "I changed X; the result was Y.". At the timer the live region shows
+"Saving…". A non-empty save shows "Proof saved on this device.". A blank save shows "Proof
+cleared." (LLD copy). A stored note applies when `ready` turns true without a save, only if
+untouched. The region uses `aria-live="polite"` and `useId`. When `storage !== 'ok'` the text
+reads "Proof saved for this session.".
 
 ## 7. Repair gate
 
@@ -181,13 +182,12 @@ const canRepair = ready && checksPass && taskPass && proofPass
 
 The button is disabled until `canRepair`, with native `disabled`, `aria-disabled="true"` and 40%
 ink. Its helper reads "Pass every check, tick all 5 steps and write a proof note." (LLD copy). A
-click calls `repair(slug)`. The label becomes "Layer repaired" and stays disabled. The store
-action is idempotent.
+click calls `repair(slug)`. The label becomes "Layer repaired" and stays disabled.
 
-On repair, the record becomes `repaired`, the header count rises by one, and the spine node turns
+On repair, the record becomes `repaired` and the header count rises by one. The spine node turns
 green with the word "Repaired". Its numbers roll for 400 ms to the declared metrics. A polite
-region says "Layer repaired. 58% pass, $0.71 per 1k, p95 1.4 s." with the lesson values. The
-600 ms trace dot belongs to the shell. It plays only on a live transition, not on reload.
+region says "Layer repaired." plus the declared pass rate, cost per 1k and p95. The 600 ms trace
+dot belongs to the shell. It plays only on a live transition, not on reload.
 
 With reduced motion, `--dur-trace` and `--dur-number` are 0. The dot does not travel and the
 numbers change in place. The state word carries the meaning.
@@ -198,18 +198,17 @@ numbers change in place. The state word carries the meaning.
 Rules: `rootMargin: '-88px 0px -60% 0px'`, `threshold: 0`, one observer, one `rAF` batch per
 callback. Active is the first visible heading in document order, or the last heading above the
 viewport when none is visible. The active link gets `aria-current="true"`. A click calls
-`preventDefault`, writes the hash with `history.replaceState`, scrolls smooth or auto under
-reduced motion, and focuses the H2 with `preventScroll: true`. H2 elements have `tabIndex={-1}`
+`preventDefault` and writes the hash with `history.replaceState`. It scrolls smooth or auto under
+reduced motion, then focuses the H2 with `preventScroll: true`. H2 elements have `tabIndex={-1}`
 and `scroll-margin-top: calc(var(--header-h) + var(--space-8))`.
 
-Below 768 px the nav is a disclosure button "On this page". Escape closes it and returns focus.
-Above 768 px the list is always visible.
+Below 768 px the nav is a bottom-sheet disclosure button "On this page". Escape closes it and
+returns focus. Above 768 px the list is always visible.
 
 `LessonPosition` uses a second observer with the same rules. It calls `setPosition(slug, id)` only
 after `ready`, with a trailing throttle of one write per 1000 ms. It skips an unchanged id and
 pauses during restore. Restore runs once on mount. It applies only when `lastLessonSlug === slug`,
-`savedId` is in `sectionIds`, and the URL has no hash. A null or unknown id causes no scroll. The
-provider owns storage errors.
+`savedId` is in `sectionIds`, and the URL has no hash. A null or unknown id causes no scroll.
 
 ## 9. Code copy
 
@@ -217,9 +216,9 @@ provider owns storage errors.
 focusable scroll wrapper. The code text is in the static HTML. `CopyButton` calls
 `navigator.clipboard.writeText(code)` inside `try/catch`. A missing API is a failure.
 
-Success sets the label to "Copied" for 2000 ms and announces "Copied". The timer clears on
-unmount. Failure keeps "Copy" and announces "Copy failed. Select the code." The wrapper scrolls
-inside its box at 390 px. `OutputPanel` always shows "Sample output. Fixed data.".
+Success sets the label to "Copied" for 2000 ms and announces "Copied". Failure keeps "Copy" and
+announces "Copy failed. Select the code." The wrapper scrolls inside its box at 390 px.
+`OutputPanel` always shows "Sample output. Fixed data.".
 
 ## 10. Route page and 404
 
@@ -237,7 +236,8 @@ export async function generateMetadata({ params }: PageProps) {
 ```
 
 The page awaits `params`, calls `getLesson(slug)`, and calls `notFound()` on null. It renders the
-`main` landmark, `Spine`, `LessonArticle`, the TOC aside and `LessonPosition`.
+`main` landmark, `Spine`, `LessonArticle`, the TOC aside, `LessonPosition` and
+`LessonKeyboardNav` (P1).
 
 `dynamicParams = false` emits exactly six lesson pages. An unknown slug never enters the page. The
 host serves `404.html` from `app/not-found.tsx` inside the root layout. That screen shows H1
@@ -248,7 +248,7 @@ to course". Header and footer remain. `notFound()` stays as a second guard.
 
 | Piece | State and text |
 | --- | --- |
-| Check | Before Submit: Submit disabled, no feedback. Correct: "Correct." plus explanation. Wrong: "Not quite." plus explanation and "Try again". A stored answer returns. |
+| Check | Before Submit: Submit disabled, no feedback. Correct: "Correct." plus explanation. Wrong: "Not quite." plus explanation and "Try again". Stored answer returns. |
 | Task | "0 of 5 steps done"; solution disabled. At 5 of 5: "Show reference solution". Open: "Hide". Stored ticks return. |
 | Prove | Empty: placeholder only. Pending: "Saving…". Saved: "Proof saved on this device.". Cleared: "Proof cleared.". |
 | Repair | Closed: disabled plus "Pass every check, tick all 5 steps and write a proof note.". Open: "Mark layer repaired". Repaired: "Layer repaired", disabled. |
@@ -268,5 +268,4 @@ to course". Header and footer remain. `notFound()` stays as a second guard.
 | LU-3 prove, repair, TOC, position | `ProveNote`, `RepairButton`, `LessonToc`, `LessonPosition`, `LessonKeyboardNav` (P1) | U0–U2, U4, LU-1, LU-2 | Note saves in 800 ms; the gate needs all inputs; repair rolls scores; TOC focuses the H2; position restores once. |
 | LU-4 route page | `app/lessons/[slug]/page.tsx` | U0–U4, LU-1–LU-3 | Six pages plus `404.html`; per-page metadata; no dynamic params. |
 
-A unit is done when `npm run build` passes and its checks pass at 390, 768 and 1440 px with no
-console error.
+Done requires `npm run build` and checks at 390, 768 and 1440 px with no console error.

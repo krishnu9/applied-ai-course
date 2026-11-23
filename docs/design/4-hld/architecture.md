@@ -34,9 +34,9 @@ browser API. `app/lessons/[slug]/page.tsx` calls `generateStaticParams()` and se
 
 The complete client list follows:
 
-- Shell: `ProgressProvider`, `StorageBanner`, `HeaderProgress`, `Spine`, `ResetProgress`.
+- Shell: `ProgressProvider`, `Banner`, `HeaderProgress`, `Spine`, `ResetProgress`.
 - Home: `RunPanel`, `HomeAction`, `LessonLedger`.
-- Lesson: `CheckBlock`, `TaskChecklist`, `ProveNote`, `RepairButton`, `LessonToc`, `CopyButton`,
+- Lesson: `CheckItem`, `TaskChecklist`, `ProveNote`, `RepairButton`, `Toc`, `CodeBlock`,
   `LessonPosition`, `LessonKeyboardNav` (P1).
 - Roadmap: `RoadmapTable`, `RoadmapAction`.
 - Widgets: `RetrievalExplorer`, `CostCalculator`.
@@ -102,7 +102,7 @@ export function ProgressProvider(props: { children: ReactNode }): ReactElement;
 export type ProgressApi = {
   state: ProgressState; ready: boolean; storage: 'ok' | 'unavailable';
   repair(slug: LessonSlug): void;
-  patch(slug: LessonSlug, change: Partial<Omit<LessonProgress, 'repaired'>>): void;
+  patch(slug: LessonSlug, change: Partial<Omit<LessonProgress, 'status' | 'repairedAt'>>): void;
   reset(): void;
 };
 export function useProgress(): ProgressApi;
@@ -116,7 +116,7 @@ It renders a lesson and runs its loop.
 
 ```ts
 export function LessonArticle(props: { lesson: Lesson }): ReactElement;
-export function CheckBlock(props: { slug: LessonSlug; check: Check }): ReactElement;
+export function CheckItem(props: { slug: LessonSlug; check: Check }): ReactElement;
 export function TaskChecklist(props: { slug: LessonSlug; task: Task }): ReactElement;
 export function ProveNote(props: { slug: LessonSlug; prompt: string }): ReactElement;
 export function RepairButton(props: { lesson: Lesson }): ReactElement;
@@ -144,10 +144,10 @@ no React dependency and are unit-testable.
 It holds layout, chrome, spine, and UI primitives.
 
 ```ts
-export function SiteHeader(): ReactElement;
-export function SiteFooter(): ReactElement;
+export function Header(): ReactElement;
+export function Footer(): ReactElement;
 export function Spine(props: { active?: LessonSlug }): ReactElement;
-export function StorageBanner(): ReactElement;
+export function Banner(): ReactElement;
 export { Button, Badge, Panel, Prose, Rule } from './ui';
 ```
 
@@ -176,7 +176,7 @@ copy is at `lastminute.progress.v1`. React context carries it; the URL holds no 
    `RunPanel`, `LessonLedger`, `RoadmapTable`, and `HomeAction`.
 8. `RunPanel` calls `scoreSummary(['retrieval'])`. The result is 58% pass, $0.71 per 1k, and
    p95 1.4 s. The numeral roll plays unless reduced motion is set.
-9. Reload repeats steps 1 to 3. The repaired layer, the note, and the position return.
+9. Reload repeats steps 1–3. The repaired layer, the note, and the position return.
 
 ## 5. Directory tree
 
@@ -192,8 +192,8 @@ lastminute-dev/
     lessons/[slug]/page.tsx
   components/
     ui/                        # Button, Badge, Panel, Prose, Rule
-    shell/                     # SiteHeader, SiteFooter, Spine, StorageBanner
-    lesson/                    # LessonArticle, CheckBlock, TaskChecklist, ProveNote
+    shell/                     # Header, Footer, Spine, Banner
+    lesson/                    # LessonArticle, CheckItem, TaskChecklist, ProveNote
     widgets/                   # RetrievalExplorer, CostCalculator, rank, cost
     home/                      # RunPanel, MappingPanel, LessonLedger, HomeAction
     roadmap/                   # RoadmapTable, RoadmapAction, RoadmapIntro
@@ -248,7 +248,7 @@ says: "No environment variables are required." Node 22 comes from `engines.node`
 - Hydration: the server snapshot is a frozen constant. Render code never calls `Math.random`,
   `Date.now`, `new Date`, or `crypto.randomUUID`; ids come from `useId`.
 - Storage: every storage call and `JSON.parse` sits in `try/catch`. A quota or parse error falls
-  back to memory and shows `StorageBanner`.
+  back to memory and shows `Banner`.
 - Corrupt data: a wrong version or shape resets the record to the empty snapshot.
 - Network: zero runtime requests. No `fetch`, external font, image, or script. Fonts use system
   stacks. Diagrams are inline SVG.

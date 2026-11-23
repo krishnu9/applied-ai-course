@@ -75,7 +75,7 @@ interface PlannedTopic { id: string; title: string }
 | `scoreSummary` | Baseline or one repaired pair. An empty list gives the baseline; duplicate slugs count once. |
 
 All calls are synchronous and have no I/O. No function throws. `scoreSummary` filters the
-repaired layers, picks the highest order and returns its repaired metrics. It is a lookup.
+repaired layers, picks the highest order and returns its repaired metrics.
 
 ## 3. Lesson anatomy
 
@@ -180,7 +180,7 @@ original packaging. Start a return from the order page."
 | `q-billing` `billing` | `doc-02` 0.88 | `doc-03` 0.79 | `doc-09` 0.63 |
 | `q-late` `late delivery` | `doc-05` 0.92 | `doc-04` 0.70 | `doc-10` 0.55 |
 
-Other input returns the no-results state. The widget owns that state.
+Other input returns the no-results state; the widget owns it.
 
 ```text
 defaults:  10,000 requests/day; 1,000 input tokens; 250 output tokens; $0.75 per 1M
@@ -211,7 +211,8 @@ cycle with `index.ts`.
 | Retrieval | 12 unique docs, text 220 characters or fewer, tags 2 to 4 lowercase words. 3 queries with 3 descending results; every doc id exists. |
 | Numbers and mapping | 6 layers, 74 minutes, baseline 41/0.94/2400, `scoreSummary([])` equals baseline, cost defaults match the formula. 4 mapping rows with valid slugs. |
 
-`content/index.ts` calls the assertion under a guard:
+`content/index.ts` calls the assertion under a guard. Each CU adds its getter; the form below
+follows.
 
 ```ts
 if (process.env.NODE_ENV === 'development' || process.env.CONTENT_VALIDATE === '1') {
@@ -224,7 +225,7 @@ if (process.env.NODE_ENV === 'development' || process.env.CONTENT_VALIDATE === '
 - The assertion throws one `Error` with one line per fault, for example
   `content: duplicate section id "check-x" in lesson "retrieval"`.
 
-The project uses no test framework and adds no package.
+The project uses no test framework or package.
 
 ## 6. Consumption rules
 
