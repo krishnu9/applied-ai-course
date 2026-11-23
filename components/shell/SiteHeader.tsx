@@ -24,7 +24,7 @@ export function SiteHeader({ className }: SiteHeaderProps) {
         className,
       )}
     >
-      <div className="mx-auto flex min-h-[var(--header-h)] w-full max-w-[var(--main-max)] items-center justify-between gap-2 px-4 md:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-[var(--header-h)] w-full max-w-[var(--header-max)] items-center justify-between gap-2 px-4 md:px-6 lg:px-8">
         <Link
           href="/"
           className="inline-flex min-h-11 items-center whitespace-nowrap [font-family:var(--font-serif-stack)] text-[length:var(--text-h3)] font-semibold text-[var(--ink)] no-underline"

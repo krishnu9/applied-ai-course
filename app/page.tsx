@@ -9,7 +9,7 @@ import { Spine } from "@/components/shell";
 
 export default function HomePage() {
   return (
-    <div className="min-w-0 lg:pl-[var(--spine-w)]">
+    <div className="min-w-0">
       <div className="mx-auto w-full max-w-[var(--main-max)] px-4 py-12 md:px-6 md:py-16 lg:px-8">
         <section aria-labelledby="hero-title">
           <p className="[font-family:var(--font-mono-stack)] text-[length:var(--text-micro)] uppercase tracking-[var(--tracking-micro)] text-[var(--ink-muted)]">

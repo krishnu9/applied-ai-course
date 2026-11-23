@@ -107,6 +107,7 @@ export function LessonToc({ sections, className }: LessonTocProps) {
   return (
     <nav
       aria-labelledby={labelId}
+      onKeyDown={handleKeyDown}
       className={cn("min-w-0", className)}
     >
       <p
@@ -130,7 +131,6 @@ export function LessonToc({ sections, className }: LessonTocProps) {
 
       <div
         id={panelId}
-        onKeyDown={handleKeyDown}
         className={cn(
           open
             ? "fixed inset-x-0 bottom-0 z-40 max-h-[70vh] overflow-y-auto border-t border-[var(--hairline)] bg-[var(--bg)] p-4 pb-[calc(var(--space-6)+env(safe-area-inset-bottom))] md:static md:z-auto md:max-h-none md:overflow-visible md:border-0 md:bg-transparent md:p-0"

@@ -64,13 +64,13 @@ states; optional client-side search (stretch).
 
 ## Build checklist
 
-- [ ] U0 Foundation: scaffold, tokens, UI primitives, types, sample data, dev server running
-- [ ] U1 Content: six lessons (flagship retrieval), layers, scores, 12 docs, 3 presets, cost model, validator
-- [ ] U2 Progress: guarded localStorage, store, provider, selectors, hydration without mismatch
-- [ ] U3 Widgets: retrieval explorer, cost calculator, pure functions, empty and invalid states
-- [ ] U4 Shell: header, footer, spine, storage banner, reset, responsive chrome
-- [ ] U5 Lesson: reader, checks, task, prove note, repair gate, TOC, position, six static pages, 404
-- [ ] U6 Pages: home (promise, run panel, mapping, ledger), roadmap (74 minutes), about, 404
+- [x] U0 Foundation: scaffold, tokens, UI primitives, types, sample data, dev server running
+- [x] U1 Content: six lessons (flagship retrieval), layers, scores, 12 docs, 3 presets, cost model, validator
+- [x] U2 Progress: guarded localStorage, store, provider, selectors, hydration without mismatch
+- [x] U3 Widgets: retrieval explorer, cost calculator, pure functions, empty and invalid states
+- [x] U4 Shell: header, footer, spine, storage banner, reset, responsive chrome
+- [x] U5 Lesson: reader, checks, task, prove note, repair gate, TOC, position, six static pages, 404
+- [x] U6 Pages: home (promise, run panel, mapping, ledger), roadmap (74 minutes), about, 404
 - [ ] U7 Quality: `npm run build`, `CONTENT_VALIDATE=1 npm run build`, zero console errors at 390/768/1440,
       PRD checklist passes, no secret, no external call
 - [ ] Hand-off: README, CLAUDE.md, AGENTS.md, HARNESS.md, plain-words summary to the owner
