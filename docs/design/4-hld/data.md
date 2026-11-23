@@ -1,18 +1,18 @@
-# High-level design — data
+# Stage 4 — High-level design: data
 
-This part fixes the data model for lastminute.dev. All content is typed static data. All reader state lives in localStorage. Every number in this document is sample data. The UI labels scores "Sample evaluation. Fixed data."
+This part fixes the data model for lastminute.dev. The project stores all content as typed static data. All reader state lives in localStorage. Every number in this document is sample data. The UI labels scores "Sample evaluation. Fixed data."
 
-Supabase is not used. Reason: the scope lock has no login, no shared state and no server writes.
+The product does not use Supabase. The scope lock has no login, no shared state and no server writes.
 
 ## 1. Storage model
 
 | Store | Location | Mutability | Owner |
 | --- | --- | --- | --- |
-| Course content | `src/data/lessons/*.ts`, `src/data/course.ts`, `src/data/samples.ts` | Immutable after build | `src/data/content.ts` |
-| Reader progress | `localStorage`, key `lastminute.progress.v1` | Per browser | `src/data/progress.ts` |
+| Course content | `content/**` (`lessons/*.ts`, `scores.ts`, `roadmap.ts`, `index.ts`) | Immutable after build | `content/index.ts` |
+| Reader progress | `localStorage`, key `lastminute.progress.v1` | Per browser | `lib/progress/storage.ts` |
 | Widget input | Component state | Ephemeral, not saved | Widget component |
 
-The build reads no remote data. The site makes no network call at runtime.
+The site makes no network call at runtime.
 
 ## 2. Entity model
 
@@ -124,6 +124,8 @@ interface CostModel {
 }
 ```
 
+Shared types live in `lib/types.ts`; `Scores` aliases `SampleMetrics`.
+
 Checks are top-level on the lesson, because the completion gate needs them by id. A check block holds only a reference. The task block marks the one task slot.
 
 ## 3. Field tables
@@ -148,21 +150,21 @@ Checks are top-level on the lesson, because the completion gate needs them by id
 
 ### 3.2 Block union members
 
-| Kind | Required fields | Meaning and constraint |
+| Kind | Fields and types | Meaning and constraint |
 | --- | --- | --- |
-| `paragraph` | `text` | Prose. At most 700 characters. |
-| `list` | `ordered`, `items` | 2–6 items. Each item at most 120 characters. |
-| `code` | `filename`, `language`, `code`, `output` | One per lesson. Output label is "Sample output. Fixed data." |
-| `callout` | `tone`, `text` | 2–4 per lesson. `title` is optional. Text at most 400 characters. |
-| `diagram` | `diagram`, `caption`, `alt` | Only retrieval, agents and cost. Caption at most 120 characters. |
-| `check` | `checkId` | Must match one entry in `lesson.checks`. |
+| `paragraph` | `text: string` | Prose. At most 700 characters. |
+| `list` | `ordered: boolean; items: string[]` | 2–6 items. Each item at most 120 characters. |
+| `code` | `filename: string; language: string; code: string; output: { label: string; text: string }` | One per lesson. Output label is "Sample output. Fixed data." |
+| `callout` | `tone: 'note' \| 'warning' \| 'production-tip'; title?: string; text: string` | 2–4 per lesson. `title` is optional. Text at most 400 characters. |
+| `diagram` | `diagram: DiagramSpec; caption: string; alt: string` | Only retrieval, agents and cost. Caption at most 120 characters. |
+| `check` | `checkId: string` | Must match one entry in `lesson.checks`. |
 | `task` | none | One per lesson. Content comes from `lesson.task`. |
-| `widget` | `widget`, `caption` | Only on the retrieval and cost lessons. |
-| `note` | `text` | One per lesson. At most 200 characters. |
+| `widget` | `widget: 'retrieval-explorer' \| 'cost-calculator'; caption: string` | Only on the retrieval and cost lessons. |
+| `note` | `text: string` | One per lesson. At most 200 characters. |
 
 ### 3.3 Check, Task and ProveConfig
 
-A check has a prompt of at most 200 characters. It has 3–4 options, one correct option id and an explanation of 2 or more sentences. A task has a scope of at most 160 characters, exactly 5 items and one solution. ProveConfig fixes the placeholder "I changed X; the result was Y.". It also fixes `maxLength` 280, `debounceMs` 800 and the saved message "Proof saved on this device.".
+A check has a prompt of at most 200 characters. It has 3–4 options, one correct option id and an explanation of 2 or more sentences. A task has a scope of at most 160 characters, exactly 5 items and one solution. ProveConfig fixes the placeholder "I changed X; the result was Y." It also fixes `maxLength` 280, `debounceMs` 800 and the saved message "Proof saved on this device."
 
 ### 3.4 Layer and SampleMetrics
 
@@ -173,7 +175,7 @@ A check has a prompt of at most 200 characters. It has 3–4 options, one correc
 | `name` | `string` | yes | Spine label. At most 20 characters. |
 | `lessonSlug` | `LessonSlug` | yes | Unique. One layer per lesson. |
 | `startState` | `'broken'` | yes | All six layers start broken. |
-| `baseline` | `SampleMetrics` | yes | Shared broken run: 41, 0.94, 2400. |
+| `baseline` | `SampleMetrics` | yes | Shared broken run: 41%, $0.94, 2400 ms. |
 | `repaired` | `SampleMetrics` | yes | Declared result for this layer. |
 | `passRate` | `number` | yes | Integer 0–100. Display with `%`. |
 | `costPer1k` | `number` | yes | USD, 2 decimal places. |
@@ -186,15 +188,15 @@ The live state comes from progress. A layer is repaired when `lessons[slug].stat
 | Field | Type | Req | Meaning and constraint |
 | --- | --- | --- | --- |
 | `version` | `1` | yes | Schema version. Only value 1 is valid. |
-| `lessons` | `Record<string, LessonProgress>` | yes | Only saved lessons appear. Unknown slugs are dropped. |
+| `lessons` | `Record<string, LessonProgress>` | yes | Only saved lessons appear. The module drops unknown slugs. |
 | `lastLessonSlug` | `LessonSlug \| null` | yes | Last open lesson. Used by "Resume". |
 | `lastSectionId` | `string \| null` | yes | Anchor of the active section. |
 | `updatedAt` | ISO 8601 string | yes | Time of the last write. |
-| `lessons[slug].status` | `'in-progress' \| 'repaired'` | yes | Set by the completion gate. |
-| `lessons[slug].checkAnswers` | `Record<checkId, {selectedOptionId}>` | yes | Correctness is derived, never stored. |
+| `lessons[slug].status` | `'in-progress' \| 'repaired'` | yes | The completion gate sets it. |
+| `lessons[slug].checkAnswers` | `Record<checkId, {selectedOptionId}>` | yes | The module derives correctness and never stores it. |
 | `lessons[slug].taskTicks` | `string[]` | yes | Ticked item ids. Unique. |
 | `lessons[slug].proofNote` | `string` | yes | At most 280 characters. |
-| `lessons[slug].repairedAt` | ISO 8601 string \| null | yes | Set once, on repair. |
+| `lessons[slug].repairedAt` | ISO 8601 string \| null | yes | The repair action sets it once. |
 
 ## 4. Fixed sample data: six layers
 
@@ -209,9 +211,9 @@ Baseline for every layer: 41% pass, $0.94 per 1k requests, p95 2.4 s. The six no
 | `layer-05` | 5 | Fine-tuning | `fine-tuning` | 72% | 0.79 | 1.1 s |
 | `layer-06` | 6 | Cost | `cost` | 74% | 0.31 | 0.9 s |
 
-The retrieval row matches the PRD. The other five rows are plausible fixed sample data.
+The retrieval row matches the PRD. The other five rows are fixed sample data.
 
-Rule: the run panel shows the repaired metrics of the repaired layer with the highest order. It shows the baseline when no layer is repaired. This rule is a lookup, not a calculation. Values do not accumulate.
+Rule: `scoreSummary(repairedSlugs)` returns the repaired metrics of the highest-order repaired layer. It returns the baseline for an empty list. This rule is a lookup, not a calculation. Values do not accumulate.
 
 The header count is the number of lessons with `status === 'repaired'`.
 
@@ -250,11 +252,11 @@ Three preset queries. The widget trims and lowercases input. Only these labels r
 | `billing` | `doc-02` 0.88 | `doc-03` 0.79 | `doc-09` 0.63 |
 | `late delivery` | `doc-05` 0.92 | `doc-04` 0.70 | `doc-10` 0.55 |
 
-Scores are fixed numbers with 2 decimals. Each list is strictly descending. Each row shows rank, score, chunk text and "Source: doc-07".
+Scores use fixed values with 2 decimals. Each list is strictly descending. Each row shows rank, score, chunk text and "Source: doc-07".
 
-The no-results copy in the PRD names "refund". The preset label is "refund policy". The UI keeps the PRD string.
+The PRD no-results copy names "refund". The preset label is "refund policy".
 
-## 6. Cost and latency model
+## 6. Cost calculator model
 
 | Input | Default | Constraint |
 | --- | --- | --- |
@@ -284,7 +286,7 @@ At 10× traffic (100,000 requests per day), the monthly cost is `$2,812.50`. The
 
 An empty, non-numeric, zero or negative input returns `null`. The UI then hides the result and shows the PRD error string. Rounding happens only at display time.
 
-## 7. Progress schema and storage
+## 7. Progress storage
 
 The key is `lastminute.progress.v1`. The value is one JSON object with the shape in section 3.5. The module writes the full object after every change. The object stays below 8 KB.
 
@@ -301,9 +303,9 @@ Read rules, in order:
 
 Corrupt JSON: the read returns the empty state in memory. The module shows no banner and does not throw. The next successful write replaces the bad value.
 
-The storage call can throw. The module catches every failure, keeps state in memory for the session, and sets `available = false`. All features keep working. The UI shows "Progress cannot be saved in this browser. You can still read every lesson." After one failure, the module stops all storage calls for the session.
+The storage call can throw. The module catches every failure, keeps state in memory for the session, and sets `storage` to `'unavailable'`. All features keep working. The UI shows "Progress cannot be saved in this browser. You can still read every lesson." After one failure, the module stops all storage calls for the session.
 
-Migration: only version 1 exists. A future version adds a `migrate1to2` function and writes version 2. An unknown version reads as empty state. The module leaves the stored value untouched.
+Migration: only version 1 exists. A future version adds a `migrate1to2` function and writes version 2. An unknown version reads as empty state. The module does not write in that session.
 
 Reset: `removeItem` in a try/catch, then clear memory. Reset works when storage is unavailable.
 
@@ -326,17 +328,17 @@ Every lesson has one code block, one task with 5 items, one prove field, 2–4 c
 
 Two modules own all data access.
 
-- `src/data/content.ts` is the only reader of content. It exports pure synchronous functions: `getCourse`, `getLesson`, `getLayers`, `getLayerForLesson`, `getMetrics`, `getRetrievalDocs`, `getPresetQueries`, `getCostModel`, `getMappingRows` and `getNeighbours`. It imports no React code.
-- `src/data/progress.ts` is the only reader and writer of localStorage. It exports `readProgress`, `updateProgress`, `resetProgress`, `subscribe` and the `useProgress` hook. It catches every storage error.
+- `content/index.ts` is the only reader of content. It exports `LESSONS`, `getLesson`, `ROADMAP`, `RETRIEVAL_DOCS`, `COST_DEFAULTS` and `scoreSummary`. It imports no React code.
+- `lib/progress/` is the only reader and writer of localStorage. `storage.ts` holds the guarded adapter. The module exports `ProgressProvider` and `useProgress`. It catches every storage error.
 
-Components receive content by import from `content.ts` and progress by `useProgress`. Widget input stays in component state and is not saved. No component calls `localStorage`, `sessionStorage` or `window` storage directly. A review check confirms this rule:
+Components receive content by import from `content/index.ts` and progress by `useProgress`. Widget input stays in component state and never saves. No component calls `localStorage`, `sessionStorage` or `window` storage directly. A review check confirms this rule:
 
 ```text
-rg -n "localStorage|sessionStorage" src --glob '!src/data/progress.ts'
+rg -n "localStorage|sessionStorage" app components content lib --glob '!lib/progress/storage.ts'
 ```
 
 The command must return no match.
 
 ## 10. Later Supabase seam
 
-If Supabase is added later, only `src/data/progress.ts` changes. The module keeps its function names but returns promises, and an adapter swaps the localStorage body for table reads and writes. `content.ts` can move lessons to a table behind the same accessor signatures. No component changes, because components already use the hook and never touch storage.
+If the product adds Supabase later, only `lib/progress/storage.ts` changes. The adapter swaps the localStorage body for table reads and writes. `content/**` can move lessons to a table behind the same exports. No component changes, because components already use the hook and never touch storage.
