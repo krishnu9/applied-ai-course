@@ -71,6 +71,6 @@ states; optional client-side search (stretch).
 - [x] U4 Shell: header, footer, spine, storage banner, reset, responsive chrome
 - [x] U5 Lesson: reader, checks, task, prove note, repair gate, TOC, position, six static pages, 404
 - [x] U6 Pages: home (promise, run panel, mapping, ledger), roadmap (74 minutes), about, 404
-- [ ] U7 Quality: `npm run build`, `CONTENT_VALIDATE=1 npm run build`, zero console errors at 390/768/1440,
+- [x] U7 Quality: `npm run build`, `CONTENT_VALIDATE=1 npm run build`, zero console errors at 390/768/1440,
       PRD checklist passes, no secret, no external call
-- [ ] Hand-off: README, CLAUDE.md, AGENTS.md, HARNESS.md, plain-words summary to the owner
+- [x] Hand-off: README, CLAUDE.md, AGENTS.md, HARNESS.md, plain-words summary to the owner
