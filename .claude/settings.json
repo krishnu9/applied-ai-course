@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(node:*)",
+      "Bash(mkdir:*)",
+      "Bash(ls:*)",
+      "Bash(lsof -i:*)",
+      "Bash(git init -q .agentty-ecc)",
+      "Bash(git -C .agentty-ecc remote add origin https://github.com/affaan-m/ECC.git)",
+      "Bash(git -C .agentty-ecc sparse-checkout set agents skills rules)",
+      "Bash(git -C .agentty-ecc fetch -q --depth 1 --filter=blob:none origin dd6ee538aee0f548d4a6b520118f875431fd749e)",
+      "Bash(git -C .agentty-ecc checkout -q FETCH_HEAD)",
+      "Bash(rm -rf .agentty-ecc)",
+      "Bash(git init:*)",
+      "Bash(git status:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "mcp__agentty-browser"
+    ]
+  }
+}
