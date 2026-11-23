@@ -187,7 +187,7 @@ Source: `docs/design/8-review.md`, notes F2 and F3. Both are P2.
   - `/tmp/lm-qa/fixpass-home-1440.png` (settled home)
   - `/tmp/lm-qa/fixpass-home-390.png` (phone home)
   - `/tmp/lm-qa/fixpass-reduced-home-1440.png` (reduced motion)
-- Evidence JSON: `/tmp/lm-qa/fixpass-prod2.json`, `/tmp/lm-qa/fixpass-dev.json`.
+- Evidence JSON: `/tmp/lm-qa/fixpass-prod3.json`, `/tmp/lm-qa/fixpass-dev.json`, `/tmp/lm-qa/fixpass-final-functional.json`.
 
-The earlier desktop and mobile fixes remain in place. No content prose was changed. No commit was made.
+The earlier desktop fixes are in commit `125318d`. The mobile fixes are in commit `6406296`. The final combined tree passes `npx tsc --noEmit`, `npm run lint`, `npm run build`, the 5 fix pass checks and the 32 functional checks. No content prose was changed. This fix pass did not commit.
 
