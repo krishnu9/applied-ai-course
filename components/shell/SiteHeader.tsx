@@ -27,6 +27,7 @@ export function SiteHeader({ className }: SiteHeaderProps) {
       <div className="mx-auto flex min-h-[var(--header-h)] w-full max-w-[var(--header-max)] flex-wrap items-center justify-between gap-x-1 gap-y-1 px-4 md:px-6 lg:px-8 sm:gap-x-2">
         <Link
           href="/"
+          aria-current={pathname === "/" ? "page" : undefined}
           className="inline-flex min-h-11 items-center whitespace-nowrap [font-family:var(--font-serif-stack)] text-[length:var(--text-h3)] font-semibold text-[var(--ink)] no-underline max-[359px]:text-[length:var(--text-small)]"
         >
           lastminute.dev

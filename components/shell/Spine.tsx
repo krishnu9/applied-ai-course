@@ -80,6 +80,7 @@ export function Spine({ className }: SpineProps) {
           <SpineNode
             key={layer.id}
             layer={layer}
+            ready={ready}
             isRepaired={state.lessons[layer.lessonSlug]?.status === "repaired"}
             isCurrent={currentSlug === layer.lessonSlug}
             isStart={layer.order === 3}

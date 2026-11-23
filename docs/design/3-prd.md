@@ -131,9 +131,9 @@ P0 = the demo fails without it. P1 = polish. P2 = stretch.
 ### Epic 1 — Shell and landing
 
 - **US-01 Landing (P0).** Given `/`, the hero shows the H1, the promise and the button "Start with
-  lesson 1"; the run panel shows "41% pass" and "Sample evaluation, fixed data"; the mapping panel
-  maps eval set to test suite and inference cost to load budget; the button opens
-  `/lessons/evaluation`.
+  lesson 1"; the run panel shows "41%" under the label "Pass rate" and "Sample evaluation, fixed
+  data"; the mapping panel maps eval set to test suite and inference cost to load budget; the
+  button opens `/lessons/evaluation`.
 - **US-02 Header and footer (P0).** Every route shows the wordmark "lastminute.dev", "Roadmap" and
   "About"; the current route has `aria-current="page"`; the footer shows "Independent study
   notes. Not affiliated with the author or publisher."
@@ -154,7 +154,7 @@ P0 = the demo fails without it. P1 = polish. P2 = stretch.
 - **US-07 Previous and next (P0).** Neighbours link correctly; lesson 1 shows "Start of the
   path"; lesson 6 shows "End of the path" and "Open the roadmap".
 - **US-08 Unknown lesson (P0).** `/lessons/unknown-topic` returns status 404 with "Lesson not
-  found" → use the SCR-00 copy, "Back to course" to `/` and "View roadmap" to `/roadmap`.
+  found" → use the SCR-00 copy, "Back to course" to `/` and "Open the roadmap" to `/roadmap`.
 
 ### Epic 3 — Checks and tasks
 
@@ -164,8 +164,8 @@ P0 = the demo fails without it. P1 = polish. P2 = stretch.
   again" re-enables the options and keeps the explanation; before Submit no option shows a mark.
 - **US-11 Build task (P0).** A 5-item checklist with counter "0 of 5 steps done"; at 5 of 5 "Show
   reference solution" becomes enabled; the solution shows with "Hide"; ticks persist.
-- **US-12 Prove note (P0).** The field shows the placeholder; a note saves with "Saved"; the note
-  returns after reload; a blank note keeps "Mark layer repaired" disabled.
+- **US-12 Prove note (P0).** The field shows the placeholder; a note saves with "Proof saved on
+  this device."; the note returns after reload; a blank note keeps "Mark layer repaired" disabled.
 
 ### Epic 4 — Progress and resume
 
@@ -196,8 +196,8 @@ P0 = the demo fails without it. P1 = polish. P2 = stretch.
 
 - **US-19 (P0).** Inputs show requests per day (10,000), input tokens, output tokens and price per
   1M tokens; defaults give "Cost per 1k requests" and "Monthly cost" with 2 decimals; 10x traffic
-  updates both without reload while the "sample" label stays; 0 or text shows "Enter a number
-  above 0." and hides the result.
+  updates the monthly cost without reload while the "Sample" label stays and the cost per 1k stays
+  fixed; 0 or text shows "Enter at least 1 request." and keeps the results as dashes.
 
 ### Epic 8 — Roadmap and about
 
@@ -250,8 +250,8 @@ Never a horizontal page scroll.
 Accessibility: one h1 per page, no skipped heading levels; landmarks header/nav/main/complementary/
 contentinfo; skip link; focus follows DOM order; native radios and checkboxes; labels on every
 control; `aria-label` on icon buttons; live region for copy and save; colour is never the only
-signal (state has a text label); text contrast 4.5:1, lines and focus 3:1; reduced motion
-respected; usable at 200% zoom.
+signal (state has a text label); text contrast 4.5:1; functional boundaries and the focus ring
+3:1 (decorative hairlines are exempt); reduced motion respected; usable at 200% zoom.
 
 Microcopy: use `3-prd/flows.md` section 8 strings exactly. Sentence case, no contractions, no
 exclamation marks outside checks.
@@ -262,7 +262,7 @@ Measurable goals:
 
 | ID | Goal | Pass condition |
 | --- | --- | --- |
-| G1 | A new visitor completes lesson 1 | Marked complete with one note, under 3 minutes and at most 8 clicks |
+| G1 | A new visitor completes lesson 1 | Marked complete with one note, under 3 minutes of interaction and at most 12 interactions; reading time is excluded |
 | G2 | Every lesson carries the full loop | 2 checks with explanations (3 on the flagship), 1 five-item task, 1 solution, 1 prove field |
 | G3 | "The Run" works in one click | Red node opens lesson 3; after repair it turns green; 41%→58%, $0.94→$0.71, p95 drops |
 | G4 | Work survives reload | Tick, note, green layer and position return; a private window shows a clear empty state |
@@ -302,8 +302,8 @@ labelled fixed sample data; terms consistent across lessons.
 ## 10. Definition of done (reviewer checklist)
 
 1. `npm run build` passes. `/` opens at 1280 px with no console errors.
-2. The hero shows the promise and "41% pass". The spine shows 6 dots. The red Retrieval dot opens
-   `/lessons/retrieval`.
+2. The hero shows the promise and the 41% pass rate. The spine shows 6 dots. The red Retrieval dot
+   opens `/lessons/retrieval`.
 3. A wrong answer shows "Not quite" plus an explanation; a correct answer shows "Correct".
 4. The task reaches "5 of 5"; the reference solution opens; the note shows "Proof saved on this
    device.".

@@ -12,3 +12,5 @@ export { LiveRegion } from "./LiveRegion";
 export type { LiveRegionProps } from "./LiveRegion";
 export { EmptyState } from "./EmptyState";
 export type { EmptyStateProps } from "./EmptyState";
+export { ScoreValue } from "./ScoreValue";
+export type { ScoreValueProps } from "./ScoreValue";

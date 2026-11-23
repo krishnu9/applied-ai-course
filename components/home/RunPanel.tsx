@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, Panel } from "@/components/ui";
+import { Badge, Panel, ScoreValue } from "@/components/ui";
 import { getCourse, scoreSummary } from "@/content";
 import { cn } from "@/lib/cn";
 import { formatPercent, formatSeconds, formatUsd } from "@/lib/format";
@@ -19,7 +19,7 @@ export type RunPanelProps = {
  * is always visible.
  */
 export function RunPanel({ className }: RunPanelProps) {
-  const { state } = useProgress();
+  const { state, ready } = useProgress();
 
   const repaired = LESSONS.filter((lesson) =>
     isRepaired(state, lesson.slug),
@@ -51,7 +51,7 @@ export function RunPanel({ className }: RunPanelProps) {
             Pass rate
           </dt>
           <dd className="mt-1 [font-family:var(--font-mono-stack)] text-[length:var(--text-h2)] leading-none tabular-nums">
-            {formatPercent(metrics.passRate)}
+            <ScoreValue value={formatPercent(metrics.passRate)} ready={ready} />
           </dd>
         </div>
         <div className="min-w-0">
@@ -59,7 +59,8 @@ export function RunPanel({ className }: RunPanelProps) {
             Cost per 1k requests
           </dt>
           <dd className="mt-1 [font-family:var(--font-mono-stack)] text-[length:var(--text-h2)] leading-none tabular-nums">
-            {`${formatUsd(metrics.costPer1k)} / 1k`}
+            <ScoreValue value={formatUsd(metrics.costPer1k)} ready={ready} />
+            {" / 1k"}
           </dd>
         </div>
         <div className="min-w-0">
@@ -67,7 +68,7 @@ export function RunPanel({ className }: RunPanelProps) {
             p95 latency
           </dt>
           <dd className="mt-1 [font-family:var(--font-mono-stack)] text-[length:var(--text-h2)] leading-none tabular-nums">
-            {formatSeconds(metrics.p95Ms)}
+            <ScoreValue value={formatSeconds(metrics.p95Ms)} ready={ready} />
           </dd>
         </div>
       </dl>

@@ -11,7 +11,6 @@ import { deriveRepairGate, type RepairCheck } from "./repairGate";
 
 export type LessonActionBarProps = {
   slug: LessonSlug;
-  layerName: string;
   checks: readonly RepairCheck[];
   taskItemIds: readonly string[];
   next: LessonSummary | null;
@@ -30,7 +29,6 @@ function isField(target: EventTarget | null): boolean {
  */
 export function LessonActionBar({
   slug,
-  layerName,
   checks,
   taskItemIds,
   next,

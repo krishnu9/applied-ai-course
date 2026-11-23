@@ -148,3 +148,46 @@ Test artifacts:
 - Content facts: no factual content issue found. No lesson prose or content data was changed.
 
 No commit was made.
+
+## Fix pass (final review F2 and F3)
+
+Date: 2026-11-23
+Source: `docs/design/8-review.md`, notes F2 and F3. Both are P2.
+
+### F2 — Home wordmark `aria-current`
+
+- Change: The wordmark link sets `aria-current="page"` on `/`. Roadmap and About keep their existing current state.
+- File: `components/shell/SiteHeader.tsx`.
+- Result: At 1440 and 390 px the home wordmark has `aria-current="page"`. On `/about` the wordmark has no current value and About keeps `aria-current="page"`.
+
+### F3 — Score number roll
+
+- New primitive: `components/ui/ScoreValue.tsx`, exported from `components/ui/index.ts`.
+- Use: `components/home/RunPanel.tsx` applies it to pass rate, cost per 1k and p95. `components/shell/SpineNode.tsx` applies it to the same three values. `components/shell/Spine.tsx` passes `ready`.
+- Behaviour: The first ready render seeds the value and never rolls. A later value change plays the `.score-in` roll. The class is removed on `animationend`. A reduced-motion preference or a zero `--dur-number` changes the value in place. The state word and live region stay immediate.
+- The roll starts in `requestAnimationFrame` after the DOM commit. The new value is in the DOM before the animation starts.
+
+### Fix pass verification
+
+- `npx tsc --noEmit`: PASS.
+- `npm run lint`: PASS.
+- `npm run build`: PASS. 12 static pages.
+- Browser fix pass: 5 of 5 checks pass on the production build and the dev server.
+- Existing suites after the change: 32 of 32 functional checks and 13 of 13 supplementary checks pass on production.
+- Evidence at 1440 and 390:
+  - Home wordmark `aria-current="page"` is present. About wordmark has no current value.
+  - A hydration restore with repaired progress shows no roll. Final values are 58%, $0.71 / 1k and 1.4 s.
+  - "Mark layer repaired" shows `.score-in` on four elements, then settles on Pass 58%, Cost $0.71 / 1k and p95 1.4 s.
+  - A live storage change rolls the home run panel and settles on the final values.
+  - With reduced motion, `--dur-number` is 0 ms, no roll appears, and the final values show at once.
+  - Zero console errors and zero page errors on the checked routes.
+- Fix pass screenshots:
+  - `/tmp/lm-qa/fixpass-roll-1440.png` (roll in progress)
+  - `/tmp/lm-qa/fixpass-spine-repaired-1440.png` (settled spine)
+  - `/tmp/lm-qa/fixpass-home-1440.png` (settled home)
+  - `/tmp/lm-qa/fixpass-home-390.png` (phone home)
+  - `/tmp/lm-qa/fixpass-reduced-home-1440.png` (reduced motion)
+- Evidence JSON: `/tmp/lm-qa/fixpass-prod2.json`, `/tmp/lm-qa/fixpass-dev.json`.
+
+The earlier desktop and mobile fixes remain in place. No content prose was changed. No commit was made.
+

@@ -74,7 +74,6 @@ export default async function LessonPage({ params }: PageProps) {
 
       <LessonActionBar
         slug={lesson.slug}
-        layerName={layer.name}
         checks={lesson.checks.map((check) => ({
           id: check.id,
           correctOptionId: check.correctOptionId,

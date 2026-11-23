@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { Badge } from "@/components/ui";
+import { Badge, ScoreValue } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { formatPercent, formatSeconds, formatUsd } from "@/lib/format";
 import type { Layer } from "@/lib/types";
 
 export type SpineNodeProps = {
   layer: Layer;
+  ready: boolean;
   isRepaired: boolean;
   isCurrent: boolean;
   isStart: boolean;
@@ -19,6 +20,7 @@ export type SpineNodeProps = {
  */
 export function SpineNode({
   layer,
+  ready,
   isRepaired,
   isCurrent,
   isStart,
@@ -64,9 +66,15 @@ export function SpineNode({
         </span>
 
         <span className="flex min-w-0 flex-col break-words [hyphens:auto] [font-family:var(--font-mono-stack)] text-[length:var(--text-micro)] leading-tight tabular-nums text-[var(--ink-muted)]">
-          <span>Pass {formatPercent(metrics.passRate)}</span>
-          <span>Cost {formatUsd(metrics.costPer1k)} / 1k</span>
-          <span>p95 {formatSeconds(metrics.p95Ms)}</span>
+          <span>
+            Pass <ScoreValue value={formatPercent(metrics.passRate)} ready={ready} />
+          </span>
+          <span>
+            Cost <ScoreValue value={formatUsd(metrics.costPer1k)} ready={ready} /> / 1k
+          </span>
+          <span>
+            p95 <ScoreValue value={formatSeconds(metrics.p95Ms)} ready={ready} />
+          </span>
         </span>
 
         {isStart ? (
