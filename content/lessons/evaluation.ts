@@ -83,7 +83,7 @@ export const evaluationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-eval-9",
-          text: "Forty cases do not prove the feature. They show a direction. A set of forty cases can move five points by chance. Use the number to compare two versions, not to promise a result.",
+          text: "Forty cases do not prove the feature. They show a direction. A five-point move can be noise on a set this size. Use the number to compare two versions, not to promise a result.",
         },
         {
           kind: "paragraph",
@@ -154,7 +154,7 @@ export const evaluationLesson = deepFreeze({
             '        return "billing"',
             '    return "other"',
             "",
-            'cases = json.loads(Path("eval_set.json").read_text())',
+            'cases = json.loads(Path(__file__).with_name("eval_set.json").read_text())',
             'passed = [case for case in cases if label(case["input"]) == case["expected"]]',
             "rate = len(passed) / len(cases)",
             'print(f"pass rate {rate:.0%} ({len(passed)}/{len(cases)})")',
@@ -167,7 +167,7 @@ export const evaluationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-eval-15",
-          text: "Run the command before a change and after a change. Record both numbers with the commit message. The difference between the two numbers is the evidence for the change.",
+          text: "Run the command before a change and after a change. Record both numbers with the commit message. Keep eval_set.json in the same folder as run_eval.py, so the path is stable both times. The difference between the two numbers is the evidence for the change.",
         },
         {
           kind: "paragraph",
@@ -266,7 +266,7 @@ export const evaluationLesson = deepFreeze({
         '        return "billing"',
         '    return "other"',
         "",
-        'cases = json.loads(Path("eval_set.json").read_text())',
+        'cases = json.loads(Path(__file__).with_name("eval_set.json").read_text())',
         'passed = [case for case in cases if label(case["input"]) == case["expected"]]',
         "rate = len(passed) / len(cases)",
         'print(f"pass rate {rate:.0%} ({len(passed)}/{len(cases)})")',

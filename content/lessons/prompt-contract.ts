@@ -68,7 +68,7 @@ export const promptContractLesson = deepFreeze({
           id: "list-prompt-parts",
           ordered: true,
           items: [
-            "State the task in one sentence.",
+            "Name the role and state the task in one sentence.",
             "List the input fields and their order.",
             "Show the exact output keys and allowed values.",
             "State the refusal rule and the fallback label.",
@@ -179,7 +179,7 @@ export const promptContractLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-prompt-16",
-          text: "The proof note names the contract change and the result. For example, I added a closed key set and a refusal rule. The parse error rate fell from twenty percent to two percent on the edge table.",
+          text: "The proof note names the contract change and the result. For example, I added a closed key set and a refusal rule. The edge table went from 1 of 3 to 0 of 3.",
         },
         {
           kind: "paragraph",
@@ -257,6 +257,9 @@ export const promptContractLesson = deepFreeze({
         '    if not 0.0 <= data["confidence"] <= 1.0:',
         "        raise ValueError('confidence out of range')",
         "    return data",
+        "",
+        'sample = \'{"category": "shipping", "confidence": 0.82, "reason": "late parcel"}\'',
+        "print(check(sample))",
       ].join("\n"),
     },
   },

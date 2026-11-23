@@ -61,7 +61,7 @@ export const LAYERS: readonly Layer[] = deepFreeze([
   {
     id: "layer-06",
     order: 6,
-    name: "Cost budget",
+    name: "Cost and latency",
     lessonSlug: "cost",
     baseline: BASELINE,
     repaired: { passRate: 0.74, costPer1k: 0.31, p95Ms: 900 },

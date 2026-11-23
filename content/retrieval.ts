@@ -16,7 +16,7 @@ export const RETRIEVAL_DOCS: readonly RetrievalDoc[] = deepFreeze([
     id: "doc-02",
     title: "Billing cycles",
     tags: ["billing", "invoice", "payments"],
-    text: "Billing runs on a monthly cycle from the signup date. An invoice appears in the account on the first day of the cycle. A failed charge retries after three days.",
+    text: "Billing runs on a monthly cycle from the signup date. The billing policy sets the cycle and the invoice date. A failed charge retries after three days.",
   },
   {
     id: "doc-03",
@@ -52,7 +52,7 @@ export const RETRIEVAL_DOCS: readonly RetrievalDoc[] = deepFreeze([
     id: "doc-08",
     title: "Return labels",
     tags: ["labels", "returns", "shipping"],
-    text: "A return label is free for refunds and exchanges. Print the label or show the code at a drop-off point. The label expires after 14 days.",
+    text: "A return label is free for returns and exchanges. Print the label or show the code at a drop-off point. The label expires after 14 days.",
   },
   {
     id: "doc-09",

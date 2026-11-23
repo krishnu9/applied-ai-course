@@ -77,7 +77,7 @@ export const costLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-cost-9",
-          text: "The formula is short. Cost per request is input plus output, times the price per million, divided by one million. Monthly cost is cost per request times requests per day times thirty. Latency adds a fixed retrieval wait to each token cost.",
+          text: "The formula is short. Cost per request is input plus output, times the price per million, divided by one million. The sample uses one price for input and output, to keep the sum simple. Monthly cost is cost per request times requests per day times thirty. Latency is the retrieval wait plus prefill and decode time.",
         },
         {
           kind: "diagram",
@@ -209,7 +209,7 @@ export const costLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-cost-17",
-          text: "The proof note names one lever and the result. Example: I cut the output from two hundred fifty to one hundred tokens; the monthly cost fell from 281.25 to 181.25 dollars and p95 fell from 2.4 to 1.56 seconds.",
+          text: "The proof note names one lever and the result. Example: I cut the output from two hundred fifty to one hundred tokens; the monthly cost fell from 281.25 to 247.50 dollars and p95 fell from 2.4 to 1.56 seconds.",
         },
         {
           kind: "paragraph",
@@ -277,12 +277,15 @@ export const costLesson = deepFreeze({
         "INPUT = 1_000",
         "OUTPUT = 250",
         "PRICE_PER_M = 0.75",
+        "RETRIEVAL_MS = 400",
+        "PREFILL_MS = 0.6",
+        "DECODE_MS = 5.6",
         "",
         "per_request = (INPUT + OUTPUT) * PRICE_PER_M / 1_000_000",
         "print(per_request)",
         "print(per_request * 1_000)",
         "print(per_request * REQUESTS * 30)",
-        "print(400 + INPUT * 0.6 + OUTPUT * 5.6)",
+        "print(RETRIEVAL_MS + INPUT * PREFILL_MS + OUTPUT * DECODE_MS)",
       ].join("\n"),
     },
   },

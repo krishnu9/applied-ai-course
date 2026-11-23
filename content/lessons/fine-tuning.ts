@@ -6,7 +6,7 @@ export const fineTuningLesson = deepFreeze({
   order: 5,
   title: "Fine-tuning: when it pays",
   outcome: "You can choose between prompting, retrieval and fine-tuning.",
-  artifact: "A three-row decision table and a twenty-example file.",
+  artifact: "A three-row decision table and a small labeled example file.",
   readingMinutes: 10,
   difficulty: "core",
   layerId: "layer-05",
@@ -23,7 +23,7 @@ export const fineTuningLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-finetune-2",
-          text: "The sample feature fails on one class of tickets. The model writes the right label but the wrong reply style. The team wants to fine-tune. The failure is style, not knowledge, so fine-tuning can work, but only with labelled examples.",
+          text: "The sample feature fails on one class of tickets. The model writes the right label but the wrong reply style. The team wants to fine-tune. The failure is style, not knowledge, so fine-tuning can work, but only with labeled examples.",
         },
         {
           kind: "paragraph",
@@ -186,7 +186,7 @@ export const fineTuningLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-finetune-18",
-          text: "Run the held-out set after training and compare it with the prompt baseline. A gain under five points does not pay for the training run.",
+          text: "Run the held-out set after training and compare it with the prompt baseline. Set the bar before training. A gain under the team's bar does not pay for the training run.",
         },
         {
           kind: "callout",
@@ -204,7 +204,7 @@ export const fineTuningLesson = deepFreeze({
       prompt: "Which failure points to fine-tuning first?",
       options: [
         { id: "option-a", label: "The answer needs a fact from yesterday" },
-        { id: "option-b", label: "The reply format is stable and labelled examples are many" },
+        { id: "option-b", label: "The reply format is stable and labeled examples are many" },
         { id: "option-c", label: "The prompt is too long" },
         { id: "option-d", label: "The model is too large" },
       ],
@@ -231,7 +231,7 @@ export const fineTuningLesson = deepFreeze({
     scope: "Choose a rung for three failures and write the decision table.",
     items: [
       { id: "item-1", label: "Write the failure type for each case." },
-      { id: "item-2", label: "Count the clean labelled examples." },
+      { id: "item-2", label: "Count the clean labeled examples." },
       { id: "item-3", label: "Check whether the facts change." },
       { id: "item-4", label: "Fill the three-row decision table." },
       { id: "item-5", label: "Name the held-out score you expect." },
@@ -249,6 +249,7 @@ export const fineTuningLesson = deepFreeze({
         "",
         'print(choose({"facts_change": True, "format_stable": False, "examples": 0}))',
         'print(choose({"facts_change": False, "format_stable": True, "examples": 400}))',
+        'print(choose({"facts_change": False, "format_stable": False, "examples": 20}))',
       ].join("\n"),
     },
   },
