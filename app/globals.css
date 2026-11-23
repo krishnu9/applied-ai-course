@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+:root {
+  --bg:#FAF8F4; --surface:#F3EFE8; --ink:#1A1815; --ink-muted:#5C574E;
+  --hairline:#D9D3C7; --hairline-strong:#8A8271;
+  --accent:#244A73; --success:#1E6B45; --warning:#8A5A00; --danger:#A32A1E;
+  --focus:#244A73; --success-bg:#E7F0E9; --warning-bg:#F6EBD2; --danger-bg:#F6E4E1;
+  --font-serif:"Source Serif 4",Georgia,serif; --font-mono:"JetBrains Mono",ui-monospace,monospace;
+  --font-sans:"Inter",system-ui,sans-serif;
+  --text-display:clamp(2.5rem,1.9rem+2.6vw,3.5rem); --text-h1:2.5rem; --text-h2:1.75rem;
+  --text-h3:1.25rem; --text-body:1.125rem; --text-small:0.9375rem; --text-mono:0.875rem;
+  --text-micro:0.6875rem; --lh-display:1.05; --lh-body:1.6; --measure:68ch; --tracking-micro:0.08em;
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-6:24px;
+  --space-8:32px; --space-12:48px; --space-16:64px; --space-24:96px;
+  --radius-1:0px; --radius-2:1px; --radius-3:2px; --shadow:none;
+  --ease-standard:cubic-bezier(.2,0,0,1); --dur-hover:120ms; --dur-panel:240ms;
+  --dur-number:400ms; --dur-trace:600ms;
+  --spine-w:88px; --toc-w:260px; --main-max:720px; --header-h:56px; --actionbar-h:56px;
+}
+@media (prefers-reduced-motion: reduce) { :root { --dur-hover:0ms; --dur-panel:0ms;
+  --dur-number:0ms; --dur-trace:0ms; } }
+
+/* next/font variable stacks: the loaded family first, then the token fallback. */
+:root {
+  --font-serif-stack: var(--font-serif-loaded), var(--font-serif);
+  --font-mono-stack: var(--font-mono-loaded), var(--font-mono);
+  --font-sans-stack: var(--font-sans-loaded), var(--font-sans);
+  /* CSS requires spaces around "+" in a math expression. Same min, fluid term and max. */
+  --text-display:clamp(2.5rem, 1.9rem + 2.6vw, 3.5rem);
+}
+
+@layer base {
+  html { background:var(--bg); color:var(--ink); -webkit-text-size-adjust:100%;
+    text-size-adjust:100%; }
+  body { min-height:100dvh; overflow-x:clip; margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--font-sans-stack); font-size:var(--text-body);
+    line-height:var(--lh-body); }
+  h1,h2,h3 { font-family:var(--font-serif-stack); font-weight:600;
+    line-height:var(--lh-display); }
+  h1 { font-size:var(--text-h1); }
+  h2 { font-size:var(--text-h2); }
+  h3 { font-size:var(--text-h3); }
+  a { color:var(--accent); text-decoration:underline; text-decoration-thickness:1px;
+    text-underline-offset:.15em; }
+  a:hover { text-decoration-thickness:2px; }
+  code,pre,kbd,samp { font-family:var(--font-mono-stack);
+    font-variant-numeric:tabular-nums; }
+  ::selection { background:var(--accent); color:var(--bg); }
+  :focus-visible { outline:2px solid var(--focus); outline-offset:2px; }
+  [id] { scroll-margin-top:calc(var(--header-h) + var(--space-4)); }
+  @media (prefers-reduced-motion:reduce) {
+    *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.01ms!important;
+      animation-iteration-count:1!important; scroll-behavior:auto!important; }
+  }
+}
+@keyframes spine-trace { from { transform:translateY(-.75rem); opacity:0 }
+  25% { opacity:1 } to { transform:translateY(0); opacity:0 } }
+.spine-trace { animation:spine-trace var(--dur-trace) var(--ease-standard) both; }
+@media (prefers-reduced-motion:reduce) { .spine-trace { animation:none; } }
+
+@keyframes score-in { from { opacity:0; transform:translateY(.35em) }
+  to { opacity:1; transform:translateY(0) } }
+.score-in { animation:score-in var(--dur-number) var(--ease-standard) both; }
+@media (prefers-reduced-motion:reduce) { .score-in { animation:none; } }

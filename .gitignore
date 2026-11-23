@@ -1,7 +1,28 @@
+# dependencies
 node_modules/
+/.pnp
+.pnp.*
+
+# next.js
 .next/
 out/
+/build
+
+# environment
 .env*.local
+.env*
+!.env.example
+
+# local tooling
 .agentty-ecc/
 .plan.json
 .omc/
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*
+*.tsbuildinfo
+next-env.d.ts
+.vercel
+/coverage
