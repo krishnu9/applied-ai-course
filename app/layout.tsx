@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Inter, JetBrains_Mono, Source_Serif_4 } from "next/font/google";
 import type { ReactNode } from "react";
+import { ProgressProvider } from "@/lib/progress";
 import "./globals.css";
 
 const serif = Source_Serif_4({
@@ -36,6 +37,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
     <html lang="en" className={`${serif.variable} ${mono.variable} ${sans.variable}`}>
       <body className="bg-[var(--bg)] text-[var(--ink)] antialiased">
         {/* PROGRESS-PROVIDER:START — owned by lib/progress. Mount line only. */}
+        <ProgressProvider>
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:top-[var(--space-4)] focus:left-[var(--space-4)] focus:z-50 focus:inline-flex focus:min-h-11 focus:items-center focus:bg-[var(--bg)] focus:px-4 focus:text-[var(--accent)]"
@@ -83,6 +85,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
             </p>
           </div>
         </footer>
+        </ProgressProvider>
         {/* PROGRESS-PROVIDER:END */}
       </body>
     </html>

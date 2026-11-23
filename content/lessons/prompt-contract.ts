@@ -1,0 +1,272 @@
+import type { Lesson } from "@/lib/types";
+import { deepFreeze } from "../freeze";
+
+export const promptContractLesson = deepFreeze({
+  slug: "prompt-contract",
+  order: 2,
+  title: "Prompt design as a contract",
+  outcome: "You can write a prompt with a role, an output shape and a refusal rule.",
+  artifact: "A prompt file and a three-case edge table.",
+  readingMinutes: 9,
+  difficulty: "core",
+  layerId: "layer-02",
+  sections: [
+    {
+      id: "read-the-loose-prompt",
+      title: "Read: the loose prompt",
+      blocks: [
+        {
+          kind: "paragraph",
+          id: "p-prompt-1",
+          text: "A prompt is an interface. The model reads the prompt and returns text. A downstream parser reads the text and returns data. When the prompt has no contract, the parser breaks on a polite sentence or a missing key.",
+        },
+        {
+          kind: "paragraph",
+          id: "p-prompt-2",
+          text: "The sample feature sends each support ticket to a model. The old prompt says: classify this ticket. The model answers with a paragraph. The parser expects one label and stops with a parse error on about one ticket in five.",
+        },
+        {
+          kind: "paragraph",
+          id: "p-prompt-3",
+          text: "The parser error is the visible failure. The hidden failure is a wrong label in a valid shape. Both cost the support team time, but only the shape error stops the pipeline.",
+        },
+        {
+          kind: "callout",
+          id: "callout-prompt-free",
+          tone: "warning",
+          title: "Free text is not an interface.",
+          text: "A paragraph can hold the answer and still break the caller. The caller needs a shape it can check.",
+        },
+      ],
+    },
+    {
+      id: "read-the-contract",
+      title: "Read: the four parts",
+      blocks: [
+        {
+          kind: "paragraph",
+          id: "p-prompt-4",
+          text: "A prompt contract has four parts. A role that names the task. The input fields and their order. The output shape with exact keys. A refusal rule for tickets outside the four labels.",
+        },
+        {
+          kind: "paragraph",
+          id: "p-prompt-5",
+          text: "Write the output shape as JSON with three keys: category, confidence and reason. Name the allowed categories. State that the model returns no other keys. A shape with a closed key set is easy to check.",
+        },
+        {
+          kind: "paragraph",
+          id: "p-prompt-6",
+          text: "The refusal rule is part of the contract, not an afterthought. A ticket in a new language or outside the four labels gets the label other and a short reason. The caller then sends the ticket to a person.",
+        },
+        {
+          kind: "paragraph",
+          id: "p-prompt-7",
+          text: "Role language is short. Name who the model acts as and what decision it makes. A role that rambles invites a rambling answer.",
+        },
+        {
+          kind: "list",
+          id: "list-prompt-parts",
+          ordered: true,
+          items: [
+            "State the task in one sentence.",
+            "List the input fields and their order.",
+            "Show the exact output keys and allowed values.",
+            "State the refusal rule and the fallback label.",
+          ],
+        },
+        { kind: "check", id: "check-prompt-a", checkId: "check-1" },
+      ],
+    },
+    {
+      id: "check-the-shape",
+      title: "Check: test the edge",
+      blocks: [
+        {
+          kind: "paragraph",
+          id: "p-prompt-8",
+          text: "A contract needs a test at the edge. Take three unusual tickets: an empty ticket, a ticket with two problems and a ticket in another language. Write the expected answer for each one before the run.",
+        },
+        {
+          kind: "paragraph",
+          id: "p-prompt-9",
+          text: "The edge table is a small file next to the prompt. It names the ticket, the expected category and the expected reason. Run the table after every prompt change. A prompt that passes the happy path can still fail the edges.",
+        },
+        {
+          kind: "paragraph",
+          id: "p-prompt-10",
+          text: "Confidence is not a promise. A model can return 0.99 for a wrong label. Use the value to sort tickets for review, not to skip human review.",
+        },
+        { kind: "check", id: "check-prompt-b", checkId: "check-2" },
+        {
+          kind: "callout",
+          id: "callout-prompt-version",
+          tone: "production-tip",
+          title: "Version the prompt.",
+          text: "A prompt file without a version cannot be compared with the next prompt file. Put the version in the file name.",
+        },
+      ],
+    },
+    {
+      id: "build-the-check",
+      title: "Build: check the shape",
+      blocks: [
+        {
+          kind: "paragraph",
+          id: "p-prompt-11",
+          text: "The checker parses the answer and fails fast. It rejects a wrong key set, an unknown category and a confidence outside the range from zero to one. A checker that accepts anything gives no signal.",
+        },
+        {
+          kind: "paragraph",
+          id: "p-prompt-12",
+          text: "Keep the checker boring. It does not judge the quality of the reason. It checks the shape the caller depends on. Quality belongs to the eval set from lesson one.",
+        },
+        {
+          kind: "paragraph",
+          id: "p-prompt-13",
+          text: "The checker also rejects a missing key and an extra key. The caller reads exact keys, so a renamed key is a break even when the value is right.",
+        },
+        {
+          kind: "code",
+          id: "code-prompt-check",
+          filename: "prompts/check_shape.py",
+          language: "python",
+          code: [
+            "import json",
+            "",
+            'ALLOWED = {"refund", "shipping", "billing", "other"}',
+            'KEYS = {"category", "confidence", "reason"}',
+            "",
+            "def check(raw: str) -> dict:",
+            "    data = json.loads(raw)",
+            "    if set(data) != KEYS:",
+            '        raise ValueError(f"keys must be {sorted(KEYS)}")',
+            '    if data["category"] not in ALLOWED:',
+            '        raise ValueError("unknown category")',
+            '    if not 0.0 <= data["confidence"] <= 1.0:',
+            '        raise ValueError("confidence out of range")',
+            "    return data",
+            "",
+            'sample = \'{"category": "shipping", "confidence": 0.82, "reason": "late parcel"}\'',
+            "print(check(sample))",
+          ].join("\n"),
+          output: {
+            label: "Sample output. Fixed data.",
+            text: "{'category': 'shipping', 'confidence': 0.82, 'reason': 'late parcel'}",
+          },
+        },
+        {
+          kind: "paragraph",
+          id: "p-prompt-14",
+          text: "Run the checker on one sample answer. A pass prints the parsed object. A fail raises an error with the key or the value that broke the contract.",
+        },
+        {
+          kind: "paragraph",
+          id: "p-prompt-15",
+          text: "A retry is not a fix. If the checker fails twice, return the fallback label and send the ticket to a person. A loop of retries hides a broken contract and adds cost.",
+        },
+        { kind: "task", id: "task-prompt" },
+        {
+          kind: "note",
+          id: "note-prompt",
+          text: "Write the refusal rule before the happy path. The rare ticket decides whether the caller can trust the label.",
+        },
+      ],
+    },
+    {
+      id: "prove-the-contract",
+      title: "Prove: name the change",
+      blocks: [
+        {
+          kind: "paragraph",
+          id: "p-prompt-16",
+          text: "The proof note names the contract change and the result. For example, I added a closed key set and a refusal rule. The parse error rate fell from twenty percent to two percent on the edge table.",
+        },
+        {
+          kind: "paragraph",
+          id: "p-prompt-17",
+          text: "A weaker note says the prompt is clearer. The strong note names the part of the contract, the test file and the result. A reader can rerun the edge table and see the same number.",
+        },
+        {
+          kind: "paragraph",
+          id: "p-prompt-18",
+          text: "Keep the prompt file and the edge table in the same folder. A change that touches one without the other is incomplete.",
+        },
+        {
+          kind: "callout",
+          id: "callout-prompt-one",
+          tone: "note",
+          title: "One change per run.",
+          text: "Change the shape or the wording, not both. Two changes in one run hide which one moved the number.",
+        },
+      ],
+    },
+  ],
+  checks: [
+    {
+      id: "check-1",
+      prompt: "Which part of the contract stops the parser error?",
+      options: [
+        { id: "option-a", label: "A longer role sentence" },
+        { id: "option-b", label: "A closed JSON key set with allowed values" },
+        { id: "option-c", label: "A higher temperature" },
+        { id: "option-d", label: "A friendlier tone in the prompt" },
+      ],
+      correctOptionId: "option-b",
+      explanation:
+        "The parser breaks when the answer has no fixed shape. A closed key set with allowed values lets the checker accept or reject each answer.",
+    },
+    {
+      id: "check-2",
+      prompt: "A ticket is in a language the model cannot label. What should the contract do?",
+      options: [
+        { id: "option-a", label: "Return the nearest label with high confidence" },
+        { id: "option-b", label: "Return the fallback label and a short reason" },
+        { id: "option-c", label: "Retry until a label appears" },
+        { id: "option-d", label: "Drop the ticket with no answer" },
+      ],
+      correctOptionId: "option-b",
+      explanation:
+        "The refusal rule names the fallback label and hands the ticket to a person. A near label hides the failure, and a retry loop adds cost without adding information.",
+    },
+  ],
+  task: {
+    id: "task-prompt",
+    scope: "Write a prompt contract and a checker for the ticket labeler.",
+    items: [
+      { id: "item-1", label: "State the role and the task in one sentence." },
+      { id: "item-2", label: "Write the exact output keys and allowed categories." },
+      { id: "item-3", label: "Add a refusal rule with the fallback label." },
+      { id: "item-4", label: "Write an edge table with three unusual tickets." },
+      { id: "item-5", label: "Run the checker on one sample answer." },
+    ],
+    solution: {
+      filename: "prompts/check_shape.py",
+      language: "python",
+      code: [
+        "import json",
+        "",
+        'ALLOWED = {"refund", "shipping", "billing", "other"}',
+        'KEYS = {"category", "confidence", "reason"}',
+        "",
+        "def check(raw: str) -> dict:",
+        "    data = json.loads(raw)",
+        "    if set(data) != KEYS:",
+        "        raise ValueError('wrong keys')",
+        '    if data["category"] not in ALLOWED:',
+        "        raise ValueError('unknown category')",
+        '    if not 0.0 <= data["confidence"] <= 1.0:',
+        "        raise ValueError('confidence out of range')",
+        "    return data",
+      ].join("\n"),
+    },
+  },
+  prove: {
+    prompt: "Which part of the contract did you change, and what did the edge table show?",
+    placeholder: "I changed X; the result was Y.",
+    maxLength: 280,
+    debounceMs: 800,
+    savedMessage: "Proof saved on this device.",
+  },
+  citation:
+    "Further reading on prompt design: AI Engineering by Chip Huyen (O'Reilly). This course is independent and reproduces no book text or figures.",
+} as const satisfies Lesson);
