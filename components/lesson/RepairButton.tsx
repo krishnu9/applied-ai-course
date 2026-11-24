@@ -15,6 +15,8 @@ export type RepairButtonProps = {
   checks: readonly RepairCheck[];
   taskItemIds: readonly string[];
   declared: SampleMetrics;
+  /** True when the lesson moves no capstone stage. */
+  announceGeneric?: boolean;
 };
 
 /** The completion gate and the repair action. */
@@ -24,6 +26,7 @@ export function RepairButton({
   checks,
   taskItemIds,
   declared,
+  announceGeneric = false,
 }: RepairButtonProps) {
   const { state, ready, repair } = useProgress();
   const [announcement, setAnnouncement] = useState("");
@@ -41,9 +44,11 @@ export function RepairButton({
   function handleRepair() {
     repair(slug);
     setAnnouncement(
-      `Layer repaired. ${formatPercent(declared.passRate)} pass, ${formatUsd(
-        declared.costPer1k,
-      )} per 1k, p95 ${formatSeconds(declared.p95Ms)}.`,
+      announceGeneric
+        ? "Lesson repaired."
+        : `Layer repaired. ${formatPercent(declared.passRate)} pass, ${formatUsd(
+            declared.costPer1k,
+          )} per 1k, p95 ${formatSeconds(declared.p95Ms)}.`,
     );
   }
 

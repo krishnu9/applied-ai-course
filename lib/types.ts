@@ -73,6 +73,32 @@ export interface Section {
   blocks: readonly Block[];
 }
 
+export interface DiagramNode {
+  id: string;
+  label: string;
+  /** Optional second line for the stack variant. */
+  detail?: string;
+  /** Optional value for the bars variant. */
+  value?: number;
+  /** Optional unit for the bars variant, for example "ms". */
+  unit?: string;
+}
+
+export interface DiagramMatrix {
+  rows: readonly string[];
+  columns: readonly string[];
+  /** Filled cells as [rowIndex, columnIndex]. */
+  filled: readonly (readonly [number, number])[];
+}
+
+/** Shared input for all five diagram variants. */
+export interface DiagramSpec {
+  nodes: readonly DiagramNode[];
+  edges: readonly (readonly [string, string])[];
+  /** Optional grid labels for the matrix variant. */
+  matrix?: DiagramMatrix;
+}
+
 export type Block =
   | { kind: "paragraph"; id: string; text: string }
   | { kind: "list"; id: string; ordered: boolean; items: readonly string[] }
@@ -81,8 +107,7 @@ export type Block =
   | { kind: "callout"; id: string; tone: "note" | "warning" | "production-tip";
       title?: string; text: string }
   | { kind: "diagram"; id: string; variant?: DiagramVariant;
-      spec: { nodes: readonly { id: string; label: string }[];
-      edges: readonly (readonly [string, string])[] }; caption: string; alt: string }
+      spec: DiagramSpec; caption: string; alt: string }
   | { kind: "check"; id: string; checkId: string }
   | { kind: "task"; id: string }
   | { kind: "widget"; id: string; widget: "retrieval-explorer" | "cost-calculator"; caption: string }

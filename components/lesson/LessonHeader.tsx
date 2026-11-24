@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { EXPECTED_LESSON_COUNT } from "@/lib/course-registry";
 import type { Lesson } from "@/lib/types";
 
 export type LessonHeaderProps = {
@@ -24,7 +25,7 @@ export function LessonHeader({ lesson }: LessonHeaderProps) {
       </nav>
 
       <p className="mt-4 [font-family:var(--font-mono-stack)] text-[length:var(--text-micro)] uppercase tracking-[var(--tracking-micro)] text-[var(--ink-muted)]">
-        Lesson {lesson.order} of 6
+        Lesson {lesson.order} of {EXPECTED_LESSON_COUNT}
       </p>
       <h1 className="mt-1 text-balance">{lesson.title}</h1>
       <p className="mt-3 max-w-[var(--measure)] [font-family:var(--font-serif-stack)] text-[length:var(--text-body)]">

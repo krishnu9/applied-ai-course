@@ -14,7 +14,8 @@ export type LessonActionBarProps = {
   checks: readonly RepairCheck[];
   taskItemIds: readonly string[];
   next: LessonSummary | null;
-  declared: SampleMetrics;
+  /** The repaired stage pair, or null when the lesson moves no stage. */
+  declared: SampleMetrics | null;
 };
 
 function isField(target: EventTarget | null): boolean {
@@ -57,9 +58,11 @@ export function LessonActionBar({
   function handleRepair(): void {
     repair(slug);
     setAnnouncement(
-      `Layer repaired. ${formatPercent(declared.passRate)} pass, ${formatUsd(
-        declared.costPer1k,
-      )} per 1k, p95 ${formatSeconds(declared.p95Ms)}.`,
+      declared
+        ? `Layer repaired. ${formatPercent(declared.passRate)} pass, ${formatUsd(
+            declared.costPer1k,
+          )} per 1k, p95 ${formatSeconds(declared.p95Ms)}.`
+        : "Lesson repaired.",
     );
   }
 

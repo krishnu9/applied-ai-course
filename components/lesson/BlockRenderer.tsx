@@ -1,17 +1,24 @@
-import { getCostModel, getPresetQueries, getRetrievalDocs } from "@/content";
-import { CostCalculator, RetrievalExplorer } from "@/components/widgets";
 import { Panel } from "@/components/ui";
-import type { Block, Lesson } from "@/lib/types";
+import type { Block, InteractiveWidgetId, Lesson } from "@/lib/types";
+import { Analogy } from "./Analogy";
 import { Callout } from "./Callout";
 import { CheckBlock } from "./CheckBlock";
 import { CodeBlock } from "./CodeBlock";
 import { Diagram } from "./Diagram";
+import { InteractiveBlock } from "./InteractiveBlock";
+import { InterviewCorner } from "./InterviewCorner";
 import { Prose } from "./Prose";
+import { TableBlock } from "./TableBlock";
 import { TaskChecklist } from "./TaskChecklist";
 
 export type BlockRendererProps = {
   block: Block;
   lesson: Lesson;
+};
+
+const LEGACY_WIDGETS: Record<string, InteractiveWidgetId> = {
+  "retrieval-explorer": "rag-rank-lab",
+  "cost-calculator": "serving-budget",
 };
 
 function UnavailableBlock() {
@@ -48,7 +55,32 @@ export function BlockRenderer({ block, lesson }: BlockRendererProps) {
       return <Callout tone={block.tone} title={block.title} text={block.text} />;
 
     case "diagram":
-      return <Diagram spec={block.spec} caption={block.caption} alt={block.alt} />;
+      return (
+        <Diagram
+          variant={block.variant}
+          spec={block.spec}
+          caption={block.caption}
+          alt={block.alt}
+        />
+      );
+
+    case "analogy":
+      return <Analogy text={block.text} breaks={block.breaks} />;
+
+    case "table":
+      return (
+        <TableBlock
+          columns={block.columns}
+          rows={block.rows}
+          caption={block.caption}
+        />
+      );
+
+    case "interview":
+      return <InterviewCorner id={block.id} items={block.items} />;
+
+    case "interactive":
+      return <InteractiveBlock widget={block.widget} caption={block.caption} />;
 
     case "check": {
       const check = lesson.checks.find((candidate) => candidate.id === block.checkId);
@@ -69,27 +101,13 @@ export function BlockRenderer({ block, lesson }: BlockRendererProps) {
       );
 
     case "widget": {
-      if (block.widget === "retrieval-explorer") {
-        return (
-          <RetrievalExplorer
-            docs={getRetrievalDocs()}
-            presets={getPresetQueries()}
-            caption={block.caption}
-            className="my-6"
-          />
-        );
-      }
-      if (block.widget === "cost-calculator") {
-        return (
-          <CostCalculator
-            model={getCostModel()}
-            caption={block.caption}
-            className="my-6"
-          />
-        );
-      }
-      // A widget id outside the union names no widget, so the block cannot render.
-      return <UnavailableBlock />;
+      // The two old widget ids now point at the registry components.
+      const widget = LEGACY_WIDGETS[block.widget];
+      return widget ? (
+        <InteractiveBlock widget={widget} caption={block.caption} />
+      ) : (
+        <UnavailableBlock />
+      );
     }
 
     case "note":

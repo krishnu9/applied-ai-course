@@ -1,174 +1,261 @@
-import type { Block } from "@/lib/types";
-
-type DiagramSpec = Extract<Block, { kind: "diagram" }>["spec"];
+import type { ReactNode } from "react";
+import type { DiagramSpec, DiagramVariant } from "@/lib/types";
+import { layoutDiagram, NODE_H, NODE_W } from "./diagramLayout";
 
 export type DiagramProps = {
   spec: DiagramSpec;
   caption: string;
   alt: string;
+  variant?: DiagramVariant;
 };
 
-const NODE_W = 132;
-const NODE_H = 44;
-const GAP_X = 44;
-const GAP_Y = 16;
-const PAD = 8;
+const LABEL_FONT = "var(--font-mono-stack)";
+const STROKE = "var(--ink-muted)";
 
-type PositionedNode = {
-  id: string;
-  label: string;
-  x: number;
-  y: number;
-};
-
-type EdgePath = {
-  id: string;
-  path: string;
-};
-
-type Layout = {
-  nodes: PositionedNode[];
-  edges: EdgePath[];
+function SvgFrame({
+  width,
+  height,
+  children,
+}: {
   width: number;
   height: number;
-};
-
-/** Longest-path column layout: one column per dependency depth. */
-function layoutDiagram(spec: DiagramSpec): Layout {
-  const ids = spec.nodes.map((node) => node.id);
-  const known = new Set(ids);
-  const outgoing = new Map<string, string[]>(ids.map((id) => [id, []]));
-  const incomingCount = new Map<string, number>(ids.map((id) => [id, 0]));
-
-  for (const [from, to] of spec.edges) {
-    if (!known.has(from) || !known.has(to) || from === to) continue;
-    outgoing.get(from)?.push(to);
-    incomingCount.set(to, (incomingCount.get(to) ?? 0) + 1);
-  }
-
-  const depth = new Map<string, number>(ids.map((id) => [id, 0]));
-  const queue = ids.filter((id) => (incomingCount.get(id) ?? 0) === 0);
-  const remaining = new Map(incomingCount);
-  const visited = new Set<string>();
-
-  let cursor = 0;
-  while (cursor < queue.length) {
-    const id = queue[cursor];
-    cursor += 1;
-    visited.add(id);
-    for (const next of outgoing.get(id) ?? []) {
-      depth.set(next, Math.max(depth.get(next) ?? 0, (depth.get(id) ?? 0) + 1));
-      remaining.set(next, (remaining.get(next) ?? 1) - 1);
-      if ((remaining.get(next) ?? 0) === 0) queue.push(next);
-    }
-  }
-
-  const columns = new Map<number, string[]>();
-  for (const id of ids) {
-    // A cycle leaves a node unvisited; keep it in the last column, not on top of a root.
-    const column = visited.has(id) ? (depth.get(id) ?? 0) : 0;
-    const list = columns.get(column) ?? [];
-    list.push(id);
-    columns.set(column, list);
-  }
-
-  const columnKeys = [...columns.keys()].sort((a, b) => a - b);
-  const rowCount = Math.max(
-    ...columnKeys.map((key) => columns.get(key)?.length ?? 0),
-    1,
+  children: ReactNode;
+}) {
+  return (
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      width="100%"
+      aria-hidden="true"
+      focusable="false"
+      preserveAspectRatio="xMidYMid meet"
+      className="h-auto w-full min-w-[460px]"
+    >
+      {children}
+    </svg>
   );
-  const nodes: PositionedNode[] = [];
-  const position = new Map<string, PositionedNode>();
-
-  columnKeys.forEach((key, columnIndex) => {
-    const list = columns.get(key) ?? [];
-    list.forEach((id, rowIndex) => {
-      const source = spec.nodes.find((node) => node.id === id);
-      if (!source) return;
-      const node: PositionedNode = {
-        id,
-        label: source.label,
-        x: PAD + columnIndex * (NODE_W + GAP_X),
-        y: PAD + rowIndex * (NODE_H + GAP_Y),
-      };
-      nodes.push(node);
-      position.set(id, node);
-    });
-  });
-
-  const edges: EdgePath[] = [];
-  spec.edges.forEach(([from, to], index) => {
-    const start = position.get(from);
-    const end = position.get(to);
-    if (!start || !end) return;
-    const x1 = start.x + NODE_W;
-    const y1 = start.y + NODE_H / 2;
-    const x2 = end.x;
-    const y2 = end.y + NODE_H / 2;
-    const path =
-      x2 > x1
-        ? `M ${x1} ${y1} H ${x1 + (x2 - x1) / 2} V ${y2} H ${x2}`
-        : `M ${x1} ${y1} L ${x2} ${y2}`;
-    edges.push({ id: `${from}-${to}-${index}`, path });
-  });
-
-  const width =
-    columnKeys.length === 0
-      ? 0
-      : PAD * 2 + columnKeys.length * NODE_W + (columnKeys.length - 1) * GAP_X;
-  const height = PAD * 2 + rowCount * NODE_H + (rowCount - 1) * GAP_Y;
-
-  return { nodes, edges, width, height };
 }
 
 /** Inline SVG diagram: one pixel strokes, square corners and mono uppercase labels. */
-export function Diagram({ spec, caption, alt }: DiagramProps) {
-  const { nodes, edges, width, height } = layoutDiagram(spec);
+export function Diagram({ spec, caption, alt, variant }: DiagramProps) {
+  const layout = layoutDiagram(variant, spec);
+  const hasContent = spec.nodes.length > 0;
 
   return (
     <figure className="my-6 min-w-0">
-      {nodes.length > 0 ? (
-        <div className="min-w-0 overflow-x-auto rounded-[var(--radius-2)] border border-[var(--hairline)] bg-[var(--surface)] p-3">
-          <svg
-            viewBox={`0 0 ${width} ${height}`}
-            width="100%"
-            aria-hidden="true"
-            focusable="false"
-            preserveAspectRatio="xMidYMid meet"
-            className="h-auto w-full min-w-[460px]"
-          >
-            <g stroke="var(--ink-muted)" strokeWidth={1} fill="none">
-              {edges.map((edge) => (
-                <path key={edge.id} d={edge.path} />
+      {hasContent ? (
+        <div className="min-w-0 max-w-full overflow-x-auto rounded-[var(--radius-2)] border border-[var(--hairline)] bg-[var(--surface)] p-3">
+          {layout.kind === "flow" ? (
+            <SvgFrame width={layout.width} height={layout.height}>
+              <g stroke={STROKE} strokeWidth={1} fill="none">
+                {layout.edges.map((edge) => (
+                  <path key={edge.id} d={edge.path} />
+                ))}
+              </g>
+              {layout.nodes.map((node) => (
+                <g key={node.id}>
+                  <rect
+                    x={node.x}
+                    y={node.y}
+                    width={NODE_W}
+                    height={NODE_H}
+                    rx={0}
+                    fill="var(--bg)"
+                    stroke={STROKE}
+                    strokeWidth={1}
+                  />
+                  <text
+                    x={node.x + NODE_W / 2}
+                    y={node.y + NODE_H / 2}
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fill="var(--ink)"
+                    fontFamily={LABEL_FONT}
+                    fontSize={11}
+                    letterSpacing="0.06em"
+                  >
+                    {node.label.toUpperCase()}
+                  </text>
+                </g>
               ))}
-            </g>
-            {nodes.map((node) => (
-              <g key={node.id}>
-                <rect
-                  x={node.x}
-                  y={node.y}
-                  width={NODE_W}
-                  height={NODE_H}
-                  rx={0}
-                  fill="var(--bg)"
-                  stroke="var(--ink-muted)"
-                  strokeWidth={1}
-                />
+            </SvgFrame>
+          ) : null}
+
+          {layout.kind === "stack" ? (
+            <SvgFrame width={layout.width} height={layout.height}>
+              {layout.layers.map((layer) => (
+                <g key={layer.id}>
+                  <rect
+                    x={layer.x}
+                    y={layer.y}
+                    width={layer.width}
+                    height={layer.height}
+                    rx={0}
+                    fill="var(--bg)"
+                    stroke={STROKE}
+                    strokeWidth={1}
+                  />
+                  <text
+                    x={layer.x + 12}
+                    y={layer.detail ? layer.y + 22 : layer.y + layer.height / 2}
+                    dominantBaseline="central"
+                    fill="var(--ink)"
+                    fontFamily={LABEL_FONT}
+                    fontSize={11}
+                    letterSpacing="0.06em"
+                  >
+                    {layer.label.toUpperCase()}
+                  </text>
+                  {layer.detail ? (
+                    <text
+                      x={layer.x + 12}
+                      y={layer.y + 42}
+                      dominantBaseline="central"
+                      fill="var(--ink-muted)"
+                      fontFamily={LABEL_FONT}
+                      fontSize={10}
+                    >
+                      {layer.detail}
+                    </text>
+                  ) : null}
+                </g>
+              ))}
+            </SvgFrame>
+          ) : null}
+
+          {layout.kind === "matrix" ? (
+            <SvgFrame width={layout.width} height={layout.height}>
+              {layout.columns.map((column) => (
                 <text
-                  x={node.x + NODE_W / 2}
-                  y={node.y + NODE_H / 2}
+                  key={`column-${column.label}-${column.x}`}
+                  x={column.x}
+                  y={column.y}
                   textAnchor="middle"
                   dominantBaseline="central"
-                  fill="var(--ink)"
-                  fontFamily="var(--font-mono-stack)"
-                  fontSize={11}
+                  fill="var(--ink-muted)"
+                  fontFamily={LABEL_FONT}
+                  fontSize={10}
                   letterSpacing="0.06em"
                 >
-                  {node.label.toUpperCase()}
+                  {column.label.toUpperCase()}
                 </text>
-              </g>
-            ))}
-          </svg>
+              ))}
+              {layout.rows.map((row) => (
+                <text
+                  key={`row-${row.label}-${row.y}`}
+                  x={row.x}
+                  y={row.y}
+                  dominantBaseline="central"
+                  fill="var(--ink)"
+                  fontFamily={LABEL_FONT}
+                  fontSize={10}
+                  letterSpacing="0.06em"
+                >
+                  {row.label.toUpperCase()}
+                </text>
+              ))}
+              {layout.cells.map((cell) => (
+                <rect
+                  key={`cell-${cell.x}-${cell.y}`}
+                  x={cell.x}
+                  y={cell.y}
+                  width={layout.cellSize}
+                  height={layout.cellSize}
+                  rx={0}
+                  fill={cell.filled ? "var(--ink-muted)" : "var(--bg)"}
+                  stroke={STROKE}
+                  strokeWidth={1}
+                />
+              ))}
+            </SvgFrame>
+          ) : null}
+
+          {layout.kind === "timeline" ? (
+            <SvgFrame width={layout.width} height={layout.height}>
+              <line
+                x1={layout.line.x1}
+                y1={layout.line.y1}
+                x2={layout.line.x2}
+                y2={layout.line.y2}
+                stroke={STROKE}
+                strokeWidth={1}
+              />
+              {layout.phases.map((phase) => (
+                <g key={phase.id}>
+                  <circle
+                    cx={phase.x}
+                    cy={phase.y}
+                    r={7}
+                    fill="var(--bg)"
+                    stroke={STROKE}
+                    strokeWidth={1}
+                  />
+                  <text
+                    x={phase.x}
+                    y={phase.y}
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fill="var(--ink)"
+                    fontFamily={LABEL_FONT}
+                    fontSize={9}
+                  >
+                    {phase.number}
+                  </text>
+                  <text
+                    x={phase.x}
+                    y={phase.y + 26}
+                    textAnchor="middle"
+                    fill="var(--ink)"
+                    fontFamily={LABEL_FONT}
+                    fontSize={10}
+                    letterSpacing="0.06em"
+                  >
+                    {phase.label.toUpperCase()}
+                  </text>
+                </g>
+              ))}
+            </SvgFrame>
+          ) : null}
+
+          {layout.kind === "bars" ? (
+            <SvgFrame width={layout.width} height={layout.height}>
+              {layout.bars.map((bar) => (
+                <g key={bar.id}>
+                  <text
+                    x={8}
+                    y={bar.y + 9}
+                    dominantBaseline="central"
+                    fill="var(--ink)"
+                    fontFamily={LABEL_FONT}
+                    fontSize={10}
+                    letterSpacing="0.06em"
+                  >
+                    {bar.label.toUpperCase()}
+                  </text>
+                  <rect
+                    x={bar.x}
+                    y={bar.y}
+                    width={bar.width}
+                    height={18}
+                    rx={0}
+                    fill="var(--bg)"
+                    stroke={STROKE}
+                    strokeWidth={1}
+                  />
+                  <text
+                    x={layout.width - 8}
+                    y={bar.y + 9}
+                    textAnchor="end"
+                    dominantBaseline="central"
+                    fill="var(--ink)"
+                    fontFamily={LABEL_FONT}
+                    fontSize={10}
+                  >
+                    {bar.valueText}
+                  </text>
+                </g>
+              ))}
+            </SvgFrame>
+          ) : null}
         </div>
       ) : null}
       <p className="sr-only">{alt}</p>

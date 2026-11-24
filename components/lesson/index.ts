@@ -20,6 +20,23 @@ export { CopyButton } from "./CopyButton";
 export type { CopyButtonProps } from "./CopyButton";
 export { Diagram } from "./Diagram";
 export type { DiagramProps } from "./Diagram";
+export { layoutDiagram } from "./diagramLayout";
+export type {
+  DiagramLayout,
+  FlowLayout,
+  StackLayout,
+  MatrixLayout,
+  TimelineLayout,
+  BarsLayout,
+} from "./diagramLayout";
+export { Analogy } from "./Analogy";
+export type { AnalogyProps } from "./Analogy";
+export { TableBlock } from "./TableBlock";
+export type { TableBlockProps } from "./TableBlock";
+export { InterviewCorner } from "./InterviewCorner";
+export type { InterviewCornerProps, InterviewQuestion } from "./InterviewCorner";
+export { InteractiveBlock } from "./InteractiveBlock";
+export type { InteractiveBlockProps } from "./InteractiveBlock";
 export { CheckBlock } from "./CheckBlock";
 export type { CheckBlockProps } from "./CheckBlock";
 export { TaskChecklist } from "./TaskChecklist";
