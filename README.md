@@ -1,12 +1,18 @@
 # lastminute.dev
 
-A short, written course on AI engineering for software engineers who move into AI.
+A written course on AI engineering for software engineers who prepare for interviews.
 
-One small support-triage feature starts broken. Six lessons repair it, one layer at a time. Every
-lesson follows one loop: **Read → Check → Build → Prove**. You repair a layer, write one sentence
-of proof, and watch one sample evaluation score move. Progress stays in your browser.
+24 lessons across the ten chapters of *AI Engineering* by Chip Huyen, grouped into ten chapters.
+Each lesson explains one topic in plain technical English, adds two or three ELI5 sections with
+analogies, one static diagram, and a four-question interview corner. A support-triage product runs
+through the course. The reader repairs it and uses it as the evaluation layer: checks, a five-step
+task, and one written proof sentence.
 
-Independent study notes. Not affiliated with the author or publisher of "AI Engineering".
+Eight flagship lessons add an interactive lab: judge bias, model arena, prompt injection, context
+budget, retrieval ranking, agent trace, LoRA memory, and serving budget.
+
+Independent study notes. Not affiliated with the author or publisher. No book text or figure is
+reproduced.
 
 ## Try it
 
@@ -23,27 +29,39 @@ Open http://localhost:3000.
 npm run build
 ```
 
-The static site is written to `out/`. It deploys to Vercel with zero configuration.
+Static site in `out/`. Deploys to Vercel with zero configuration.
+
+## Verify content
+
+```bash
+COURSE_FINAL=1 CONTENT_VALIDATE=1 npm run build
+```
+
+This checks all 24 lessons against the course contract: chapter and order, terms, two or three
+ELI5 sections with analogies, one static diagram, flagship-only interactive blocks, 4–6 checks,
+a five-item task, four interview questions, citation, word budgets and the ELI5 floor.
 
 ## What is inside
 
-- Six lessons: Evaluation, Prompt design, Retrieval (flagship), Agents, Fine-tuning, Cost and latency.
-- The Eval Spine: six layers with fixed sample scores (pass rate, cost per 1k, p95).
-- Inline checks with explanations, a five-step build task with a reference solution, and a proof note.
-- A retrieval explorer and a cost and latency calculator, both on fixed sample data.
-- Progress and resume in localStorage. No login, no backend, no live model call.
+- Ten chapters: the AI stack; foundation models; evaluation methodology; evaluating systems;
+  prompt engineering; RAG and agents; fine-tuning; dataset engineering; inference optimisation;
+  architecture and feedback.
+- Every lesson: outcome and terms, definition, two ELI5 sections, mechanism with a diagram,
+  failure table, triage case, concept checks, evaluation task, proof note, interview corner.
+- Six capstone evaluation stages with fixed sample scores.
+- Progress, per-check answers, task ticks and notes in localStorage, with migration from v1.
+- No login, no backend, no live model call.
 
 ## Stack
 
 Next.js App Router, TypeScript, Tailwind CSS, npm. Static output. No environment variables.
 
-## Design documents
+## Documents
 
-`docs/design/1-analysis.md` → `2-concept.md` → `3-prd.md` → `4-hld.md` → `5-lld.md`.
-The build plan is `PLAN.md`. Agent guidance is `CLAUDE.md` and `AGENTS.md`. The agent harness is
-`docs/idea/HARNESS.md`.
-
-## Content and rights
-
-All lesson text, examples, code and diagrams are original. The book "AI Engineering" by Chip
-Huyen is cited once per lesson as further reading. No text or figure from the book is reproduced.
+- `docs/content/COURSE-BRIEF.md` — authoring contract and lesson template.
+- `docs/content/GLOSSARY.md` — one term and one spelling per concept.
+- `docs/content/COVERAGE.md` and `docs/content/reviews/coverage-audit.md` — book coverage.
+- `docs/content/BOOK-INVENTORY.md` — interview-core concept inventory.
+- `docs/content/reviews/` — pilot, desktop QA, mobile QA and coverage reviews.
+- `docs/design/` — the original analysis, concept, PRD, HLD and LLD.
+- `PLAN.md`, `CLAUDE.md`, `AGENTS.md`, `docs/idea/HARNESS.md`.

@@ -15,7 +15,7 @@ out/
 
 # local tooling
 .agentty-ecc/
-.plan.json
+.plan*.json
 .omc/
 
 # misc
