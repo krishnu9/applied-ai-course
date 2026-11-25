@@ -67,7 +67,7 @@ export const syntheticDataLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "synthetic-data-p-4",
-          text: "The pipeline has three gates: a clear gap, a written output contract and a measured pass rate. A row that fails a gate never reaches the student.",
+          text: "The pipeline has three gates: a clear gap, an output contract and a measured pass rate.",
         },
       ],
     },
@@ -123,8 +123,13 @@ export const syntheticDataLesson = deepFreeze({
         },
         {
           kind: "paragraph",
+          id: "synthetic-data-p-7b",
+          text: "Three routes produce synthetic rows. Paraphrase rewrites a seed row and keeps its label. Back-translation translates a row out and back, and it adds natural variation. Self-play generates a problem and a solution, then keeps the pairs that pass the verifier.",
+        },
+        {
+          kind: "paragraph",
           id: "synthetic-data-p-8",
-          text: "Verification has two layers. Rule checks catch a missing citation, a wrong label, a malformed schema, personal data or a length breach. A human audit covers what a program cannot check. Report the pass rate per rule, so one weak rule cannot hide.",
+          text: "Verification has two layers. Rule checks catch a missing citation, a wrong label, a malformed schema, personal data or a length breach. A human audit covers what code cannot check. Report the pass rate per rule.",
         },
         {
           kind: "paragraph",
@@ -134,12 +139,12 @@ export const syntheticDataLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "synthetic-data-p-10",
-          text: "The license is a gate, not a footnote. Read the teacher terms for training use, output use and a ban on competing models. Keep the teacher name, prompt and date with each row. A license problem can erase the set.",
+          text: "The license is a gate, not a footnote. Read the teacher terms for training use, output use and a ban on competing models. Keep the teacher name, prompt and date with each row.",
         },
         {
           kind: "paragraph",
           id: "synthetic-data-p-11",
-          text: "Cost is teacher tokens per accepted row. A low accept rate makes each useful row expensive, so tighten the prompt. Generate only the gap, and reuse human rows where they cover a slice.",
+          text: "Cost is teacher tokens per accepted row. A low accept rate makes each useful row expensive, so tighten the prompt. Generate only the gap, and reuse human rows.",
         },
         {
           kind: "table",
@@ -239,7 +244,7 @@ export const syntheticDataLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "synthetic-data-p-13",
-          text: "Synthetic data scales coverage cheaply and moves cost to verification and license review. Unverified volume lowers quality, so the verifier rate sets the budget.",
+          text: "Synthetic data scales coverage cheaply and moves cost to verification and license review. Unverified volume lowers quality, so the verifier rate sets cost.",
         },
       ],
     },
@@ -251,7 +256,7 @@ export const syntheticDataLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "synthetic-data-p-14",
-          text: "The team needs 2,000 tone examples for the reply adapter. Human review can supply 600. A teacher generates 2,400 candidates from seed tickets and the style guide. The verifier rejects 700: 180 have no citation, 320 have a wrong label, 90 hold personal data and 110 break the schema.",
+          text: "The team needs 2,000 tone examples. Human review can supply 600. A teacher generates 2,400 candidates from seed tickets and the style guide. The verifier rejects 700: 180 without a citation, 320 with a wrong label, 90 with personal data, 110 with a bad schema.",
         },
         {
           kind: "paragraph",
@@ -266,7 +271,7 @@ export const syntheticDataLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "synthetic-data-p-17",
-          text: "Legal review reads the teacher terms. Internal training is allowed, and a competing model is not. The student is internal to the support product. The team records the teacher name, prompt and date for every row. The eval set stays human-labeled.",
+          text: "Legal review reads the teacher terms. Internal training is allowed, and a competing model is not. The team records the teacher name, prompt and date for every row. The eval set stays human-labeled.",
         },
       ],
     },
@@ -313,7 +318,7 @@ export const syntheticDataLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "synthetic-data-p-21",
-          text: "Write one sentence with the form: I changed X; the result was Y. Name the gate and one count. Example: I added a citation rule; accepts fell from 1,900 to 1,640.",
+          text: "Write one sentence: I changed X; the result was Y. Name the gate and one count. Example: I added a citation rule; accepts fell from 1,900 to 1,640.",
         },
         {
           kind: "paragraph",

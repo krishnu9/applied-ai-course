@@ -72,7 +72,7 @@ export const promptContractLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "prompt-contract-p-3",
-          text: "A lease reviewer uses one contract. The system prompt names the role and the rules. The user prompt holds the lease text between two delimiters. The output contract asks for three keys: clause, risk and quote. A refusal rule sends an unclear clause to the label review. The model returns one object for each clause.",
+          text: "A lease reviewer uses one contract. The system prompt names the role and the rules. The user prompt holds the lease text between two delimiters. The output contract asks for three keys: clause, risk and quote. A refusal rule sends an unclear clause to the label review. The model returns one object for each clause. A simple mapping works zero-shot, with instructions and no examples. An edge case usually needs few-shot examples.",
         },
         {
           kind: "paragraph",
@@ -147,17 +147,17 @@ export const promptContractLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "prompt-contract-p-10",
-          text: "Few-shot means a prompt with a few worked examples. Two or three examples show the mapping, the edge and the output shape. Each example costs tokens on every call. Choose examples that teach a rule, not examples that repeat the happy path. Keep the example labels consistent with the written rules, or the model follows the examples. Measure the change on the fixed inputs, because one example can help one edge and hurt another.",
+          text: "Zero-shot means a prompt with instructions only and no worked examples. Few-shot means a prompt with a few worked examples. Two or three examples show the mapping, the edge and the output shape. Each example costs tokens on every call. Choose examples that teach a rule, not examples that repeat the happy path. Keep the example labels consistent with the written rules, or the model follows the examples. Measure the change on the fixed inputs, because one example can help one edge and hurt another.",
         },
         {
           kind: "paragraph",
           id: "prompt-contract-p-11",
-          text: "Chain of thought asks for intermediate reasoning steps. Use it when the task needs several checks, such as a policy comparison. Keep the steps short and put them in a separate output field. Do not ask for hidden reasoning on a simple label task, because the extra tokens add cost and latency.",
+          text: "Chain of thought asks for intermediate reasoning steps. Use it when the task needs several checks, such as a policy comparison. Keep the steps short and put them in a separate output field. Do not ask for hidden reasoning on a simple label task, because the extra tokens add cost and latency. Task decomposition splits one hard request into ordered smaller calls. Use it when one answer needs several independent checks, such as a policy lookup and a tone rewrite.",
         },
         {
           kind: "paragraph",
           id: "prompt-contract-p-12",
-          text: "Prompt injection is text in the input that tries to override the instructions. Direct injection comes from the user. Indirect prompt injection hides in retrieved or tool content, so the user never sees it. Defence has four parts: a stated hierarchy, delimiters, a tool allowlist with least privilege, and an output check. The guard fails closed: an unclear or hostile input goes to the refusal label and a person. Do not put a secret in the prompt, because the model can repeat it.",
+          text: "Prompt injection is text in the input that tries to override the instructions. Direct injection comes from the user. Indirect prompt injection hides in retrieved or tool content, so the user never sees it. A jailbreak is an input that tries to bypass the safety rules, while prompt injection tries to change the task. Defence has four parts: a stated hierarchy, delimiters, a tool allowlist with least privilege, and an output check. The guard fails closed: an unclear or hostile input goes to the refusal label and a person. Do not put a secret in the prompt, because the model can repeat it.",
         },
         {
           kind: "paragraph",

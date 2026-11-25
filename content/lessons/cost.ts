@@ -66,7 +66,7 @@ export const costLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "cost-p-3",
-          text: "A support request carries 1,000 input tokens and 250 output tokens. Retrieval takes 400 ms, and prefill takes 0.6 ms per input token, so TTFT is 1,000 ms. Decode takes 5.6 ms per output token, so the answer ends at 2,400 ms. The cost is 0.94 dollars per 1,000 requests.",
+          text: "A support request carries 1,000 input tokens and 250 output tokens. Retrieval takes 400 ms, and prefill takes 0.6 ms per input token, so TTFT is 1,000 ms. Decode takes 5.6 ms per gap after the first token, and 250 output tokens have 249 gaps. The answer ends at 2,394 ms, about 2.4 seconds. The cost is 0.94 dollars per 1,000 requests.",
         },
         {
           kind: "paragraph",
@@ -90,7 +90,7 @@ export const costLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "cost-p-5",
-          text: "Prediction: if one tray holds more loaves, what happens to the loaves per hour and to the wait for the first loaf?",
+          text: "Prediction: if one tray holds more loaves, what happens to the loaves per hour and to the wait for the first loaf? Say why that happens.",
         },
       ],
     },
@@ -222,7 +222,7 @@ export const costLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "cost-p-13",
-          text: "Prediction: if cars arrive faster than the booth serves them, does the wait grow for the first car or for the last car, and which percentile shows it first?",
+          text: "Prediction: if cars arrive faster than the booth serves them, does the wait grow for the first car or for the last car, and which percentile shows it first? Say which and why.",
         },
       ],
     },

@@ -122,7 +122,7 @@ export const retrievalLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "retrieval-p-8",
-          text: "BM25 is the lexical ranker. It scores a chunk by the query terms it contains, and it limits the gain from a repeated term. It also divides by chunk length, so a long chunk cannot win by size alone. The constants k1 and b control saturation and length correction. Typical values are k1 = 1.5 and b = 0.75. Take a rare term that appears in 2 of 100 chunks. It earns a high weight. A chunk with two hits beats a chunk with one hit, but the gain flattens. A short chunk with one hit beats a long chunk with one hit.",
+          text: "TF-IDF is the earlier lexical weighting idea: it multiplies term frequency by inverse document frequency. BM25 is the lexical ranker that adds saturation and length normalization to that idea. It scores a chunk by the query terms it contains, and it limits the gain from a repeated term. It also divides by chunk length, so a long chunk cannot win by size alone. The constants k1 and b control saturation and length correction. Typical values are k1 = 1.5 and b = 0.75. Take a rare term that appears in 2 of 100 chunks. It earns a high weight. A chunk with two hits beats a chunk with one hit, but the gain flattens. A short chunk with one hit beats a long chunk with one hit.",
         },
         {
           kind: "paragraph",
@@ -288,7 +288,7 @@ export const retrievalLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "retrieval-p-19",
-          text: "The broken pipeline runs BM25 on body text only and ignores the dense list. BM25 sees the word policy in doc-02, the billing document, and returns it first. The refund document says refunds, not refund, so it scores zero in that pass. The top three become doc-02, doc-01, and doc-03, and recall@3 is 1/3.",
+          text: "The broken pipeline runs BM25 on body text only and ignores the dense list. BM25 sees the word policy in doc-02, the billing document, and returns it first. The tokenizer does not stem, so the refund document, which says refunds, not refund, scores zero in that pass. The top three become doc-02, doc-01, and doc-03, and recall@3 is 1/3.",
         },
         {
           kind: "paragraph",

@@ -220,7 +220,7 @@ export const evalCriteriaLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-eval-criteria-12",
-          text: "A restaurant scores 92 out of 100 and fails the temperature check. May it open tonight? Which line decides, and who must sign the report? Name the rule that closes the kitchen.",
+          text: "A restaurant scores 92 out of 100 and fails the temperature check. May it open tonight? Which line decides, and who must sign the report? Name the rule that closes the kitchen. Also write the name of the duty inspector.",
         },
       ],
     },

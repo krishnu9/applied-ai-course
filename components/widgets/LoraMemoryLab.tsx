@@ -5,10 +5,16 @@ import { CONTROL_LABEL, WidgetHeading, WidgetStat } from "./WidgetChrome";
 import type { WidgetProps } from "./types";
 
 const SIZES = {
-  small: { label: "Small · 1B", hidden: 1024, layers: 24 },
-  medium: { label: "Medium · 7B", hidden: 2048, layers: 32 },
-  large: { label: "Large · 13B", hidden: 4096, layers: 40 },
+  small: { label: "Small · 1B", hidden: 1024, layers: 24, params: 1e9 },
+  medium: { label: "Medium · 7B", hidden: 4096, layers: 32, params: 7e9 },
+  large: { label: "Large · 13B", hidden: 4096, layers: 40, params: 13e9 },
 } as const;
+
+/** Four adapted projections per layer, each with an A and a B matrix. */
+const ADAPTER_FACTOR = 8;
+
+/** 2 bytes of weight, 2 of gradient and 8 for two FP32 optimizer moments. */
+const TRAINING_BYTES_PER_PARAM = 12;
 
 const PRECISIONS = {
   fp16: { label: "FP16 · 2 bytes", bytes: 2 },
@@ -43,9 +49,9 @@ export function LoraMemoryLab({ caption }: WidgetProps) {
 
   const model = SIZES[size];
   const bytes = PRECISIONS[precision].bytes;
-  const trainable = model.layers * rank * 2 * model.hidden;
-  const adapterBytes = trainable * (2 + 8);
-  const baseParams = 12 * model.layers * model.hidden * model.hidden;
+  const trainable = model.layers * rank * ADAPTER_FACTOR * model.hidden;
+  const trainingBytes = trainable * TRAINING_BYTES_PER_PARAM;
+  const baseParams = model.params;
 
   return (
     <div className="min-w-0">
@@ -109,7 +115,10 @@ export function LoraMemoryLab({ caption }: WidgetProps) {
 
       <dl className="mt-4 grid gap-3 sm:grid-cols-3">
         <WidgetStat label="Trainable parameters" value={formatParams(trainable)} />
-        <WidgetStat label="Adapter and optimizer" value={formatGigabytes(adapterBytes)} />
+        <WidgetStat
+          label="Adapter, gradient, optimizer"
+          value={formatGigabytes(trainingBytes)}
+        />
         <WidgetStat
           label={`Frozen base at ${PRECISIONS[precision].label.split(" · ")[0]}`}
           value={formatGigabytes(baseParams * bytes)}
@@ -117,9 +126,10 @@ export function LoraMemoryLab({ caption }: WidgetProps) {
       </dl>
 
       <p className="mt-3 text-[length:var(--text-small)] text-[var(--ink-muted)]">
-        Trainable parameters are about layers × rank × 2 × width. The adapter
-        estimate adds 2 bytes of weights and 8 bytes of optimizer state for each
-        trainable parameter. The base stays frozen; precision changes its size only.
+        Trainable parameters are about layers × rank × 8 × width: four projection
+        matrices per layer, each with two adapters. Each trainable parameter needs
+        12 bytes: 2 for the weight, 2 for the gradient and 8 for two FP32 optimizer
+        moments. The base memory is its parameter count times the precision bytes.
       </p>
     </div>
   );

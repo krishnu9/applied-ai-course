@@ -72,7 +72,7 @@ export const modelSelectionLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-model-selection-4",
-          text: "A hard attribute is a requirement that a model must meet, such as a license or a latency limit. A soft attribute is a preference that trades against other attributes, such as tone or cost. Filter on hard attributes first, then compare soft attributes on the cost-quality frontier.",
+          text: "A hard attribute is a requirement that a model must meet, such as a license or a latency limit. A soft attribute is a preference that trades against other attributes, such as tone or cost. Cost is a soft attribute until a budget is fixed; after that it becomes hard. Filter on hard attributes first, then compare soft attributes on the cost-quality frontier.",
         },
         {
           kind: "paragraph",
@@ -96,7 +96,7 @@ export const modelSelectionLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-model-selection-6",
-          text: "A car wins the magazine test and does not fit your garage. Which check decides, and which number is missing?",
+          text: "A car wins the magazine test and does not fit your garage. Which check decides, and which number is missing? Name the check and the number before you answer.",
         },
       ],
     },

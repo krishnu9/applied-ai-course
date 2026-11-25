@@ -85,7 +85,7 @@ export const observabilityFeedbackLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "observability-feedback-p-4",
-          text: "Prediction: a ward reports many quick visits and one very long visit. Which record shows the long visit, which shows the count, and which shows the path? Say which is which.",
+          text: "Prediction: a ward reports many quick visits and one very long visit. Which record shows the long visit, which shows the count, and which shows the path? Say which record is which, and name the reason.",
         },
       ],
     },
@@ -126,7 +126,7 @@ export const observabilityFeedbackLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "observability-feedback-p-8",
-          text: "Three metrics compare releases. MTTD (mean time to detect) runs from the fault to detection. MTTR (mean time to recover) runs from detection to recovery. CFR (change failure rate) is the share of changes that cause a failure. A change at 02:00, detected at 02:20 and repaired at 04:20 gives an MTTD of 20 minutes and an MTTR of 2 hours.",
+          text: "Three metrics compare releases. MTTD (mean time to detect) runs from the fault to detection. MTTR (mean time to recover) runs from detection to recovery. CFR (change failure rate) is the share of changes that cause a failure. A change at 02:00, detected at 02:20 and repaired at 04:20 gives MTTD 20 minutes and MTTR 2 hours.",
         },
         {
           kind: "paragraph",
@@ -199,14 +199,14 @@ export const observabilityFeedbackLesson = deepFreeze({
         {
           kind: "analogy",
           id: "observability-feedback-analogy-2",
-          text: "Think of a restaurant. A comment card is a guest who takes the time to write, and that card is explicit feedback. An empty plate shows a guest who ate, and that plate is implicit feedback. The cards come from the guests who care most, and the plates come from every table. A full plate does not prove the meal was good, and a card can be loud or kind.",
+          text: "Think of a restaurant. A comment card is a guest who takes the time to write, and that card is explicit feedback. An empty plate shows a guest who ate, and that plate is implicit feedback. The cards come from the guests who care most, and the plates come from every table. A full plate does not prove the meal was good, and a card can be loud, kind or wrong.",
           breaks:
             "Where it breaks: a plate is finished for many reasons, such as hunger, while a copied answer or a retry has several meanings too, and neither one states a reason.",
         },
         {
           kind: "paragraph",
           id: "observability-feedback-p-13",
-          text: "Prediction: which signal arrives from every table, which one carries a stated opinion, and which one can be misread?",
+          text: "Prediction: which signal arrives from every table, which one carries a stated opinion, and which one can be misread? Say why.",
         },
       ],
     },
@@ -250,7 +250,7 @@ export const observabilityFeedbackLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "observability-feedback-p-14",
-          text: "More telemetry raises detection and adds cost and privacy risk. Sample traces, keep every error, and store few fields.",
+          text: "More telemetry adds detection, cost and privacy risk. Sample traces, keep every error, store few fields.",
         },
       ],
     },

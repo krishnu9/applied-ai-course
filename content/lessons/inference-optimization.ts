@@ -81,7 +81,7 @@ export const inferenceOptimizationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "inference-optimization-p-5",
-          text: "Prediction: which trick helps most when every order starts with the same address label, and which trick helps when every order asks for the same 80 parcels?",
+          text: "Prediction: which trick helps most when every order starts with the same address label, and which trick helps when every order asks for the same 80 parcels each time?",
         },
       ],
     },
@@ -137,7 +137,7 @@ export const inferenceOptimizationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "inference-optimization-p-12",
-          text: "Continuous batching removes a finished request at a step boundary and adds a waiting one. A free slot never idles, so throughput rises. KV memory limits the batch before compute does.",
+          text: "Continuous batching removes a finished request at a step boundary and adds a waiting one. A free slot never idles, so throughput rises. Replica, tensor and pipeline parallelism spread one model across devices. KV memory limits the batch before compute does.",
         },
         {
           kind: "table",
@@ -219,7 +219,7 @@ export const inferenceOptimizationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "inference-optimization-p-14",
-          text: "Prediction: when does the pair run slower than the senior runner alone, and what does a low acceptance rate tell you?",
+          text: "Prediction: when does the pair run slower than the senior runner alone, and what does a low acceptance rate tell you about the draft?",
         },
       ],
     },

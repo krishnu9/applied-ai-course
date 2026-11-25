@@ -85,7 +85,7 @@ export const aiArchitectureLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "ai-architecture-p-4",
-          text: "Prediction: which desk stops a passenger with a fake passport, which desk sends a passenger to the wrong plane, and what must each desk read?",
+          text: "Prediction: which desk stops a passenger with a fake passport, and which desk sends a passenger to the wrong plane?",
         },
       ],
     },
@@ -97,7 +97,7 @@ export const aiArchitectureLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "ai-architecture-p-5",
-          text: "The path has a fixed order. Each stage removes one risk or one cost, and each stage has one owner.",
+          text: "The path has a fixed order. Each stage removes one risk or cost, and each stage has one owner.",
         },
         {
           kind: "list",
@@ -116,7 +116,7 @@ export const aiArchitectureLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "ai-architecture-p-6",
-          text: "The router sends each request to one model or path. A rule router reads an intent field, and a model router classifies the text. The router must be cheaper than the call it routes. A misroute is a quality bug, so each route needs an eval slice.",
+          text: "The router sends each request to one model or path. A rule router reads an intent field; a model router classifies text. The router must be cheaper than the call it routes. A misroute is a quality bug; each route needs an eval slice.",
         },
         {
           kind: "paragraph",
@@ -126,12 +126,12 @@ export const aiArchitectureLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "ai-architecture-p-8",
-          text: "A cache returns a stored answer and skips the model. An exact cache hits only on an identical query. A semantic cache hits on a close meaning, so its threshold decides the risk. The key must include the tenant, the model, the prompt version and the route, or it can return one customer the answer of another.",
+          text: "A cache returns a stored answer and skips the model. An exact cache hits only on an identical query. A semantic cache hits on a close meaning, so its threshold decides the risk. The key must include the tenant, the model, the prompt version and the route, or it can return one customer the answer of another. Set a time to live and an eviction rule, such as least recently used; a stale entry is a wrong answer with a fresh timestamp.",
         },
         {
           kind: "paragraph",
           id: "ai-architecture-p-9",
-          text: "The fallback covers a timeout, a rate limit, a provider error or a failed guardrail. It can be a second model or a safe static answer. A circuit breaker stops calls to a provider that keeps failing. Test the fallback on a schedule, or it fails when needed.",
+          text: "The fallback covers a timeout, a rate limit, a provider error or a failed guardrail. It can be a second model or a safe static answer. A circuit breaker stops calls to a failing provider. Test the fallback on a schedule, or it fails when needed.",
         },
         {
           kind: "paragraph",
@@ -345,7 +345,7 @@ export const aiArchitectureLesson = deepFreeze({
             {
               question: "How does a fallback fail, and what do you check?",
               answer:
-                "A fallback fails when it is never tested, when its model has a different output shape, or when the timeout budget leaves it no time. Run a failover drill on a schedule and check the output contract on the backup path. Also check the quality floor, because a cheap backup can answer in a different policy voice.",
+                "A fallback fails when it is never tested, when its model has a different output shape, or when the timeout budget leaves it no time. Run a failover drill and check the output contract on the backup path. Also check the quality floor, because a cheap backup can answer in a different policy voice.",
             },
             {
               question: "How does the architecture change at 10x traffic or models?",

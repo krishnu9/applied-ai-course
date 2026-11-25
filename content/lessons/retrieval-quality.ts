@@ -61,12 +61,12 @@ export const retrievalQualityLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "rq-p-3",
-          text: "A worked example: a team freezes 40 search queries. Each query names one to three relevant chunks. The baseline finds 32 of 48 relevant chunks inside the top five, so recall@5 is 0.67. After a query rewrite, it finds 41, so recall@5 is 0.85.",
+          text: "A worked example: a team freezes 40 search queries. Each query names one to three relevant chunks. The baseline finds 32 of 48 relevant chunks in the top five, so recall@5 is 0.67. After a query rewrite, it finds 41, so recall@5 is 0.85.",
         },
         {
           kind: "paragraph",
           id: "rq-p-4",
-          text: "A non-example: one query returns a good answer for one reader. One query is not a measurement, because one success can hide many misses. A metric needs a frozen set and a written label rule.",
+          text: "A non-example: one query returns a good answer for one reader. One query is not a measurement, because one success can hide many misses. A metric needs a frozen set and a written label.",
         },
       ],
     },
@@ -78,14 +78,14 @@ export const retrievalQualityLesson = deepFreeze({
         {
           kind: "analogy",
           id: "rq-analogy-1",
-          text: "Think of a librarian who holds a list of six books that answer one question. A helper brings a stack of five books. Recall@k asks how many listed books are in the stack. MRR asks how high the first listed book sits. nDCG asks whether the most useful book sits above a partly useful one. The list is the eval set, and the counter is the metric.",
+          text: "Think of a librarian who holds a list of six books that answer one question. A helper brings a stack of five books. Recall@k asks how many listed books are in the stack. MRR asks how high the first listed book sits. nDCG asks whether the most useful book sits above a partly useful one, and the list is the eval set.",
           breaks:
             "Where it breaks: a librarian knows the exact list of books. A retrieval label is a person's judgment, so two people can disagree about which chunk is relevant.",
         },
         {
           kind: "paragraph",
           id: "rq-p-5",
-          text: "The stack holds three of the six listed books, and the first listed book is third in the stack. Which number is lower, recall@5 or MRR?",
+          text: "The stack holds three of the six listed books, and the first listed book is third in the stack. The helper can also bring a book that is not on your list at all, even if it looks useful. Which number is lower, recall@5 or MRR?",
         },
       ],
     },
@@ -97,7 +97,7 @@ export const retrievalQualityLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "rq-p-6",
-          text: "Retrieval work follows one order. Measure first, change one part, and measure again on the same frozen set.",
+          text: "Retrieval work follows one order. Measure first, change one part, and measure again on the frozen set.",
         },
         {
           kind: "list",
@@ -179,7 +179,7 @@ export const retrievalQualityLesson = deepFreeze({
         {
           kind: "analogy",
           id: "rq-analogy-2",
-          text: "Think of a parcel office with a queue and a short list of parcels that belong to you. A clerk brings five parcels. Recall@k counts your parcels in the five. MRR looks at the position of your first parcel. nDCG values a priority parcel above a standard one. The clerk is the retriever, and your list is the label.",
+          text: "Think of a parcel office with a queue and a short list of parcels that belong to you. A clerk brings five parcels. Recall@k counts your parcels in the five. MRR looks at the position of your first parcel. nDCG values a priority parcel above a standard one; the clerk is the retriever, and your list is the label.",
           breaks:
             "Where it breaks: parcels are physical and the list is exact. A relevant chunk is a judgment, and one chunk can answer a question only in part.",
         },
@@ -230,7 +230,7 @@ export const retrievalQualityLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "rq-p-12",
-          text: "Every repair trades cost for quality: a rewrite adds a call, and a contextual index adds a summary per document.",
+          text: "Every repair trades cost for quality: a rewrite adds a call, and a contextual index adds a summary.",
         },
       ],
     },
@@ -247,7 +247,7 @@ export const retrievalQualityLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "rq-p-14",
-          text: "The baseline returns doc-08, doc-02, doc-04, then doc-07. Recall@3 is 0.0, and MRR is 0.25. The index holds doc-07 with the text refunds are available within 30 days. The dense list puts doc-07 first, so the index and the vector hold the answer.",
+          text: "The baseline returns doc-08, doc-02, doc-04, then doc-07. Recall@3 is 0.0, and MRR is 0.25. The index holds doc-07 with refunds are available within 30 days. The dense list puts doc-07 first, so the index and the vector hold the answer.",
         },
         {
           kind: "paragraph",

@@ -54,7 +54,7 @@ export const evalSetsLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-eval-sets-1",
-          text: "An eval set is a fixed collection of inputs with expected outputs or labels. It holds the input, the expected label, and a slice tag for each case. A held-out set is the part that tuning never touches, and it gives the final score.",
+          text: "An eval set is a fixed collection of inputs with expected outputs or labels. It holds the input, expected label and slice tag. A held-out set is the part that tuning never touches, and it gives the final score.",
         },
         {
           kind: "paragraph",
@@ -69,12 +69,12 @@ export const evalSetsLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-eval-sets-4",
-          text: "A label (ground truth) is the expected answer for a case, written by a person or a trusted rule. The label carries the rule, so two people can reach the same answer.",
+          text: "A label (ground truth) is the expected answer for a case, written by a person or a trusted rule. The label carries the rule, so two people reach the same answer.",
         },
         {
           kind: "paragraph",
           id: "p-eval-sets-5",
-          text: "An eval set is a product artifact, not a test fixture. It changes when a new failure type appears, and it stays fixed during a comparison.",
+          text: "An eval set is a product artifact, not a test fixture. It changes when a failure type appears and stays fixed during a comparison.",
         },
       ],
     },
@@ -93,7 +93,7 @@ export const evalSetsLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-eval-sets-6",
-          text: "A learner passes the practice route and fails the secret route. Which score should the school report, and why? The secret route gives the honest score.",
+          text: "A learner passes the practice route and fails the secret route. Which score should the school report, and why? The secret route gives the honest score. Report the secret route score first, then the practice score.",
         },
       ],
     },

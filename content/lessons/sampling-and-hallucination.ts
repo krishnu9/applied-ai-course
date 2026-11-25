@@ -140,7 +140,7 @@ export const samplingAndHallucinationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "sampling-p-9",
-          text: "Top-p cuts the tail. Sort the tokens by probability, keep the smallest set that reaches p, and renormalize. With p = 0.9, the model ignores the rare tail and keeps the likely set. A low p narrows the set and a high p widens it.",
+          text: "Top-p cuts the tail. Sort the tokens by probability, keep the smallest set that reaches p, and renormalize. Top-k keeps the k most likely tokens. With p = 0.9, the model ignores the rare tail and keeps the likely set. A low p or a small k narrows the set.",
         },
         {
           kind: "paragraph",
@@ -165,6 +165,7 @@ export const samplingAndHallucinationLesson = deepFreeze({
             ["Greedy, temperature 0", "Picks the top token", "Extraction and labels"],
             ["Low temperature, 0.2", "Sharpens the distribution", "Factual answers"],
             ["Top-p, 0.9", "Cuts the tail", "General chat"],
+            ["Top-k, 40", "Keeps the top k tokens", "Narrow choices"],
             ["High temperature, 1.2", "Flattens the distribution", "Brainstorming"],
           ],
           caption: "One setting, one effect and one use.",

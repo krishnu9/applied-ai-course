@@ -73,6 +73,7 @@ const MIN_FINAL_CHECKS = 4;
 const MAX_INTERVIEW_ITEMS = 4;
 const STANDARD_WORDS = { min: 1100, max: 1500 } as const;
 const FLAGSHIP_WORDS = { min: 1900, max: 2400 } as const;
+const ELI5_WORDS = { min: 240, max: 540 } as const;
 
 function isFinalCourse(): boolean {
   return process.env.COURSE_FINAL === "1";
@@ -99,6 +100,49 @@ function isKnown<T extends string>(values: readonly T[], value: string): value i
   return (values as readonly string[]).includes(value);
 }
 
+/** Count the prose words inside a block list. */
+function countBlockWords(blocks: readonly Block[]): number {
+  let total = 0;
+  for (const block of blocks) {
+    switch (block.kind) {
+      case "paragraph":
+        total += words(block.text);
+        break;
+      case "list":
+        total += words(block.items.join(" "));
+        break;
+      case "callout":
+        total += words(block.text);
+        if (block.title) total += words(block.title);
+        break;
+      case "note":
+        total += words(block.text);
+        break;
+      case "diagram":
+        total += words(block.caption);
+        break;
+      case "analogy":
+        total += words(block.text);
+        total += words(block.breaks);
+        break;
+      case "table":
+        if (block.caption) total += words(block.caption);
+        total += words(block.columns.join(" "));
+        for (const row of block.rows) total += words(row.join(" "));
+        break;
+      case "interview":
+        for (const item of block.items) {
+          total += words(item.question);
+          total += words(item.answer);
+        }
+        break;
+      default:
+        break;
+    }
+  }
+  return total;
+}
+
 /**
  * Count the prose words in a lesson. Prose is section titles, paragraphs,
  * list items, callout titles and text, note text, diagram captions, analogy
@@ -109,43 +153,17 @@ export function countProseWords(lesson: Lesson): number {
   let total = 0;
   for (const section of lesson.sections) {
     total += words(section.title);
-    for (const block of section.blocks) {
-      switch (block.kind) {
-        case "paragraph":
-          total += words(block.text);
-          break;
-        case "list":
-          total += words(block.items.join(" "));
-          break;
-        case "callout":
-          total += words(block.text);
-          if (block.title) total += words(block.title);
-          break;
-        case "note":
-          total += words(block.text);
-          break;
-        case "diagram":
-          total += words(block.caption);
-          break;
-        case "analogy":
-          total += words(block.text);
-          total += words(block.breaks);
-          break;
-        case "table":
-          if (block.caption) total += words(block.caption);
-          total += words(block.columns.join(" "));
-          for (const row of block.rows) total += words(row.join(" "));
-          break;
-        case "interview":
-          for (const item of block.items) {
-            total += words(item.question);
-            total += words(item.answer);
-          }
-          break;
-        default:
-          break;
-      }
-    }
+    total += countBlockWords(section.blocks);
+  }
+  return total;
+}
+
+/** Authored words inside ELI5 sections, excluding section titles. */
+function countEli5Words(lesson: Lesson): number {
+  let total = 0;
+  for (const section of lesson.sections) {
+    if (section.register !== "eli5") continue;
+    total += countBlockWords(section.blocks);
   }
   return total;
 }
@@ -598,6 +616,13 @@ function validateLiveTemplate(lesson: Lesson, faults: string[]): void {
         `${at} field "sections": ELI5 section "${section.id}" has ${analogies.length} analogies, expected 1`,
       );
     }
+  }
+
+  const eli5Words = countEli5Words(lesson);
+  if (eli5Words < ELI5_WORDS.min || eli5Words > ELI5_WORDS.max) {
+    faults.push(
+      `${at} field "sections": ELI5 prose is ${eli5Words} words, expected ${ELI5_WORDS.min} to ${ELI5_WORDS.max}`,
+    );
   }
 
   const diagrams = blocks.filter((block) => block.kind === "diagram");

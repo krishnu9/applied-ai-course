@@ -223,7 +223,7 @@ export const agentsLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "ag-p-14",
-          text: "The driver returns to the same address a second time. Which rule stops the route first: delivered, repeat, or fuel?",
+          text: "The driver returns to the same address a second time. The dispatcher sees the repeat on the note. Which rule stops the route first: delivered, repeat, or fuel?",
         },
       ],
     },

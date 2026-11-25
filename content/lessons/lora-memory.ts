@@ -62,7 +62,7 @@ export const loraMemoryLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "lora-memory-p-3",
-          text: "A non-example: full fine-tuning updates every weight. For a 7B model, the weights, gradients and optimizer state need about 84 GB before activations. That does not fit a 24 GB card. LoRA fits, because it stores a small adapter and no gradient for the frozen base.",
+          text: "A non-example: full fine-tuning updates every weight. For a 7B model, the weight, gradient, master copy and optimizer state need about 112 GB before activations. That does not fit a 24 GB card. LoRA fits, because it stores a small adapter and no gradient for the frozen base.",
         },
         {
           kind: "paragraph",
@@ -123,12 +123,12 @@ export const loraMemoryLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "lora-memory-p-8",
-          text: "The frozen base dominates memory. A 7B base at FP16 uses 2 bytes per parameter, or 14 GB. The same base at 4 bits uses about 0.5 bytes per parameter, or 3.5 GB. The adapter at rank 16 holds 16.8 million parameters and adds about 168 MB with optimizer state. A higher rank changes the small number, not the large one.",
+          text: "The frozen base dominates memory. A 7B base at FP16 uses 2 bytes per parameter, or 14 GB. The same base at 4 bits uses about 0.5 bytes per parameter, or 3.5 GB. The adapter at rank 16 holds 16.8 million parameters and adds about 201 MB for its weight, gradient and optimizer state. A higher rank changes the small number, not the large one.",
         },
         {
           kind: "paragraph",
           id: "lora-memory-p-9",
-          text: "Optimizer state is the hidden cost. Adam keeps two moments for each trainable parameter, and each moment is often 32 bits. Add 2 bytes for the adapter weight and 8 bytes for the two moments, so budget 10 bytes per trainable parameter. A full fine-tune also stores gradients and a master weight copy, which is why its budget is about 12 bytes per base parameter.",
+          text: "Optimizer state is the hidden cost. Adam keeps two moments for each trainable parameter, and each moment is often 32 bits. Add 2 bytes for the adapter weight, 2 for its gradient and 8 for the two moments, so budget 12 bytes per trainable parameter. A full fine-tune stores an FP16 weight, a gradient, an FP32 master copy and two moments, so budget 16 bytes per base parameter.",
         },
         {
           kind: "paragraph",
@@ -165,9 +165,9 @@ export const loraMemoryLesson = deepFreeze({
             nodes: [
               { id: "fp16", label: "FP16 base", value: 14336, unit: "MB" },
               { id: "int4", label: "4-bit base", value: 3584, unit: "MB" },
-              { id: "r8", label: "Rank 8 adapter", value: 84, unit: "MB" },
-              { id: "r16", label: "Rank 16 adapter", value: 168, unit: "MB" },
-              { id: "r32", label: "Rank 32 adapter", value: 335, unit: "MB" },
+              { id: "r8", label: "Rank 8 adapter", value: 101, unit: "MB" },
+              { id: "r16", label: "Rank 16 adapter", value: 201, unit: "MB" },
+              { id: "r32", label: "Rank 32 adapter", value: 403, unit: "MB" },
             ],
             edges: [
               ["fp16", "int4"],
@@ -178,7 +178,7 @@ export const loraMemoryLesson = deepFreeze({
           },
           caption:
             "The frozen base dominates memory; rank changes only the small adapter.",
-          alt: "Bars from a 14,336 MB FP16 base down to a 3,584 MB 4-bit base and adapters of 84, 168 and 335 MB.",
+          alt: "Bars from a 14,336 MB FP16 base down to a 3,584 MB 4-bit base and adapters of 101, 201 and 403 MB.",
         },
         {
           kind: "paragraph",
@@ -188,7 +188,7 @@ export const loraMemoryLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "lora-memory-p-13b",
-          text: "Rank is a capacity dial. A rank of 4 to 8 fits a narrow style. A rank of 16 to 32 fits a harder task. A rank of 64 or more approaches full fine-tuning cost. Sweep two ranks and compare them on the held-out set, because a higher rank can fit noise.",
+          text: "Rank is a capacity dial. A rank of 4 to 8 fits a narrow style. A rank of 16 to 32 fits a harder task. A rank of 64 holds about 67 million parameters, roughly 1 percent of the 7B base. Sweep two ranks and compare them on the held-out set, because a higher rank can fit noise.",
         },
         {
           kind: "paragraph",
@@ -283,7 +283,7 @@ export const loraMemoryLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "lora-memory-p-17",
-          text: "The trace separates the parts. Base weights take 14 GB. Activations at this batch and length take 9 GB. The adapter and optimizer state take 0.17 GB. The CUDA context and fragmentation take about 1 GB. The total is 24.2 GB, so the card is over budget before the first update.",
+          text: "The trace separates the parts. Base weights take 14 GB. Activations at this batch and length take 9 GB. The adapter, gradient and optimizer state take 0.20 GB. The CUDA context and fragmentation take about 1 GB. The total is 24.2 GB, so the card is over budget before the first update.",
         },
         {
           kind: "paragraph",
@@ -293,7 +293,7 @@ export const loraMemoryLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "lora-memory-p-19",
-          text: "Serving holds 8 tenant adapters on one frozen base. Each adapter is about 0.17 GB, so the adapters add 1.4 GB. The separate path adds about 3 ms to p95. The top tenant moves to a merged artifact, and its p95 returns to the base level. The other tenants keep separate adapters for a cheap swap.",
+          text: "Serving holds 8 tenant adapters on one frozen base. Each adapter is about 0.20 GB, so the adapters add 1.6 GB. The separate path adds about 3 ms to p95. The top tenant moves to a merged artifact, and its p95 returns to the base level. The other tenants keep separate adapters for a cheap swap.",
         },
       ],
     },
@@ -348,7 +348,7 @@ export const loraMemoryLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "lora-memory-p-23",
-          text: "The reference solution prints 8.39M, 16.78M and 33.55M trainable parameters. It prints 83.9, 167.8 and 335.5 MB of adapter plus optimizer state. The FP16 rank 16 total is 18.17 GB, so it fails on 16 GB and fits on 24 GB. The 4-bit total is 7.67 GB and fits both cards. With 8 GB of activations, FP16 is 22.17 GB and still fits 24 GB, while 4-bit is 11.67 GB and fits 16 GB.",
+          text: "The reference solution prints 8.39M, 16.78M and 33.55M trainable parameters. It prints 100.7, 201.3 and 402.7 MB of adapter, gradient and optimizer state. The FP16 rank 16 total is 18.20 GB, so it fails on 16 GB and fits on 24 GB. The 4-bit total is 7.70 GB and fits both cards. With 8 GB of activations, FP16 is 22.20 GB and still fits 24 GB, while 4-bit is 11.70 GB and fits 16 GB.",
         },
       ],
     },
@@ -440,16 +440,16 @@ export const loraMemoryLesson = deepFreeze({
     {
       id: "check-3",
       kind: "calculate",
-      prompt: "The adapter trains 16.78M parameters. Budget 10 bytes per trainable parameter. What is the adapter plus optimizer memory?",
+      prompt: "The adapter trains 16.78M parameters. Budget 12 bytes per trainable parameter. What is the adapter plus gradient and optimizer memory?",
       options: [
-        { id: "option-a", label: "16.8 MB" },
-        { id: "option-b", label: "84 MB" },
-        { id: "option-c", label: "168 MB" },
+        { id: "option-a", label: "100.7 MB" },
+        { id: "option-b", label: "201 MB" },
+        { id: "option-c", label: "402.7 MB" },
         { id: "option-d", label: "1.68 GB" },
       ],
-      correctOptionId: "option-c",
+      correctOptionId: "option-b",
       explanation:
-        "16.78 million times 10 bytes is about 168 MB. A value of 84 MB would mean 5 bytes per parameter, which omits one optimizer moment.",
+        "16.78 million times 12 bytes is about 201 MB. A value of 100.7 MB would budget 6 bytes per parameter, which omits the optimizer moments.",
     },
     {
       id: "check-4",
@@ -504,7 +504,7 @@ export const loraMemoryLesson = deepFreeze({
       },
       {
         id: "item-2",
-        label: "Compute adapter plus optimizer bytes at 10 bytes per parameter.",
+        label: "Compute adapter, gradient and optimizer bytes at 12 bytes per parameter.",
       },
       {
         id: "item-3",
@@ -542,7 +542,7 @@ export const loraMemoryLesson = deepFreeze({
         "",
         "for rank in RANKS:",
         "    count = trainable(rank)",
-        "    state = count * 10",
+        "    state = count * 12",
         "    print(f\"rank {rank}: {count} params, {state / 1_000_000:.1f} MB\")",
         "",
         "base_fp16 = gb(PARAMS * 2)",
@@ -550,7 +550,7 @@ export const loraMemoryLesson = deepFreeze({
         'print(f"base fp16: {base_fp16:.2f} GB")',
         'print(f"base 4-bit: {base_int4:.2f} GB")',
         "",
-        "adapter = gb(trainable(16) * 10)",
+        "adapter = gb(trainable(16) * 12)",
         "fp16_total = base_fp16 + adapter + ACTIVATION_GB",
         "int4_total = base_int4 + adapter + ACTIVATION_GB",
         'print(f"fp16 r16 total: {fp16_total:.2f} GB -> 16GB no, 24GB yes")',

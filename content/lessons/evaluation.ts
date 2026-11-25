@@ -70,7 +70,7 @@ export const evaluationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-evaluation-4",
-          text: "A verifiable task has an answer that a rule or a test can check. A label, a JSON key and a unit test are verifiable. A subjective task has no single reference, so its answer needs a rubric, a person or a judge. Choose the metric from the task type, not from the tool that is easy to run.",
+          text: "A verifiable task has an answer that a rule or a test can check. A label, a JSON key and a unit test are verifiable. A subjective task has no single reference, so its answer needs a rubric, a person or a judge. Choose the metric from the task type, not the easiest tool.",
         },
       ],
     },
@@ -215,7 +215,7 @@ export const evaluationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-evaluation-15",
-          text: "A score moves from 41 to 43 percent on 41 cases. Is the gain real, and which range decides? Use the interval, not the two points.",
+          text: "A score moves from 41 to 43 percent on 41 cases. Is the gain real, and which range decides? Use the interval, not the two points, and name the lower and upper bound first.",
         },
       ],
     },
@@ -259,7 +259,7 @@ export const evaluationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-evaluation-16",
-          text: "A strict metric is easy to defend and blind to partial credit. A soft metric shows progress and hides a wrong fact.",
+          text: "A strict metric is easy to defend and blind to partial credit. A soft metric hides a wrong fact.",
         },
       ],
     },
