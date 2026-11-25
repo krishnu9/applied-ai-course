@@ -44,4 +44,4 @@ export const CONTROL_LABEL =
 
 /** Shared range input style. */
 export const RANGE_INPUT =
-  "mt-2 block w-full accent-[var(--accent)]";
+  "mt-2 block min-h-11 w-full accent-[var(--accent)]";

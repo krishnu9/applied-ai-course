@@ -28,7 +28,8 @@ function SvgFrame({
       aria-hidden="true"
       focusable="false"
       preserveAspectRatio="xMidYMid meet"
-      className="h-auto w-full min-w-[460px]"
+      style={{ minWidth: `${Math.max(460, width)}px` }}
+      className="h-auto w-full"
     >
       {children}
     </svg>

@@ -43,12 +43,6 @@
     color:var(--ink); font-family:var(--font-sans-stack); font-size:var(--text-body);
     line-height:var(--lh-body); flex-direction:column; }
   #main { flex:1 0 auto; }
-  /* Phone action bar is fixed; the body padding keeps the footer clear of it. */
-  @media (max-width:767.98px) {
-    body:has(.lesson-actionbar) {
-      padding-bottom:calc(var(--actionbar-h) + env(safe-area-inset-bottom));
-    }
-  }
   h1,h2,h3 { font-family:var(--font-serif-stack); font-weight:600;
     line-height:var(--lh-display); }
   h1 { font-size:var(--text-h1); }
@@ -117,4 +111,13 @@
   color:var(--ink-muted); font-size:var(--text-small); }
 @media (min-width:768px) {
   .eli5-panel, .analogy-panel, .interactive-panel { padding:var(--space-6); }
+}
+/* Long headings break rather than overflow at large text sizes. */
+h1,h2,h3 { overflow-wrap:break-word; }
+/* The phone action bar is fixed; body padding keeps the footer clear of it.
+   The bar reports its measured height, so text zoom cannot hide content. */
+@media (max-width:767.98px) {
+  body:has(.lesson-actionbar) {
+    padding-bottom:calc(var(--actionbar-actual-h, var(--actionbar-h)) + env(safe-area-inset-bottom));
+  }
 }

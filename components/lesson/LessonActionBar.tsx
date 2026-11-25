@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, buttonStyles } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { formatPercent, formatSeconds, formatUsd } from "@/lib/format";
@@ -39,6 +39,28 @@ export function LessonActionBar({
   const gate = deriveRepairGate(state, ready, slug, checks, taskItemIds);
   const [fieldFocused, setFieldFocused] = useState(false);
   const [announcement, setAnnouncement] = useState("");
+  const barRef = useRef<HTMLDivElement>(null);
+
+  // Publish the real bar height so body padding keeps the footer clear of it,
+  // including at larger text sizes. A hidden bar reports 0 and is ignored.
+  useEffect(() => {
+    const element = barRef.current;
+    if (!element || typeof ResizeObserver === "undefined") return;
+    const root = document.documentElement;
+    const update = (): void => {
+      const height = Math.ceil(element.getBoundingClientRect().height);
+      if (height > 0) {
+        root.style.setProperty("--actionbar-actual-h", `${height}px`);
+      }
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(element);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty("--actionbar-actual-h");
+    };
+  }, []);
 
   useEffect(() => {
     function handleFocusIn(event: FocusEvent): void {
@@ -68,6 +90,7 @@ export function LessonActionBar({
 
   return (
     <div
+      ref={barRef}
       role="group"
       aria-label="Lesson actions"
       data-lesson-actionbar=""
