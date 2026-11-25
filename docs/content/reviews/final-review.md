@@ -4,9 +4,8 @@ Reviewer: `final-review`, independent pass. Date: 2026-11-26.
 Scope: the approved plan, the course documents, all 24 lessons, the registry, types,
 validator, the production build, and the static export at 1440, 768 and 390.
 
-Tree note: the working tree changed during this review. A concurrent fix pass updated the shell,
-one widget, the registry, eight lessons and two documents. I re-ran the build and every browser
-check on the final tree. This report describes that final tree, not commit `b5ea177`.
+Tree note: the code fixes from this review pass landed as commit `6cee861` (after `b5ea177`).
+The build and browser checks below ran on that code. The review file has later wording edits.
 
 ## 1. Verdict
 
@@ -248,5 +247,5 @@ All files are in `/tmp/lm-qa`:
   no PDF text extractor is available on this machine.
 - The remaining mobile notes N2 and N3 come from the mobile QA report and a repeat of the 200%
   probe. I did not reproduce the lost-tap case with a real finger.
-- The tree changed during the review. The final build and all browser checks ran on the final
-  working tree. A later change can invalidate this evidence.
+- The fixes from this review pass landed as commit `6cee861`. The final build and all browser
+  checks ran on that code. A later change can invalidate this evidence.

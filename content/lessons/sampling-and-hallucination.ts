@@ -155,7 +155,7 @@ export const samplingAndHallucinationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "sampling-p-12",
-          text: "Detection has two levels. A claim check compares each fact with a trusted source. A consistency check samples several answers and looks for disagreement. Neither check proves truth, and both catch a useful share of faults. Mitigation grounds the answer, lowers the temperature for extraction, and asks for a citation per claim.",
+          text: "Detection has two levels. A claim check compares each fact with a trusted source. A consistency check samples several answers and looks for disagreement. Neither check proves truth. Mitigation grounds the answer, lowers the temperature, and asks for a citation per claim.",
         },
         {
           kind: "table",
@@ -366,7 +366,7 @@ export const samplingAndHallucinationLesson = deepFreeze({
             {
               question: "What is temperature, and what does top-p do?",
               answer:
-                "Temperature divides the logits before softmax, so a low value sharpens the distribution and a high value flattens it. Top-p keeps the smallest token set whose probability sums to p and samples inside that set. Together they trade variety for control.",
+                "Temperature divides the logits before softmax, so a low value sharpens the distribution and a high value flattens it. Top-p keeps the smallest token set whose probability sums to p and samples inside that set. Together with top-k, they trade variety for control, and a fixed seed still keeps one eval run repeatable.",
             },
             {
               question: "When do you set temperature to zero?",

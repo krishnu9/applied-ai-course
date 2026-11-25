@@ -364,7 +364,7 @@ export const postTrainingLesson = deepFreeze({
             {
               question: "How does the data need change at 10x pairs?",
               answer:
-                "At 10x pairs, quality control matters more than the count, because a noisy set scales its errors. Deduplicate the rows, keep one schema, and sample the labels for agreement. A smaller clean set can beat a large set with mixed formats.",
+                "At 10x pairs, quality control matters more than the count, because a noisy set scales its errors. Deduplicate the rows, keep one schema, and sample the labels for agreement. A smaller clean set can beat a large set with mixed formats, and a fixed audit sample keeps the labels honest across the run.",
             },
           ],
         },
