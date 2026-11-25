@@ -62,9 +62,41 @@ states; optional client-side search (stretch).
 | 11 | `qa-mobile` | U7 | 390 and 768 px, overflow, touch targets, empty states, fixes |
 | 12 | `review` | U7 | every PRD acceptance criterion, final verdict |
 
-## Build checklist
+## Rework — 24-lesson interview course (2026-11)
 
-- [x] U0 Foundation: scaffold, tokens, UI primitives, types, sample data, dev server running
+The owner asked for real written lessons: ASD-STE100 explanations, dedicated ELI5 sections,
+diagrams, full interview-relevant coverage of the book, with the support-triage work kept as the
+evaluation layer. The approved plan is at `~/.claude/plans/i-want-the-user-nifty-lightning.md`.
+
+Delivered:
+
+- 24 lessons across 10 chapters, one file per lesson under `content/lessons/`.
+- Course registry (`lib/course-registry.ts`): slugs, order, chapters, 6 capstone stages,
+  8 flagships, 8 interactive labs.
+- Lesson template: outcome and terms; definition with example and non-example; two ELI5 sections
+  with analogies and limits; mechanism with a table and a static diagram; failure table; triage
+  application; concept checks; five-item evaluation task; proof note; four interview questions.
+- Diagram system: flow, stack, matrix, timeline and bars, all inline SVG with caption and alt.
+- Eight interactive labs: judge bias, model arena, prompt injection, context budget, retrieval
+  ranking, agent trace, LoRA memory, serving budget.
+- Chapter rail, header lesson count, chapter meta, chapter-boundary navigation, 24-lesson home
+  index and grouped roadmap.
+- Progress v2 with migration from v1; dynamic slugs, ticks and check caps; ELI5 subtotal gate.
+- Content contract and reviews: `docs/content/COURSE-BRIEF.md`, `GLOSSARY.md`, `COVERAGE.md`,
+  `BOOK-INVENTORY.md`, and `docs/content/reviews/`.
+
+Gates:
+
+- [x] `COURSE_FINAL=1 CONTENT_VALIDATE=1 npm run build` passes with 24 live lessons
+- [x] 24 lesson files, 10 chapters, 6 capstone stages, 8 flagships
+- [x] Desktop QA pass; mobile QA pass at 390, 768, 320
+- [x] Coverage audit: all 42 interview-core concepts owned; thin sub-items fixed
+- [x] Final review recorded in `docs/content/reviews/final-review.md` — SHIP WITH NOTES, 0 blockers
+- [x] Post-review polish: cost rule in lessons 6/9 and glossary; 5-sentence analogies; long sentences split; US spelling; precise parallelism; header anchor margin; RAG live text; interview label. Accepted low notes: 200% mid-word breaks, bottom-tap race, dev-only 500, stored "Where it breaks" prefix (renderer strips it).
+
+## Original six-lesson build (superseded by the rework)
+
+- [x] U0 Foundation: scaffold, tokens, UI primitives, types, sample data, dev server
 - [x] U1 Content: six lessons (flagship retrieval), layers, scores, 12 docs, 3 presets, cost model, validator
 - [x] U2 Progress: guarded localStorage, store, provider, selectors, hydration without mismatch
 - [x] U3 Widgets: retrieval explorer, cost calculator, pure functions, empty and invalid states

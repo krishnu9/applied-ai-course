@@ -110,12 +110,13 @@ lessons do this; the rewrite inverts the order.
 
 | Part group | Standard | Flagship |
 | --- | --- | --- |
-| Parts 1–7, 9–11 (prose) | 1,100–1,500 | 1,900–2,400 |
+| Total prose (all parts, including ELI5 and interview) | 1,100–1,500 | 1,900–2,400 |
 | ELI5 total (parts 3 and 5, plus optional 3) | 240–540 | 240–540 |
 | Interview answers (part 12) | 200–320 | 200–320 |
 
 Flagship lessons add 700–900 words, mostly in part 4 (mechanism depth) and part 9 (extra check
-kinds). Keep part 7 at 150–250 words. The validator checks the total, not each row.
+kinds). Keep part 7 at 150–250 words. The validator checks the total prose, and it checks the ELI5
+subtotal separately.
 
 ## 5. Diagram rules
 

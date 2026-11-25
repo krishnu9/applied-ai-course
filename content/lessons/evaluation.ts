@@ -60,17 +60,17 @@ export const evaluationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-evaluation-2",
-          text: "A worked example: the support feature routes 41 tickets into four labels. Seventeen tickets match the human label, so the pass rate is 17 divided by 41, or 41 percent. A later run labels the same 41 tickets, and the difference is the evidence.",
+          text: "A worked example: the support feature routes 41 tickets into four labels. Seventeen match the human label, so the pass rate is 17 divided by 41, or 41 percent. A later run labels the same tickets, and the difference is the evidence.",
         },
         {
           kind: "paragraph",
           id: "p-evaluation-3",
-          text: "A non-example is one good answer in a demo. It shows one path through the system. It does not show how the system holds across a set of cases.",
+          text: "A non-example is one good answer in a demo. It shows one path through the system. It does not show how the system holds across cases.",
         },
         {
           kind: "paragraph",
           id: "p-evaluation-4",
-          text: "A verifiable task has an answer that a rule or a test can check. A label, a JSON key and a unit test are verifiable. A subjective task has no single reference, so its answer needs a rubric, a person or a judge. Choose the metric from the task type, not the easiest tool.",
+          text: "A verifiable task has an answer that a rule or a test can check. A label, a JSON key and a unit test are verifiable. A subjective task has no single reference, so its answer needs a rubric, a person or a judge. Choose the metric from the task, not the easiest tool.",
         },
       ],
     },
@@ -135,12 +135,12 @@ export const evaluationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-evaluation-11",
-          text: "A small set carries noise. A move of five points on 41 cases can come from the sample, not the change. A confidence interval states the range that likely holds the true score. The Wilson interval for 17 of 41 runs from 28 to 57 percent.",
+          text: "A small set carries noise. A five-point move on 41 cases can come from the sample, not the change. A confidence interval states the likely range of the true score. The Wilson interval for 17 of 41 runs from 28 to 57 percent.",
         },
         {
           kind: "paragraph",
           id: "p-evaluation-12",
-          text: "Offline evaluation runs on frozen cases before release. It is fast, cheap and repeatable. Online evaluation reads live traffic and A/B results. It is real, slow and noisy. Use offline to choose, and use online to confirm.",
+          text: "Offline evaluation runs on frozen cases before release. It is fast, cheap and repeatable. Online evaluation reads live traffic and A/B results. It is real, slow and noisy. Use offline to choose and online to confirm.",
         },
         {
           kind: "paragraph",
@@ -259,7 +259,7 @@ export const evaluationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-evaluation-16",
-          text: "A strict metric is easy to defend and blind to partial credit. A soft metric hides a wrong fact.",
+          text: "A strict metric is easy to defend and blind to partial credit. A soft metric hides a wrong fact. Cost is soft until a budget is fixed; then it becomes hard.",
         },
       ],
     },
@@ -293,7 +293,7 @@ export const evaluationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-evaluation-20",
-          text: "Answer five questions on the definition, metric, noise and loss.",
+          text: "Answer five questions on definition, metric, noise and loss.",
         },
         { kind: "check", id: "check-evaluation-1", checkId: "check-1" },
         { kind: "check", id: "check-evaluation-2", checkId: "check-2" },
@@ -310,7 +310,7 @@ export const evaluationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-evaluation-21",
-          text: "Use the twelve fixed cases, the fixed paraphrase pair and the fixed loss values. Build one script that prints each metric and its blind spot. Tick each step when its output is visible.",
+          text: "Use the twelve fixed cases, the paraphrase pair and the fixed loss values. Build one script that prints each metric and its blind spot. Tick each step when its output is visible.",
         },
         { kind: "task", id: "task-evaluation" },
         {

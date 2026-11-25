@@ -85,7 +85,7 @@ export const costLesson = deepFreeze({
           id: "cost-analogy-1",
           text: "A bakery has one oven and one tray of loaves. You wait for the first loaf to come out; that wait is the first token. Each next loaf follows at a steady gap, and that gap is the time per token. The oven sells loaves per hour, and only the warm loaves count. The tray is the batch, the oven is the model, and the warm loaves are the goodput.",
           breaks:
-            "Where it breaks: the oven bakes a whole tray at once, while a model writes one token per step and reads the whole cached context each time.",
+            "Where it breaks: the oven bakes a whole tray at once. A model writes one token per step, and it reads the whole cached context each time.",
         },
         {
           kind: "paragraph",
@@ -217,12 +217,12 @@ export const costLesson = deepFreeze({
           id: "cost-analogy-2",
           text: "Think of a toll road with one booth. Cars arrive at a steady rate, and the booth serves one car at a time. A busy hour builds a line before the booth. The wait in the line is the queue, and the time at the booth is the service. The cars per hour are the throughput, and the line is the tail latency.",
           breaks:
-            "Where it breaks: a car keeps its place in line, while a batch scheduler can reorder requests and start a new one in a free slot.",
+            "Where it breaks: a car keeps its place in line. A batch scheduler can reorder requests and start a new one in a free slot.",
         },
         {
           kind: "paragraph",
           id: "cost-p-13",
-          text: "Prediction: if cars arrive faster than the booth serves them, does the wait grow for the first car or for the last car, and which percentile shows it first? Say which and why.",
+          text: "Prediction: if cars arrive faster than the booth serves them, does the wait grow for the first car or for the last car? Which percentile shows it first? Say which and why.",
         },
       ],
     },

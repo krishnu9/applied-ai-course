@@ -79,7 +79,7 @@ export const datasetCurationLesson = deepFreeze({
         {
           kind: "analogy",
           id: "dataset-curation-analogy-1",
-          text: "Think of a survey team that wants to know how a city commutes. The team stands on one street corner and asks 500 people. The count is large, but the sample covers one neighborhood. Coverage is the range of the city that the survey reaches, and quantity is the number of answers. A small survey across every district beats a large survey on one corner. The team writes the district on each answer, so the count can be split later.",
+          text: "Think of a survey team that wants to know how a city commutes. The team stands on one street corner and asks 500 people, so the count is large but the sample covers one neighborhood. Coverage is the range of the city that the survey reaches, and quantity is the number of answers. A small survey across every district beats a large survey on one corner. The team writes the district on each answer, so the count can be split later.",
           breaks:
             "A city has clear districts, while a dataset has hidden slices. A slice can be absent and still leave no visible hole.",
         },
@@ -197,7 +197,7 @@ export const datasetCurationLesson = deepFreeze({
         {
           kind: "analogy",
           id: "dataset-curation-analogy-2",
-          text: "Think of a baker with 50 kilograms of flour and no yeast. The pantry is large, but it cannot bake bread; quantity is not coverage. A small pantry with flour, yeast, salt and water can bake. The recipe is the annotation guideline, and the test loaf is the held-out case. The baker weighs each bin before the bake, as the team counts each slice. A bin can look full from the lid and hold the wrong grain.",
+          text: "Think of a baker with 50 kilograms of flour and no yeast. The pantry is large, but it cannot bake bread; quantity is not coverage, and a small pantry with flour, yeast, salt and water can bake. The recipe is the annotation guideline, and the test loaf is the held-out case. The baker weighs each bin before the bake, as the team counts each slice. A bin can look full from the lid and hold the wrong grain.",
           breaks:
             "A pantry list is complete, while a dataset often hides a missing slice until a test fails.",
         },

@@ -101,7 +101,7 @@ Rules:
 | Benchmark | A public, fixed test set used to compare models. |
 | Contamination | Training data that overlaps the test set and inflates the score. |
 | Hard attribute | A requirement that a model must meet, such as a license or a latency limit. |
-| Soft attribute | A preference that trades against other attributes, such as tone or cost. |
+| Soft attribute | A preference that trades against other attributes, such as tone or cost. Cost is soft until a budget is fixed, then it is hard. |
 | Model selection | The evidence-based choice of a model for a task under constraints. |
 | Cost-quality frontier | The set of models where no cheaper model gives the same quality. |
 | Leaderboard | A public ranking of models on one or more benchmarks. |

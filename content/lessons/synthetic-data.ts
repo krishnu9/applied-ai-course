@@ -193,7 +193,7 @@ export const syntheticDataLesson = deepFreeze({
         {
           kind: "analogy",
           id: "synthetic-data-analogy-2",
-          text: "Think of a photocopy of a photocopy. Each copy loses faint lines, and after five copies the page is gray. Model collapse works the same way: each round trains on the last round's output and loses the rare cases. The first copy still holds the original, so keep a human copy in every round. A sharp original is the seed set. A gray copy still reads, but the fine print is gone.",
+          text: "Think of a photocopy of a photocopy. Each copy loses faint lines, and after five copies the page is gray. Model collapse works the same way: each round trains on the last round's output and loses the rare cases. The first copy still holds the original, so keep a human copy in every round. A sharp original is the seed set, and a gray copy still reads, but the fine print is gone.",
           breaks:
             "A photocopy loses detail from the same page, while model collapse loses cases the model rarely produced.",
         },

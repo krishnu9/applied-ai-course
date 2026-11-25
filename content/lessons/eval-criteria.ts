@@ -74,7 +74,7 @@ export const evalCriteriaLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-eval-criteria-4",
-          text: "A hard attribute is a requirement that the system must meet, such as a safety rule or a latency limit. A soft attribute is a preference that trades against other attributes, such as tone or cost. Safety and format are usually hard, and tone is usually soft.",
+          text: "A hard attribute is a requirement that the system must meet, such as a safety rule or a latency limit. A soft attribute is a preference that trades against other attributes, such as tone or cost. Cost is soft until a budget is fixed; then it becomes hard. Safety and format are usually hard, and tone is usually soft.",
         },
         {
           kind: "paragraph",

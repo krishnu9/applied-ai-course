@@ -80,7 +80,7 @@ export const observabilityFeedbackLesson = deepFreeze({
           id: "observability-feedback-analogy-1",
           text: "Think of a hospital. The chart records each visit, and that chart is the log. The vital-sign board shows the whole ward, and that board is the metric. One patient's path through the ward is the trace. When a patient gets worse, the chart shows what happened, the board shows how many, and the path shows where the delay started.",
           breaks:
-            "Where it breaks: a hospital records a body, while a model request records text, tokens and versions, and a wrong answer leaves no bruise and no reading.",
+            "Where it breaks: a hospital records a body. A model request records text, tokens and versions, and a wrong answer leaves no bruise and no reading.",
         },
         {
           kind: "paragraph",
@@ -201,7 +201,7 @@ export const observabilityFeedbackLesson = deepFreeze({
           id: "observability-feedback-analogy-2",
           text: "Think of a restaurant. A comment card is a guest who takes the time to write, and that card is explicit feedback. An empty plate shows a guest who ate, and that plate is implicit feedback. The cards come from the guests who care most, and the plates come from every table. A full plate does not prove the meal was good, and a card can be loud, kind or wrong.",
           breaks:
-            "Where it breaks: a plate is finished for many reasons, such as hunger, while a copied answer or a retry has several meanings too, and neither one states a reason.",
+            "Where it breaks: a plate is finished for many reasons, such as hunger. A copied answer or a retry has several meanings too, and neither one states a reason.",
         },
         {
           kind: "paragraph",

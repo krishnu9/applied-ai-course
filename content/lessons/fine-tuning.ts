@@ -76,7 +76,7 @@ export const fineTuningLesson = deepFreeze({
         {
           kind: "analogy",
           id: "fine-tuning-analogy-1",
-          text: "Think of a phrasebook, a folder and a tailor. The phrasebook holds ready sentences for a traveler; it is the prompt. The folder holds today's train times; it is retrieval. The tailor alters one jacket until it fits the wearer; that is fine-tuning, because the change stays in the cloth. The phrasebook is cheap and general, the folder is current, and the jacket is a fixed fit. The traveler carries all three, and each tool covers what the others miss.",
+          text: "Think of a phrasebook, a folder and a tailor. The phrasebook holds ready sentences for a traveler, and it is the prompt; the folder holds today's train times, and it is retrieval. The tailor alters one jacket until it fits the wearer; that is fine-tuning, because the change stays in the cloth. The phrasebook is cheap and general, the folder is current, and the jacket is a fixed fit. The traveler carries all three, and each tool covers what the others miss.",
           breaks:
             "A tailor fits one person and needs a new fitting for another. A fine-tune fits the training set, so it can fit a new case badly.",
         },

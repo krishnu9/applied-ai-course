@@ -149,7 +149,7 @@ export const CHAPTERS: readonly Chapter[] = [
     id: "ch-09",
     order: 9,
     number: 9,
-    title: "Inference optimisation",
+    title: "Inference optimization",
     bookChapter: 9,
     lessonSlugs: ["cost", "inference-optimization"],
   },

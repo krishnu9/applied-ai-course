@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 import { cn } from "@/lib/cn";
 import { HeaderProgress } from "./HeaderProgress";
 
@@ -16,9 +17,32 @@ const NAV_ITEMS = [
 
 export function SiteHeader({ className }: SiteHeaderProps) {
   const pathname = usePathname();
+  const headerRef = useRef<HTMLElement>(null);
+
+  // Publish the measured header height so anchor jumps land below it at any
+  // text size. The CSS fallback is the fixed `--header-h` token.
+  useEffect(() => {
+    const element = headerRef.current;
+    if (!element || typeof ResizeObserver === "undefined") return;
+    const root = document.documentElement;
+    const update = (): void => {
+      const height = Math.ceil(element.getBoundingClientRect().height);
+      if (height > 0) {
+        root.style.setProperty("--header-actual-h", `${height}px`);
+      }
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(element);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty("--header-actual-h");
+    };
+  }, []);
 
   return (
     <header
+      ref={headerRef}
       className={cn(
         "sticky top-0 z-40 border-b border-[var(--hairline)] bg-[var(--bg)]",
         className,

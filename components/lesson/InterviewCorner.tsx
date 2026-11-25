@@ -11,11 +11,12 @@ export type InterviewCornerProps = {
 /**
  * The interview corner. The outer section owns the H2, so this block renders no
  * heading of its own; each question is an H3 with its answer as prose. The
- * section keeps the block anchor and gets its name from `aria-label`.
+ * block keeps its anchor but takes no separate label, so the outer H2 is the
+ * one name for the region.
  */
 export function InterviewCorner({ id, items }: InterviewCornerProps) {
   return (
-    <section id={id} aria-label="Interview practice" className="interview-corner">
+    <section id={id} className="interview-corner">
       <div className="mt-4 flex flex-col gap-4">
         {items.map((item, index) => (
           <div key={`${item.question}-${index}`} className="min-w-0">

@@ -34,7 +34,7 @@ export const inferenceOptimizationLesson = deepFreeze({
       definition: "The addition and removal of requests from a running batch.",
     },
     {
-      term: "Prefix caching",
+      term: "Prefix caching (prompt caching)",
       definition:
         "Reuse of a cached prompt prefix to cut cost and time to first token.",
     },
@@ -76,12 +76,12 @@ export const inferenceOptimizationLesson = deepFreeze({
           id: "inference-optimization-analogy-1",
           text: "Think of a depot that ships parcels. A clerk reads the whole order before packing; that first read is prefill. Parcels then leave one at a time, and that line is decode. A shelf keeps open orders so the clerk does not re-read them; that shelf is the KV cache. Packing several orders in one trip saves fuel, and a pre-packed standard box skips the first steps.",
           breaks:
-            "Where it breaks: a depot can hold every parcel on a shelf, while a model must keep the KV cache in fast memory, and that memory can run out.",
+            "Where it breaks: a depot can hold every parcel on a shelf. A model must keep the KV cache in fast memory, and that memory can run out.",
         },
         {
           kind: "paragraph",
           id: "inference-optimization-p-5",
-          text: "Prediction: which trick helps most when every order starts with the same address label, and which trick helps when every order asks for the same 80 parcels each time?",
+          text: "Prediction: which trick helps most when every order starts with the same address label? Which trick helps when every order asks for the same 80 parcels each time?",
         },
       ],
     },
@@ -137,7 +137,7 @@ export const inferenceOptimizationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "inference-optimization-p-12",
-          text: "Continuous batching removes a finished request at a step boundary and adds a waiting one. A free slot never idles, so throughput rises. Replica, tensor and pipeline parallelism spread one model across devices. KV memory limits the batch before compute does.",
+          text: "Continuous batching removes a finished request at a step boundary and adds a waiting one. A free slot never idles, so throughput rises. Replicas copy a model across devices; tensor and pipeline parallelism split one model across devices. KV memory limits the batch before compute does.",
         },
         {
           kind: "table",
@@ -214,7 +214,7 @@ export const inferenceOptimizationLesson = deepFreeze({
           id: "inference-optimization-analogy-2",
           text: "Two runners cross a field. The junior runner is fast and guesses the next steps. The senior runner checks the guesses in one pass and keeps the correct lead. When the guesses are right, the pair moves faster than the senior alone. The junior is the draft model, the senior is the target, and the checked lead is the accepted tokens.",
           breaks:
-            "Where it breaks: a wrong guess wastes the senior check, a junior who is too slow adds its own time to every step, and the pair still needs the target for the final answer.",
+            "Where it breaks: a wrong guess wastes the senior check, and a junior who is too slow adds its own time to every step. The pair still needs the target for the final answer.",
         },
         {
           kind: "paragraph",
@@ -336,7 +336,7 @@ export const inferenceOptimizationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "inference-optimization-p-23",
-          text: "Self-rubric: mechanism names the lever and the resource it saves; evidence gives a cost, a percentile and a slice score; limit names one quality or capacity risk.",
+          text: "Self-rubric: mechanism names the lever and the resource it saves. Evidence gives a cost, a percentile and a slice score. Limit names one quality or capacity risk.",
         },
         {
           kind: "note",

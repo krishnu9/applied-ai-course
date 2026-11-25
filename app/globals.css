@@ -55,7 +55,9 @@
     font-variant-numeric:tabular-nums; }
   ::selection { background:var(--accent); color:var(--bg); }
   :focus-visible { outline:2px solid var(--focus); outline-offset:2px; }
-  [id] { scroll-margin-top:calc(var(--header-h) + var(--space-4)); }
+  /* The header reports its measured height, so an anchor jump lands below it
+     even at 200% text. The token is the fallback before the observer runs. */
+  [id] { scroll-margin-top:calc(var(--header-actual-h, var(--header-h)) + var(--space-4)); }
   @media (prefers-reduced-motion:reduce) {
     *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.01ms!important;
       animation-iteration-count:1!important; scroll-behavior:auto!important; }

@@ -62,6 +62,13 @@ export function RagRankLab({ caption }: WidgetProps) {
   const weightId = `${useId()}-weight`;
   const rows = rankRows(weight);
   const first = rows?.[0]?.docId;
+  const second = rows?.[1]?.docId;
+  const ranking =
+    first === undefined
+      ? ""
+      : second === undefined
+        ? ` First ${first}.`
+        : ` First ${first}, then ${second}.`;
 
   return (
     <div className="min-w-0">
@@ -108,7 +115,7 @@ export function RagRankLab({ caption }: WidgetProps) {
       >
         {rows === null
           ? `No fixed results for ${QUERY}.`
-          : `${rows.length} results for ${QUERY}. First result ${first}.`}
+          : `${rows.length} results for ${QUERY}.${ranking}`}
       </p>
 
       {rows ? (

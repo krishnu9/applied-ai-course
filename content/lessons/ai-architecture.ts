@@ -192,7 +192,7 @@ export const aiArchitectureLesson = deepFreeze({
           id: "ai-architecture-analogy-2",
           text: "Think of a post office. A clerk reads the address and sends the letter to one of several depots; the address is the intent and the clerk is the router. A shelf holds a copy of a common letter, and the clerk hands out the copy; that shelf is the cache. A clerk checks the seal before the letter leaves; that is the output guardrail. When a depot closes, a second depot takes the letters.",
           breaks:
-            "Where it breaks: a post office reads a real address, while a semantic cache guesses that two different questions mean the same thing, and it can guess wrong.",
+            "Where it breaks: a post office reads a real address. A semantic cache guesses that two questions mean the same thing, and it can guess wrong.",
         },
         {
           kind: "paragraph",
@@ -297,7 +297,7 @@ export const aiArchitectureLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "ai-architecture-p-18",
-          text: "The reference solution routes 3 billing tickets to the large model, 3 reset and 2 shipping tickets to the small model, and 2 refund tickets to the large model and human review. The cache log has 4 hits in 10 lookups, a hit rate of 0.40, and 1 wrong hit, a wrong-hit rate of 0.25. One timeout takes the fallback.",
+          text: "The reference solution routes 3 billing tickets to the large model. It routes 3 reset and 2 shipping tickets to the small model, and 2 refund tickets to the large model and human review. The cache log has 4 hits in 10 lookups, a hit rate of 0.40, and 1 wrong hit, a wrong-hit rate of 0.25. One timeout takes the fallback.",
         },
       ],
     },
