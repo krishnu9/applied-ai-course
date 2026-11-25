@@ -18,6 +18,10 @@
   --spine-w:128px; --toc-w:260px; --main-max:720px; --header-max:1228px;
   --header-h:56px; --actionbar-h:56px;
 }
+/* The chapter rail needs room for a chapter title. Lesson pages reserve this
+   width with `lg:pl-[var(--spine-w)]`, so content is never covered. */
+@media (min-width:1024px) { :root { --spine-w:176px; } }
+@media (min-width:1280px) { :root { --spine-w:216px; } }
 @media (prefers-reduced-motion: reduce) { :root { --dur-hover:0ms; --dur-panel:0ms;
   --dur-number:0ms; --dur-trace:0ms; } }
 /* Phone prose target: 17 px. The display, heading and UI sizes stay fixed. */

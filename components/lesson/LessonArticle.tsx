@@ -1,7 +1,6 @@
 import { BASELINE } from "@/lib/course-registry";
 import type { Layer, Lesson, LessonSummary } from "@/lib/types";
 import { LessonHeader } from "./LessonHeader";
-import { MetaRow } from "./MetaRow";
 import { PrevNext } from "./PrevNext";
 import { ProveNote } from "./ProveNote";
 import { RepairButton } from "./RepairButton";
@@ -20,18 +19,11 @@ export type LessonArticleProps = {
 /** Header, sections, prove note, repair gate, citation and prev/next. */
 export function LessonArticle({ lesson, layer, neighbours }: LessonArticleProps) {
   const stageName = layer?.name ?? "Evaluation";
-  const stageOrder = layer?.order ?? 0;
   const declared = layer?.repaired ?? BASELINE;
 
   return (
     <article className="min-w-0">
       <LessonHeader lesson={lesson} />
-      <MetaRow
-        readingMinutes={lesson.readingMinutes}
-        difficulty={lesson.difficulty}
-        layerOrder={stageOrder}
-        layerName={stageName}
-      />
 
       {lesson.sections.map((section) => (
         <SectionRenderer key={section.id} section={section} lesson={lesson} />
@@ -61,7 +53,11 @@ export function LessonArticle({ lesson, layer, neighbours }: LessonArticleProps)
         </p>
       </footer>
 
-      <PrevNext prev={neighbours.previous} next={neighbours.next} />
+      <PrevNext
+        currentSlug={lesson.slug}
+        prev={neighbours.previous}
+        next={neighbours.next}
+      />
     </article>
   );
 }

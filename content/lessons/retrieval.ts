@@ -84,14 +84,14 @@ export const retrievalLesson = deepFreeze({
         {
           kind: "analogy",
           id: "retrieval-analogy-1",
-          text: "Think of a library with three helpers. The first helper searches the card catalog for the exact words on your note. The second helper walks the shelves and brings books that feel related to your topic. A third helper reads the shortlist and picks the few books that answer the question. The first helper is BM25, the second helper is dense retrieval, and the third helper is the reranker. The first helper is precise, the second helper handles paraphrase, and the third helper is slow but careful.",
+          text: "Think of a library with three helpers. The first helper searches the card catalog for the exact words on your note. The second helper walks the shelves and brings books that feel related to your topic. A third helper reads the shortlist and picks the few books that answer the question. The first helper is BM25, the second is dense retrieval, and the third is the reranker: precise, paraphrase-aware, and careful.",
           breaks:
             "A library holds complete books, while a retrieval index holds small chunks. A chunk can match the words and still lack the sentence that answers the question.",
         },
         {
           kind: "paragraph",
           id: "retrieval-p-6",
-          text: "Prediction: your note says late parcel. Which helper finds a chapter titled Delayed deliveries?",
+          text: "Prediction: your note says late parcel. Which helper finds a chapter titled Delayed deliveries, and which helper ranks the final shortlist?",
         },
       ],
     },
@@ -220,14 +220,14 @@ export const retrievalLesson = deepFreeze({
         {
           kind: "analogy",
           id: "retrieval-analogy-2",
-          text: "Think of a hiring process. A keyword filter reads each application for the exact skills in the job post. A recruiter reads for fit and adds people with related experience. A senior interviewer then speaks with the shortlist and ranks the final few. The keyword filter is BM25, the recruiter is dense retrieval, and the senior interviewer is the reranker. The first pass is cheap, the second pass finds adjacent skills, and the last pass costs the most time.",
+          text: "Think of a hiring process. A keyword filter reads each application for the exact skills in the job post. A recruiter reads for fit and adds people with related experience. A senior interviewer then speaks with the shortlist and ranks the final few. The keyword filter is BM25, the recruiter is dense retrieval, and the senior interviewer is the reranker: cheap, broad, and careful.",
           breaks:
             "A hiring decision needs judgment and a person, while fusion and reranking use fixed rules and scores. A chunk that ranks first is not a person who will succeed.",
         },
         {
           kind: "paragraph",
           id: "retrieval-p-16",
-          text: "Prediction: the post says Kubernetes and a candidate writes container orchestration. Which pass finds the candidate?",
+          text: "Prediction: the post says Kubernetes and a candidate writes container orchestration. Which pass finds the candidate, and which pass ranks the shortlist?",
         },
       ],
     },
@@ -293,7 +293,7 @@ export const retrievalLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "retrieval-p-20",
-          text: "The trace shows the layer. The index holds the right text, and the fixed dense scores put doc-07 first. The break is the lexical-only first pass and the missing synonym. The team adds refund to returns, gives a tag match double weight, and fuses the lists with RRF. The top three become doc-07, doc-08, doc-02, and recall@3 is 3/3. The reply can now cite the refund document. If the reply still fails, the next check is the generator, not the retriever.",
+          text: "The trace shows the layer. The index holds the right text, and the fixed dense scores put doc-07 first. The break is the lexical-only first pass and the missing synonym. The team adds refund to returns, gives a tag match a bonus of 2.0, and fuses the lists with RRF. The top three become doc-07, doc-08, doc-02, and recall@3 is 3/3. The reply can now cite the refund document. If the reply still fails, the next check is the generator, not the retriever.",
         },
       ],
     },
@@ -305,14 +305,14 @@ export const retrievalLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "retrieval-p-21",
-          text: "Run the refund policy preset. Set the BM25 weight to 0.0, then to 1.0. At 0.0 the fixed dense scores hold doc-07 first. At 1.0 the word overlap lifts doc-02, because its text repeats policy. Watch the order, then try the other presets.",
+          text: "Run the fixed refund policy query. The single control sets the word-overlap weight. The score is a simplified word-overlap score, not BM25. At 0.0 the fixed dense scores hold doc-07 first. At 1.0 doc-02 rises, because doc-02 matches policy and the weight favors the lexical score. Watch the order.",
         },
         {
           kind: "interactive",
           id: "retrieval-interactive-1",
           widget: "rag-rank-lab",
           caption:
-            "Move the BM25 weight on three fixed queries and watch the ranking change.",
+            "Move the word-overlap weight on the fixed refund policy query and watch the ranking change.",
         },
       ],
     },
@@ -484,7 +484,7 @@ export const retrievalLesson = deepFreeze({
       },
       {
         id: "item-3",
-        label: "Add one synonym pair and give a tag match double weight.",
+        label: "Add one synonym pair and give a tag match a bonus of 2.0.",
       },
       {
         id: "item-4",
@@ -554,24 +554,25 @@ export const retrievalLesson = deepFreeze({
         '    doc_id: tokens(title + " " + " ".join(tags) + " " + text)',
         "    for doc_id, (title, tags, text) in DOCS.items()",
         "}",
-        "AVGDL = sum(len(words) for words in ALL.values()) / len(ALL)",
         "N = len(DOCS)",
         "",
         "",
-        "def idf(term):",
-        "    df = sum(1 for words in ALL.values() if term in words)",
+        "def idf(term, corpus):",
+        "    df = sum(1 for words in corpus.values() if term in words)",
         "    return math.log((N - df + 0.5) / (df + 0.5) + 1)",
         "",
         "",
         "def bm25(query, doc_id, use_all_fields):",
-        "    words = ALL[doc_id] if use_all_fields else BODY[doc_id]",
+        "    corpus = ALL if use_all_fields else BODY",
+        "    words = corpus[doc_id]",
+        "    avgdl = sum(len(items) for items in corpus.values()) / len(corpus)",
         "    total = 0.0",
         "    for term in query:",
         "        freq = words.count(term)",
         "        if freq == 0:",
         "            continue",
-        "        norm = 1 - B + B * len(words) / AVGDL",
-        "        total += idf(term) * (freq * (K1 + 1)) / (freq + K1 * norm)",
+        "        norm = 1 - B + B * len(words) / avgdl",
+        "        total += idf(term, corpus) * (freq * (K1 + 1)) / (freq + K1 * norm)",
         "    return total",
         "",
         "",
@@ -643,5 +644,5 @@ export const retrievalLesson = deepFreeze({
     savedMessage: "Proof saved on this device.",
   },
   citation:
-    "Further reading on retrieval: AI Engineering by Chip Huyen (O'Reilly). This course reproduces no book text or figures.",
+    "Further reading on retrieval: AI Engineering by Chip Huyen (O'Reilly). This course is independent and reproduces no book text or figures.",
 } as const satisfies Lesson);

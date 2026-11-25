@@ -59,8 +59,8 @@ export const llmAsJudgeLesson = deepFreeze({
           id: "list-llm-as-judge-prereq",
           ordered: false,
           items: [
-            "Read lesson 6 for the difference between verifiable and subjective tasks.",
-            "Read lesson 7 for the frozen eval set and its labels.",
+            "Read lesson 6 for the 41-case set and its labels.",
+            "Read lesson 7 for the frozen eval set and the held-out rule.",
           ],
         },
       ],
@@ -73,7 +73,7 @@ export const llmAsJudgeLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-llm-as-judge-2",
-          text: "An LLM-as-judge is the use of a language model to score answers against a rubric or a reference. A rubric is a written list of criteria and levels. A judge turns an open question into a repeatable score. It sits in the evaluation layer, after the system writes an answer and before a person audits the result.",
+          text: "An LLM-as-judge is the use of a language model to score answers against a rubric or a reference. A rubric is a written list of criteria and levels. A judge turns an open question into a score under a fixed prompt and sampling. It sits in the evaluation layer, after the system writes an answer and before a person audits the result.",
         },
         {
           kind: "paragraph",
@@ -112,7 +112,7 @@ export const llmAsJudgeLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-llm-as-judge-7",
-          text: "If the score sheet gives one point for each side dish, which restaurant wins: the one with the better main dish or the one with more side dishes?",
+          text: "If the score sheet gives one point per side dish, which restaurant wins: the better main dish or the most side dishes?",
         },
       ],
     },
@@ -297,7 +297,7 @@ export const llmAsJudgeLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-llm-as-judge-20",
-          text: "Lesson 7 froze 41 triage cases. The team now adds a pairwise judge to compare two candidate support replies for each case. The rubric has two criteria: correct policy and clear next step. Each criterion has three levels.",
+          text: "Lesson 6 holds the 41 triage cases. The team now adds a pairwise judge to compare two candidate support replies for each case. The rubric has two criteria: correct policy and clear next step. Each criterion has three levels.",
         },
         {
           kind: "paragraph",
@@ -363,13 +363,13 @@ export const llmAsJudgeLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-llm-as-judge-27",
-          text: "The task uses ten fixed reply pairs from the billing slice. Each pair has a short reply, a long reply and a human label. The labels come from lesson 7 and do not change. Run the judge, swap the order, and compute two numbers.",
+          text: "The task uses ten fixed reply pairs across the support slices. Each pair has a short reply, a long reply and a human label. The labels come from lesson 6 and do not change. Run the judge, swap the order, and compute two numbers.",
         },
         { kind: "task", id: "task-llm-as-judge" },
         {
           kind: "paragraph",
           id: "p-llm-as-judge-28",
-          text: "The reference solution models the judge with the observed length rule, so the numbers repeat without a model call. It prints a position-flip rate of 0.00 and a human agreement rate of 0.40. A zero flip rate rules out position bias. The low agreement rate points to verbosity bias, because the judge picks the longer reply every time.",
+          text: "The reference solution models the judge with the observed length rule, so the numbers repeat without a model call. It prints a position-flip rate of 0.00 and a human agreement rate of 0.40 for the ten pairs. On the five password-reset pairs, it prints a position-flip rate of 0.00 and a human agreement rate of 0.20. The lower rate shows that the same judge can fail harder on a different slice. A zero flip rate gives no evidence of position bias on these ten pairs. It does not rule out position bias in general. The low agreement rate points to verbosity bias, because the judge picks the longer reply every time.",
         },
       ],
     },
@@ -407,7 +407,7 @@ export const llmAsJudgeLesson = deepFreeze({
             {
               question: "What is an LLM-as-judge?",
               answer:
-                "An LLM-as-judge is a language model that scores answers against a rubric or a reference. It sits in the evaluation layer and turns open answers into a repeatable score. The score is a measurement, not a label, so a human audit is part of the method.",
+                "An LLM-as-judge is a language model that scores answers against a rubric or a reference. It sits in the evaluation layer and turns open answers into a score under a fixed prompt and sampling. The score is a measurement, not a label, so a human audit is part of the method.",
             },
             {
               question: "When do you choose pairwise judgment over pointwise judgment?",
@@ -417,7 +417,7 @@ export const llmAsJudgeLesson = deepFreeze({
             {
               question: "How does a judge fail, and what do you check?",
               answer:
-                "A judge can favor the first slot, the longer answer or its own model family. Run both orders and compare the winners to catch position bias. Compare length with the verdict to catch verbosity bias. Hide the author and use a second judge family to catch self bias. Audit 20 labeled cases and report the human agreement rate.",
+                "A judge can favor the first slot, the longer answer or its own model family. Run both orders and compare the winners to catch position bias. Compare length with the verdict to catch verbosity bias. Hide the author, use a second judge family to catch self bias, and audit 20 labeled cases for the human agreement rate.",
             },
             {
               question: "How does judge cost change at 10x traffic or tokens?",
@@ -509,7 +509,7 @@ export const llmAsJudgeLesson = deepFreeze({
       },
       {
         id: "item-5",
-        label: "Repeat the audit on the password-reset slice and name one blind spot.",
+        label: "Repeat the audit on the five fixed password-reset pairs and name one blind spot.",
       },
     ],
     solution: {
@@ -549,6 +549,24 @@ export const llmAsJudgeLesson = deepFreeze({
         '     "label": "short"},',
         "]",
         "",
+        "RESET_PAIRS = [",
+        '    {"id": "r1", "short": "use the reset link from the sign-in page.",',
+        '     "long": "use the reset link from the sign-in page. the link stays active for 30 days.",',
+        '     "label": "short"},',
+        '    {"id": "r2", "short": "a reset link expires after one hour.",',
+        '     "long": "a reset link expires after 24 hours. request a new link if it fails.",',
+        '     "label": "short"},',
+        '    {"id": "r3", "short": "contact support if the reset email does not arrive.",',
+        '     "long": "contact support if the reset email does not arrive. support can resend it to the same address.",',
+        '     "label": "long"},',
+        '    {"id": "r4", "short": "choose a new password with at least 12 characters.",',
+        '     "long": "choose a new password with at least 6 characters. reuse of the old password is allowed.",',
+        '     "label": "short"},',
+        '    {"id": "r5", "short": "a locked account unlocks after 15 minutes.",',
+        '     "long": "a locked account unlocks after 60 minutes. call support to unlock it sooner.",',
+        '     "label": "short"},',
+        "]",
+        "",
         "",
         "def judge(pair: dict, first: str) -> str:",
         '    second = "long" if first == "short" else "short"',
@@ -567,11 +585,22 @@ export const llmAsJudgeLesson = deepFreeze({
         "        wins += 1",
         "",
         "n = len(PAIRS)",
-        'print(f"position flip rate: {flips / n:.2f}")',
+        'print(f"position-flip rate: {flips / n:.2f}")',
         'print(f"human agreement: {wins / n:.2f}")',
         "",
-        "# Transfer: run the same audit on the password-reset slice.",
-        "# The reset replies are short, so the verbosity rule should lower agreement.",
+        "reset_flips = 0",
+        "reset_wins = 0",
+        "for pair in RESET_PAIRS:",
+        '    first_verdict = judge(pair, "short")',
+        '    second_verdict = judge(pair, "long")',
+        "    if first_verdict != second_verdict:",
+        "        reset_flips += 1",
+        '    if first_verdict == pair["label"]:',
+        "        reset_wins += 1",
+        "",
+        "m = len(RESET_PAIRS)",
+        'print(f"reset position-flip rate: {reset_flips / m:.2f}")',
+        'print(f"reset human agreement: {reset_wins / m:.2f}")',
       ].join("\n"),
     },
   },

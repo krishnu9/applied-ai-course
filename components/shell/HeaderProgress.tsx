@@ -2,22 +2,26 @@
 
 import { getCourse } from "@/content";
 import { cn } from "@/lib/cn";
-import { repairedCount, useProgress } from "@/lib/progress";
+import { isRepaired, useProgress } from "@/lib/progress";
 
 export type HeaderProgressProps = {
   className?: string;
 };
 
-const TOTAL = getCourse().lessons.length;
+/** Live lessons only: a draft lesson cannot be repaired. */
+const LIVE_SLUGS = getCourse().lessons.map((lesson) => lesson.slug);
+const TOTAL = LIVE_SLUGS.length;
 
 /**
- * Shows the repaired count. At 768 px and above the full sentence is visible;
- * below it the compact `N/6` shows and the full sentence is available to
- * assistive technology. No live region: the first hydrate would announce it.
+ * Shows the repaired lesson count. At 768 px and above the full sentence is
+ * visible; below it the compact `N/M` shows and the full sentence stays
+ * available to assistive technology. No live region: the first hydrate would
+ * announce it.
  */
 export function HeaderProgress({ className }: HeaderProgressProps) {
   const { state } = useProgress();
-  const count = repairedCount(state);
+  const count = LIVE_SLUGS.filter((slug) => isRepaired(state, slug)).length;
+  const sentence = `${count} of ${TOTAL} lessons`;
 
   return (
     <span
@@ -26,15 +30,11 @@ export function HeaderProgress({ className }: HeaderProgressProps) {
         className,
       )}
     >
-      <span className="hidden md:inline">
-        {count} of {TOTAL} layers repaired
-      </span>
+      <span className="hidden md:inline">{sentence}</span>
       <span className="md:hidden" aria-hidden="true">
         {count}/{TOTAL}
       </span>
-      <span className="sr-only md:hidden">
-        {count} of {TOTAL} layers repaired
-      </span>
+      <span className="sr-only md:hidden">{sentence}</span>
     </span>
   );
 }

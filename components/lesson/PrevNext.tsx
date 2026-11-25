@@ -1,7 +1,9 @@
 import Link from "next/link";
-import type { LessonSummary } from "@/lib/types";
+import { getChapterForSlug } from "@/lib/course-registry";
+import type { LessonSlug, LessonSummary } from "@/lib/types";
 
 export type PrevNextProps = {
+  currentSlug: LessonSlug;
   prev: LessonSummary | null;
   next: LessonSummary | null;
 };
@@ -9,17 +11,28 @@ export type PrevNextProps = {
 const linkClass =
   "mt-1 inline-block min-h-11 [font-family:var(--font-serif-stack)] text-[length:var(--text-h3)] font-semibold text-[var(--accent)]";
 
-/** Previous and next lesson, with the two ends of the course named. */
-export function PrevNext({ prev, next }: PrevNextProps) {
+const eyebrowClass =
+  "[font-family:var(--font-mono-stack)] text-[length:var(--text-micro)] uppercase tracking-[var(--tracking-micro)] text-[var(--ink-muted)]";
+
+/**
+ * Previous and next lesson in course order. When the next lesson opens a new
+ * chapter, the heading names that chapter.
+ */
+export function PrevNext({ currentSlug, prev, next }: PrevNextProps) {
+  const currentChapter = getChapterForSlug(currentSlug);
+  const nextChapter = next ? getChapterForSlug(next.slug) : undefined;
+  const nextHeading =
+    next && nextChapter && nextChapter.id !== currentChapter?.id
+      ? `Next chapter: ${nextChapter.title}`
+      : "Next";
+
   return (
     <nav
       aria-label="Lesson navigation"
       className="mt-10 grid min-w-0 gap-6 border-t border-[var(--hairline)] pt-6 sm:grid-cols-2"
     >
       <div className="min-w-0">
-        <p className="[font-family:var(--font-mono-stack)] text-[length:var(--text-micro)] uppercase tracking-[var(--tracking-micro)] text-[var(--ink-muted)]">
-          Previous
-        </p>
+        <p className={eyebrowClass}>Previous</p>
         {prev ? (
           <Link href={`/lessons/${prev.slug}`} className={linkClass}>
             {prev.title}
@@ -32,9 +45,7 @@ export function PrevNext({ prev, next }: PrevNextProps) {
       </div>
 
       <div className="min-w-0 sm:text-right">
-        <p className="[font-family:var(--font-mono-stack)] text-[length:var(--text-micro)] uppercase tracking-[var(--tracking-micro)] text-[var(--ink-muted)]">
-          Next
-        </p>
+        <p className={eyebrowClass}>{nextHeading}</p>
         {next ? (
           <Link href={`/lessons/${next.slug}`} className={linkClass}>
             {next.title}

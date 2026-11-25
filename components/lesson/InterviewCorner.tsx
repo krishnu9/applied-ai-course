@@ -9,21 +9,17 @@ export type InterviewCornerProps = {
 };
 
 /**
- * The interview corner. The block owns an anchor, the corner title is an H2 and
- * every question is an H3 with its answer as prose.
+ * The interview corner. The outer section owns the H2, so this block renders no
+ * heading of its own; each question is an H3 with its answer as prose. The
+ * section keeps the block anchor and gets its name from `aria-label`.
  */
 export function InterviewCorner({ id, items }: InterviewCornerProps) {
-  const headingId = `${id}-heading`;
-
   return (
-    <section id={id} aria-labelledby={headingId} className="interview-corner">
-      <h2 id={headingId} tabIndex={-1}>
-        Interview corner
-      </h2>
-      <div className="mt-3 flex flex-col gap-4">
+    <section id={id} aria-label="Interview practice" className="interview-corner">
+      <div className="mt-4 flex flex-col gap-4">
         {items.map((item, index) => (
           <div key={`${item.question}-${index}`} className="min-w-0">
-            <h3>{item.question}</h3>
+            <h3 className="text-balance">{item.question}</h3>
             <p className="interview-answer">{item.answer}</p>
           </div>
         ))}
