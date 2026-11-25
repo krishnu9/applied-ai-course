@@ -221,3 +221,85 @@ Sections and interactions:
 - **COVERAGE, lesson 14: pass.** The lesson owns `RAG architecture` and `Retrieval algorithms`. It covers index time versus query time, chunking, embeddings, BM25, ANN, hybrid retrieval, RRF, reranking, and citations. It covers the chunk and rerank part of `Retrieval optimisation`. Lesson 15 owns query rewriting and contextual retrieval. The Useful fit row `RAG beyond text` is not mentioned. A fit row is optional, so this is not a blocking gap.
 - **FYI exclusions: pass.** Neither lesson teaches history, a vendor catalogue, accelerator hardware, model merging, team advice, or industry trends.
 - **Originality: pass.** The examples are original: the library, hiring, food critic, referee, and support documents. The mechanisms are standard technical facts. No book sentence, figure, table, or chapter structure found. Each lesson has one citation line. Lesson 14 omits `is independent` from the citation (N1).
+
+---
+
+## Re-check — 2026-11-25
+
+This section supersedes section 6. It re-checks the current tree after the owner fixes.
+
+Verdict update: lesson 8 `llm-as-judge` passes the original 13 blockers. Lesson 14 `retrieval` needs one new fix (R1).
+
+Method: read the current files. Run `npm run typecheck`, `npm run lint`, `npm run build`, and `CONTENT_VALIDATE=1 npm run build`. Run both task solutions. Run headless Chrome at 390 and 1440.
+
+### 1. Per-issue result
+
+| ID | Original issue | Verdict | Evidence |
+| --- | --- | --- | --- |
+| B1 | Terms are not rendered | **PASS** | The header renders a `dl` with 6 `dt` terms at 390 and 1440. The visible label is `TERMS`. |
+| B2 | The interview block adds a second H2 | **PASS** | The inner `.interview-corner` holds 0 H2 and 4 H3. The outer section holds the single H2. |
+| B3 | The retrieval interactive has two variables | **PASS** | The widget has one `range` input. The query is a fixed text display. |
+| B4 | The `BM25 weight` label is false | **PASS** | The label is `Word-overlap weight`. The note says `Simplified lexical score for teaching. Not BM25.` |
+| B5 | ELI5 #1 has six sentences | **PASS** | The analogy has 5 sentences. See R1 for the total. |
+| B6 | ELI5 #2 has six sentences | **PASS** | The analogy has 5 sentences. See R1 for the total. |
+| B7 | The lab says doc-02 repeats `policy` | **PASS** | The text now says `doc-02 matches policy`. The word `repeats` is gone. |
+| B8 | The lesson cites lesson 7 for the 41 cases | **PASS** | The triage case and task cite lesson 6. See R7 for the draft lesson 7 prerequisite. |
+| B9 | The ten pairs are not from the billing slice | **PASS** | The task says `ten fixed reply pairs across the support slices`. |
+| B10 | Item 5 has no runnable transfer | **PASS** | The solution holds 5 `RESET_PAIRS`. It prints 0.00 flip and 0.20 agreement. |
+| B11 | `repeatable score` contradicts drift | **PASS** | The text says `under a fixed prompt and sampling`. The word `repeatable` is gone. |
+| B12 | `A zero flip rate rules out position bias` | **PASS** | The text says the zero rate `gives no evidence` and does not `rule out` the bias. |
+| B13 | Interview answer 3 has five sentences | **PASS** | The answer has 4 sentences. |
+
+Non-blocking items from the first review also pass:
+- N1: the retrieval citation now includes `is independent`.
+- N3: the live text now names the first result (partial; see R6).
+- N4: the solution computes IDF per corpus. The output still matches the text.
+- N5: the triage case and item 3 say `a bonus of 2.0`.
+- N8: the prediction question has 22 words.
+
+### 2. New blocker
+
+**R1. The retrieval ELI5 total is below the floor.**
+- **File:** `content/lessons/retrieval.ts`.
+- **Sections:** `explain-it-simply` (119 words) and `explain-it-simply-again` (115 words).
+- **Quote:** The two ELI5 sections total 234 authored prose words.
+- **Fix:** Add at least 6 authored words to one ELI5 section. For example, add one short sentence to a prediction or a `Where it breaks` line.
+- **Why:** `COURSE-BRIEF.md` sections 3.2 and 4 set the ELI5 total at 240–540 words. The validator does not check this subtotal, so the build passes. The B5/B6 fix reduced the total from 252 to 234.
+
+### 3. Residual non-blocking notes
+
+- **R2. The header repeats the chapter line.** `LessonHeader.tsx` shows `Chapter 6 · RAG and agents`. `MetaRow.tsx` shows `Chapter 6 · RAG and agents · Lesson 1 of 3`. Remove one line. This is a visual duplicate, not a template miss.
+- **R3. The retrieval diagram needs an inner scroll at 390.** The static flow diagram keeps `min-w-[460px]`. The page does not scroll. A compact or vertical variant is optional.
+- **R4. The glossary lacks `position-flip rate` and `verbosity gap`.** Add both entries, or use the bias terms. This is unchanged from N6.
+- **R5. Lesson 8 part 2 has 220 words.** The row guidance is 150–180. The total is in budget. Part 10 has 155 words; the guidance is 80–110. Both are guidance, not blocking.
+- **R6. The retrieval live text does not announce the rank change.** It says `First result doc-07` at both weights. Doc-07 stays first. Doc-02 rises to rank 2. The visible list shows the change. Consider naming the top two rows in the live text.
+- **R7. Lesson 8 still lists lesson 7 as a prerequisite.** Lesson 7 is a draft stub. The 41-case data now points to lesson 6. Lesson 7 must ship before lesson 8 is learner-ready. This is a course-completion dependency, not a template defect.
+- **R8. The interview region label differs from the H2 on lesson 8.** The inner region says `Interview practice`. The visible H2 says `Interview corner`. Use one label.
+
+### 4. Re-check evidence
+
+| Command | Result |
+| --- | --- |
+| `npm run typecheck` | Exit 0. |
+| `npm run lint` | Exit 0. |
+| `npm run build` | Exit 0. |
+| `CONTENT_VALIDATE=1 npm run build` | Exit 0. |
+| `node /tmp/pilot-review-solutions/validate-pilot.cjs` | 43 total faults. 0 name lesson `retrieval` or `llm-as-judge`. The only `retrieval` match is the draft status of `retrieval-quality`. |
+| `python3 -I /tmp/pilot-review-solutions/retrieval_search.py` | Refund recall@3 0.33 → 1.00. Billing 0.67 → 1.00. Late delivery 0.67 → 1.00. Mean 0.56 → 1.00. |
+| `python3 -I /tmp/pilot-review-solutions/judge_audit.py` | Ten pairs: 0.00 flip, 0.40 agreement. Five reset pairs: 0.00 flip, 0.20 agreement. These match the text. |
+| `node /tmp/pilot-review-solutions/metrics.mjs` | Retrieval prose 1997 (budget 1900–2400). ELI5 234 (floor 240; see R1). Judge prose 2221. Judge ELI5 250. Analogies 5 and 5. Interview answer 3 has 4 sentences. |
+| `node /tmp/lm-qa/pilot-recheck.mjs` | Terms 6 and 6. Inner interview H2 0; H3 4. One range input. 0 console errors. 0 page errors. No page horizontal scroll at 390 and 1440. |
+
+Screenshots:
+- `/tmp/lm-qa/pilot-recheck-retrieval-390.png`
+- `/tmp/lm-qa/pilot-recheck-retrieval-1440.png`
+- `/tmp/lm-qa/pilot-recheck-retrieval-header-390.png`
+- `/tmp/lm-qa/pilot-recheck-retrieval-interactive-390.png`
+- `/tmp/lm-qa/pilot-recheck-retrieval-interview-1440.png`
+- `/tmp/lm-qa/pilot-recheck-llm-as-judge-390.png`
+- `/tmp/lm-qa/pilot-recheck-llm-as-judge-1440.png`
+- `/tmp/lm-qa/pilot-recheck-llm-as-judge-header-390.png`
+- `/tmp/lm-qa/pilot-recheck-llm-as-judge-interactive-390.png`
+- `/tmp/lm-qa/pilot-recheck-llm-as-judge-interview-1440.png`
+
+**Ready to scale: NO.** Add at least 6 authored ELI5 words to lesson 14 and re-check. All 13 original blockers pass.

@@ -91,7 +91,7 @@ export const retrievalLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "retrieval-p-6",
-          text: "Prediction: your note says late parcel. Which helper finds a chapter titled Delayed deliveries, and which helper ranks the final shortlist?",
+          text: "Prediction: your note says late parcel. Which helper finds a chapter titled Delayed deliveries, and which helper ranks the final shortlist? Say which helper finds it, and why, before you read on.",
         },
       ],
     },
