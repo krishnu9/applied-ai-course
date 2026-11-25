@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { EXPECTED_LESSON_COUNT, getChapterForSlug } from "@/lib/course-registry";
+import { EXPECTED_LESSON_COUNT } from "@/lib/course-registry";
 import type { Lesson } from "@/lib/types";
 import { MetaRow } from "./MetaRow";
 
@@ -7,9 +7,8 @@ export type LessonHeaderProps = {
   lesson: Lesson;
 };
 
-/** Breadcrumb, chapter line, H1, outcome, artifact line, meta row and terms. */
+/** Breadcrumb, lesson count, H1, outcome, artifact line, meta row and terms. */
 export function LessonHeader({ lesson }: LessonHeaderProps) {
-  const chapter = getChapterForSlug(lesson.slug);
   const terms = lesson.terms ?? [];
 
   return (
@@ -31,11 +30,6 @@ export function LessonHeader({ lesson }: LessonHeaderProps) {
       <p className="mt-4 [font-family:var(--font-mono-stack)] text-[length:var(--text-micro)] uppercase tracking-[var(--tracking-micro)] text-[var(--ink-muted)]">
         Lesson {lesson.order} of {EXPECTED_LESSON_COUNT}
       </p>
-      {chapter ? (
-        <p className="mt-1 [font-family:var(--font-mono-stack)] text-[length:var(--text-micro)] text-[var(--ink-muted)]">
-          Chapter {chapter.number} · {chapter.title}
-        </p>
-      ) : null}
       <h1 className="mt-2 text-balance">{lesson.title}</h1>
       <p className="mt-3 max-w-[var(--measure)] [font-family:var(--font-serif-stack)] text-[length:var(--text-body)]">
         {lesson.outcome}

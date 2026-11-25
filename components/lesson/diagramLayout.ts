@@ -299,6 +299,11 @@ function layoutBars(spec: DiagramSpec): BarsLayout {
     node.value !== undefined && Number.isFinite(node.value) ? node.value : 0,
   );
   const max = Math.max(...values, 1);
+  const valueTexts = spec.nodes.map(
+    (node, index) => `${values[index] ?? 0}${node.unit ? ` ${node.unit}` : ""}`,
+  );
+  // Reserve enough room for the longest value label, so it clears the longest bar.
+  const valueWidth = Math.max(56, ...valueTexts.map(textWidth)) + 4;
   const barX = PAD + labelW;
   const rowH = BAR_ROW_H + BAR_GAP;
   const bars = spec.nodes.map((node, index) => {
@@ -309,7 +314,7 @@ function layoutBars(spec: DiagramSpec): BarsLayout {
       x: barX,
       y: PAD + index * rowH,
       width: Math.max(0, (value / max) * BAR_W),
-      valueText: `${value}${node.unit ? ` ${node.unit}` : ""}`,
+      valueText: valueTexts[index] ?? "",
     };
   });
 
@@ -317,7 +322,7 @@ function layoutBars(spec: DiagramSpec): BarsLayout {
     kind: "bars",
     bars,
     trackWidth: BAR_W,
-    width: barX + BAR_W + 8 + 56 + PAD,
+    width: barX + BAR_W + 8 + valueWidth + PAD,
     height: Math.max(spec.nodes.length, 1) * rowH - BAR_GAP + PAD * 2,
   };
 }

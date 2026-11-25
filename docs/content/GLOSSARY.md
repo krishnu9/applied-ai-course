@@ -86,6 +86,8 @@ Rules:
 | Position bias | A judge favors the answer in a fixed slot, such as first or last. |
 | Verbosity bias | A judge favors longer answers regardless of quality. |
 | Self bias | A judge favors text from its own model family. |
+| Position-flip rate | The share of answer pairs whose winner changes when the two answers swap slots. |
+| Verbosity gap | The average score or win-rate difference between longer and shorter answers of equal quality. |
 | Human agreement rate | The share of judge decisions that match human labels. |
 | Rubric | A written list of criteria and levels that defines a good answer. |
 | Elo rating | A relative skill score updated from pairwise wins and losses. |
