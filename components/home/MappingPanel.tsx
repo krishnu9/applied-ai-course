@@ -1,6 +1,33 @@
 import Link from "next/link";
-import { getMappingRows } from "@/content";
 import { cn } from "@/lib/cn";
+
+/** The four bridges from a known engineering idea to an AI idea. */
+const ROWS = [
+  {
+    id: "eval-set",
+    aiIdea: "Eval set",
+    engineeringIdea: "Test suite",
+    lessonSlug: "eval-sets",
+  },
+  {
+    id: "retrieval",
+    aiIdea: "Retrieval",
+    engineeringIdea: "Ranked cache",
+    lessonSlug: "retrieval",
+  },
+  {
+    id: "agent",
+    aiIdea: "Agent",
+    engineeringIdea: "Loop with a stop rule",
+    lessonSlug: "agents",
+  },
+  {
+    id: "inference-cost",
+    aiIdea: "Inference cost",
+    engineeringIdea: "Load budget",
+    lessonSlug: "cost",
+  },
+] as const;
 
 export type MappingPanelProps = {
   className?: string;
@@ -16,13 +43,11 @@ function lowerFirst(value: string): string {
  * the reader already owns. Every row links to the lesson that teaches it.
  */
 export function MappingPanel({ className }: MappingPanelProps) {
-  const rows = getMappingRows();
-
   return (
     <section aria-labelledby="mapping-heading" className={cn(className)}>
       <h2 id="mapping-heading">Mapping</h2>
       <ul className="mt-4 border-t border-[var(--hairline)]">
-        {rows.map((row) => (
+        {ROWS.map((row) => (
           <li key={row.id} className="border-b border-[var(--hairline)]">
             <Link
               href={`/lessons/${row.lessonSlug}`}

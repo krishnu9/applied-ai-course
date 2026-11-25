@@ -6,5 +6,5 @@ export { MappingPanel } from "./MappingPanel";
 export type { MappingPanelProps } from "./MappingPanel";
 export { LoopRow } from "./LoopRow";
 export type { LoopRowProps } from "./LoopRow";
-export { LessonLedger } from "./LessonLedger";
-export type { LessonLedgerProps } from "./LessonLedger";
+export { CourseIndex } from "./CourseIndex";
+export type { CourseIndexProps } from "./CourseIndex";

@@ -1,85 +1,160 @@
 "use client";
 
+import Link from "next/link";
 import { Badge, Panel, ScoreValue } from "@/components/ui";
-import { getCourse, scoreSummary } from "@/content";
+import { getEvaluationStages, scoreSummary } from "@/content";
 import { cn } from "@/lib/cn";
 import { formatPercent, formatSeconds, formatUsd } from "@/lib/format";
 import { isRepaired, useProgress } from "@/lib/progress";
 
-const LESSONS = getCourse().lessons;
-const TOTAL = LESSONS.length;
+const STAGES = getEvaluationStages();
+const STAGE_COUNT = STAGES.length;
 
 export type RunPanelProps = {
   className?: string;
 };
 
 /**
- * The run scoreboard. Values come from `scoreSummary` over the repaired
- * lessons, so an empty store shows the frozen baseline. The sample-data label
- * is always visible.
+ * The capstone scoreboard. The six stages carry fixed sample scores. Only a
+ * repaired capstone lesson adds its stage to the run, so no other lesson can
+ * move the summary. The sample-data label is always visible.
  */
 export function RunPanel({ className }: RunPanelProps) {
   const { state, ready } = useProgress();
 
-  const repaired = LESSONS.filter((lesson) =>
-    isRepaired(state, lesson.slug),
-  ).map((lesson) => lesson.slug);
-  const metrics = scoreSummary(repaired);
-  const count = repaired.length;
-  const isBroken = count === 0;
+  const repairedStages = STAGES.filter((stage) =>
+    isRepaired(state, stage.lessonSlug),
+  );
+  const metrics = scoreSummary(
+    repairedStages.map((stage) => stage.lessonSlug),
+  );
+  const repairedCount = repairedStages.length;
+  const complete = repairedCount === STAGE_COUNT;
 
   return (
-    <Panel as="section" labelledBy="run-heading" className={cn(className)}>
+    <Panel as="section" labelledBy="capstone-heading" className={cn(className)}>
       <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3 border-b border-[var(--hairline)] pb-4">
         <div className="min-w-0">
           <h2
-            id="run-heading"
-            className="[font-family:var(--font-mono-stack)] text-[length:var(--text-micro)] font-medium uppercase tracking-[var(--tracking-micro)] text-[var(--ink-muted)]"
+            id="capstone-heading"
+            className="[font-family:var(--font-mono-stack)] text-[length:var(--text-small)] font-medium tracking-[var(--tracking-micro)] text-[var(--ink-muted)]"
           >
-            The run
+            Capstone evaluation
           </h2>
-          <h3 className="mt-1">Triage 40 support tickets</h3>
+          <h3 className="mt-1">Triage support tickets</h3>
         </div>
-        <Badge tone={isBroken ? "danger" : "success"}>
-          {isBroken ? "Broken" : `${count} of ${TOTAL} layers repaired`}
+        <Badge tone={complete ? "success" : "neutral"}>
+          {repairedCount} of {STAGE_COUNT} stages repaired
         </Badge>
       </div>
 
-      <dl className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
-        <div className="min-w-0">
-          <dt className="text-[length:var(--text-small)] text-[var(--ink-muted)]">
-            Pass rate
-          </dt>
-          <dd className="mt-1 [font-family:var(--font-mono-stack)] text-[length:var(--text-h2)] leading-none tabular-nums">
-            <ScoreValue value={formatPercent(metrics.passRate)} ready={ready} />
-          </dd>
-        </div>
-        <div className="min-w-0">
-          <dt className="text-[length:var(--text-small)] text-[var(--ink-muted)]">
-            Cost per 1k requests
-          </dt>
-          <dd className="mt-1 [font-family:var(--font-mono-stack)] text-[length:var(--text-h2)] leading-none tabular-nums">
-            <ScoreValue value={formatUsd(metrics.costPer1k)} ready={ready} />
-            {" / 1k"}
-          </dd>
-        </div>
-        <div className="min-w-0">
-          <dt className="text-[length:var(--text-small)] text-[var(--ink-muted)]">
-            p95 latency
-          </dt>
-          <dd className="mt-1 [font-family:var(--font-mono-stack)] text-[length:var(--text-h2)] leading-none tabular-nums">
-            <ScoreValue value={formatSeconds(metrics.p95Ms)} ready={ready} />
-          </dd>
-        </div>
-      </dl>
+      <p className="mt-4 [font-family:var(--font-mono-stack)] text-[length:var(--text-small)] tabular-nums text-[var(--ink-muted)]">
+        Current run:{" "}
+        <ScoreValue
+          value={formatPercent(metrics.passRate)}
+          ready={ready}
+          className="text-[var(--ink)]"
+        />{" "}
+        pass ·{" "}
+        <ScoreValue
+          value={formatUsd(metrics.costPer1k)}
+          ready={ready}
+          className="text-[var(--ink)]"
+        />{" "}
+        per 1k ·{" "}
+        <ScoreValue
+          value={formatSeconds(metrics.p95Ms)}
+          ready={ready}
+          className="text-[var(--ink)]"
+        />{" "}
+        p95
+      </p>
 
-      {isBroken ? (
-        <p className="mt-5 max-w-[var(--measure)] text-[length:var(--text-small)] text-[var(--ink-muted)]">
-          No layers repaired yet. Start with retrieval.
-        </p>
-      ) : null}
+      <table className="mt-4 w-full border-collapse text-left">
+        <caption className="sr-only">
+          Capstone stages with their fixed sample scores.
+        </caption>
+        <thead>
+          <tr className="[font-family:var(--font-mono-stack)] text-[length:var(--text-micro)] uppercase tracking-[var(--tracking-micro)] text-[var(--ink-muted)]">
+            <th scope="col" className="pb-2 pr-2 font-medium">
+              Stage
+            </th>
+            <th scope="col" className="pb-2 pr-2 text-right font-medium">
+              Pass
+            </th>
+            <th scope="col" className="pb-2 pr-2 text-right font-medium">
+              $ / 1k
+            </th>
+            <th scope="col" className="pb-2 text-right font-medium">
+              p95
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {STAGES.map((stage) => {
+            const repaired = isRepaired(state, stage.lessonSlug);
+            const tone = repaired
+              ? "text-[var(--ink)]"
+              : "text-[var(--ink-muted)]";
 
-      <p className="mt-5 [font-family:var(--font-mono-stack)] text-[length:var(--text-micro)] text-[var(--ink-muted)]">
+            return (
+              <tr
+                key={stage.id}
+                className="border-t border-[var(--hairline)] align-top"
+              >
+                <th
+                  scope="row"
+                  className={cn(
+                    "py-2 pr-2 text-[length:var(--text-small)] font-normal",
+                    tone,
+                  )}
+                >
+                  <Link
+                    href={`/lessons/${stage.lessonSlug}`}
+                    className="inline-flex flex-wrap items-baseline gap-x-2 no-underline hover:underline"
+                  >
+                    <span className="[font-family:var(--font-mono-stack)] text-[length:var(--text-micro)] tabular-nums text-[var(--ink-muted)]">
+                      {String(stage.order).padStart(2, "0")}
+                    </span>
+                    <span>{stage.name}</span>
+                    {repaired ? <span className="sr-only">repaired</span> : null}
+                  </Link>
+                </th>
+                <td
+                  className={cn(
+                    "py-2 pr-2 text-right [font-family:var(--font-mono-stack)] text-[length:var(--text-small)] tabular-nums",
+                    tone,
+                  )}
+                >
+                  {formatPercent(stage.repaired.passRate)}
+                </td>
+                <td
+                  className={cn(
+                    "py-2 pr-2 text-right [font-family:var(--font-mono-stack)] text-[length:var(--text-small)] tabular-nums",
+                    tone,
+                  )}
+                >
+                  {formatUsd(stage.repaired.costPer1k)}
+                </td>
+                <td
+                  className={cn(
+                    "py-2 text-right [font-family:var(--font-mono-stack)] text-[length:var(--text-small)] tabular-nums",
+                    tone,
+                  )}
+                >
+                  {formatSeconds(stage.repaired.p95Ms)}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+
+      <p className="mt-4 max-w-[var(--measure)] text-[length:var(--text-small)] text-[var(--ink-muted)]">
+        Only the capstone lessons change the score.
+      </p>
+
+      <p className="mt-2 [font-family:var(--font-mono-stack)] text-[length:var(--text-micro)] text-[var(--ink-muted)]">
         Sample evaluation. Fixed data.
       </p>
     </Panel>
