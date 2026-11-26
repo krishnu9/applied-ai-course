@@ -137,7 +137,12 @@ export const agentsLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "ag-p-9",
-          text: "Planning decomposes the goal into ordered steps before action. A plan helps when the task needs several tools in a known order. A plan also raises a risk, because the model can follow a stale plan after an observation changes the task. Keep the plan short, and let the loop revise it after each observation. A plan is not a substitute for a stop rule.",
+          text: "Planning decomposes the goal into ordered steps before action. A plan helps when the task needs several tools in a known order. Generate the plan first, then validate it against the goal and the tool schemas. Reject a step that names no tool or a missing argument. A plan also raises a risk, because the model can follow a stale plan after an observation changes the task. Keep the plan short, and let the loop revise it after each observation. A plan is not a substitute for a stop rule.",
+        },
+        {
+          kind: "paragraph",
+          id: "ag-p-9b",
+          text: "Tool selection picks one tool at each step from the schemas and the observation. A small tool set with clear names lowers a wrong call. Reflection is a second model pass that checks the last result against the success test. It can catch a wrong answer before the loop stops. Reflection costs one extra call, and it can agree with its own mistake, so the code keeps the gate.",
         },
         {
           kind: "paragraph",
@@ -152,7 +157,12 @@ export const agentsLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "ag-p-12",
-          text: "Agent memory has two parts. Short-term memory is the trajectory of this run, and it grows with each step. Long-term memory is stored state that a later run reads, such as a customer fact. The context window limits both, so summarize old steps or retrieve a stored fact. Memory can carry a stale fact into a new run, so store the source and the date.",
+          text: "Agent memory has three layers. Internal memory is the model state inside one call, such as the weights and the KV cache; the code does not edit it. Short-term memory is the trajectory of this run, and it grows with each step. Long-term memory is stored state that a later run reads, such as a customer fact.",
+        },
+        {
+          kind: "paragraph",
+          id: "ag-p-12b",
+          text: "The code adds a memory item with a source and a date, and it deletes an item when the source expires. Three policies manage overflow. FIFO drops the oldest step. Summary replaces a group of steps with one short text. Reflection stores one lesson from a failed run. The context window limits every policy, so summarize old steps or retrieve only the fact that the next step needs. Lesson 13 covers the token budget.",
         },
         {
           kind: "paragraph",
@@ -261,6 +271,12 @@ export const agentsLesson = deepFreeze({
               "Count steps and calls per run",
               "Set a step target and a p95 target",
             ],
+            [
+              "A new run repeats an old failed step",
+              "Stale long-term memory",
+              "Compare the memory date with the source",
+              "Expire the item and refetch",
+            ],
           ],
           caption: "Four agent failures, each with one check.",
         },
@@ -320,13 +336,14 @@ export const agentsLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "ag-p-20",
-          text: "Answer five questions on the loop, the schema, the stop rule and the cost.",
+          text: "Answer six questions on the loop, the schema, the stop rule, the plan, memory and the cost.",
         },
         { kind: "check", id: "ag-check-1", checkId: "check-1" },
         { kind: "check", id: "ag-check-2", checkId: "check-2" },
         { kind: "check", id: "ag-check-3", checkId: "check-3" },
         { kind: "check", id: "ag-check-4", checkId: "check-4" },
         { kind: "check", id: "ag-check-5", checkId: "check-5" },
+        { kind: "check", id: "ag-check-6", checkId: "check-6" },
       ],
     },
     {
@@ -481,6 +498,21 @@ export const agentsLesson = deepFreeze({
       correctOptionId: "option-a",
       explanation:
         "Planning decomposes the goal into ordered steps, so the loop follows a plan before action. A tool schema defines one call, and a stop condition ends the loop.",
+    },
+    {
+      id: "check-6",
+      kind: "apply",
+      prompt:
+        "A run's trajectory exceeds the context window. Which memory policy fits?",
+      options: [
+        { id: "option-a", label: "FIFO drops the oldest steps" },
+        { id: "option-b", label: "Reject the run" },
+        { id: "option-c", label: "Store the whole trajectory" },
+        { id: "option-d", label: "Delete the tool schemas" },
+      ],
+      correctOptionId: "option-a",
+      explanation:
+        "FIFO drops the oldest steps and keeps the recent observation inside the window. Storing the whole trajectory repeats the overflow, and deleting the schemas breaks tool selection.",
     },
   ],
   task: {

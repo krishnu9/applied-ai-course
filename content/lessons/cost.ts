@@ -125,6 +125,11 @@ export const costLesson = deepFreeze({
         },
         {
           kind: "paragraph",
+          id: "cost-p-7b",
+          text: "Utilization is the share of a device's peak capacity in use; MFU compares useful model flops with the device peak, and MBU does the same for memory bandwidth. A busy-time reading from a device tool is not MFU, because it ignores useful work.",
+        },
+        {
+          kind: "paragraph",
           id: "cost-p-25",
           text: "The split matters for design. A summarizer reads 8,000 tokens and writes 200, so prefill dominates and TTFT is the number to watch. A chat reply reads 300 tokens and writes 800, so decode dominates and TPOT is the number to watch. The same server can meet one target and miss the other.",
         },

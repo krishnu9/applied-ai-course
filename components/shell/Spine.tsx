@@ -21,7 +21,7 @@ const LIVE_SLUGS = new Set<LessonSlug>(
 
 /**
  * The link goes to the first live lesson in the chapter that is not repaired.
- * When the chapter has no live lesson yet, the first lesson in book order is
+ * When the chapter has no live lesson yet, the first lesson in course order is
  * the target.
  */
 function targetFor(chapter: Chapter, state: ProgressState): LessonSlug {

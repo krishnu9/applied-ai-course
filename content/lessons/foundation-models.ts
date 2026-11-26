@@ -70,7 +70,7 @@ export const foundationModelsLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "foundation-models-p-2",
-          text: "A foundation model is a large pretrained model that serves many tasks without task-specific training. It reads text as tokens and writes text one token at a time. A token is a unit of text that a tokenizer maps to a number. The tokenizer is the deterministic rule set that splits text and maps tokens to ids.",
+          text: "A foundation model is a large pretrained model that serves many tasks without task-specific training. A multimodal foundation model accepts images, audio or video as well as text. It reads text as tokens and writes text one token at a time. A token is a unit of text that a tokenizer maps to a number. The tokenizer is the deterministic rule set that splits text and maps tokens to ids.",
         },
         {
           kind: "paragraph",
@@ -80,7 +80,7 @@ export const foundationModelsLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "foundation-models-p-4",
-          text: "A worked example is a short note: The report is three days late. The tokenizer turns the text into about nine tokens. The model embeds each token, runs attention across the sequence, and writes a probability for the next token. It picks a period, and the reply stops.",
+          text: "A worked example is a short note: The report is three days late. The tokenizer turns the text into seven or eight tokens. The model embeds each token, runs attention across the sequence, and writes a probability for the next token. It picks a period, and the reply stops.",
         },
         {
           kind: "paragraph",
@@ -140,7 +140,7 @@ export const foundationModelsLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "foundation-models-p-8",
-          text: "A token is often a word piece, not a whole word. English text uses about 1.3 tokens per word on a common tokenizer. A token count is the unit for cost, latency and the context budget.",
+          text: "A token is often a word piece, not a whole word. English text uses about 1.3 tokens per word. A token count is the unit for cost, latency and the context budget.",
         },
         {
           kind: "paragraph",
@@ -150,12 +150,12 @@ export const foundationModelsLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "foundation-models-p-10",
-          text: "The model outputs a logit for every token in the vocabulary. Softmax turns the logits into a probability distribution. Next-token prediction samples from this distribution and appends the token. The model then runs again. The output length is the number of repeats.",
+          text: "The model outputs a logit per vocabulary token. Softmax turns the logits into a probability distribution. Next-token prediction samples from it and appends the token. The model then runs again, and the output length is the repeat count.",
         },
         {
           kind: "paragraph",
           id: "foundation-models-p-11",
-          text: "The context window is the maximum number of tokens in one call. A larger window costs more attention work and more memory. Text past the window is dropped or fails, and many clients drop it without an error. Treat the window as a budget for input plus output.",
+          text: "The context window is the maximum number of tokens in one call. A larger window costs more attention work and memory. Text past the window is dropped, and many clients drop it without an error. Treat the window as a budget for input plus output.",
         },
         {
           kind: "table",

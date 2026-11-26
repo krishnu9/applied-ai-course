@@ -120,32 +120,32 @@ export const evaluationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-evaluation-8",
-          text: "Exact match counts only answers identical to the reference. Accuracy divides matches by all cases. It is cheap, strict and blind to partial credit.",
+          text: "Exact match counts only answers identical to the reference. Accuracy divides matches by cases. It is cheap, strict and blind to partial credit.",
         },
         {
           kind: "paragraph",
           id: "p-evaluation-9",
-          text: "F1 combines precision and recall. Precision divides true positives by all predicted positives. Recall divides true positives by all true positives. F1 is the harmonic mean, so a low precision or recall pulls the score down. Macro-F1 averages the per-label scores. Refund earns 2 true positives, 1 false positive and 1 false negative, so both parts are 2/3.",
+          text: "F1 combines precision and recall. Precision divides true positives by predicted positives. Recall divides true positives by true positives. F1 is the harmonic mean, so a low part pulls the score down. Macro-F1 averages per-label scores. Refund earns 2 true positives, 1 false positive and 1 false negative, so both parts are 2/3.",
         },
         {
           kind: "paragraph",
           id: "p-evaluation-10",
-          text: "Cosine similarity compares two vectors and returns a score from -1 to 1. A cosine of 1 means the same direction, and 0 means no shared direction. Two answers can share meaning and few words, so similarity reads form before truth.",
+          text: "Cosine similarity compares two vectors and returns a score from -1 to 1. A cosine of 1 means the same direction; 0 means no shared direction. Two answers can share meaning and few words, so similarity reads form before truth.",
         },
         {
           kind: "paragraph",
           id: "p-evaluation-11",
-          text: "A small set carries noise. A five-point move on 41 cases can come from the sample, not the change. A confidence interval states the likely range of the true score. The Wilson interval for 17 of 41 runs from 28 to 57 percent.",
+          text: "A small set carries noise. A five-point move on 41 cases can come from the sample. A confidence interval states the likely range of the score. The Wilson interval for 17 of 41 is 28 to 57 percent.",
         },
         {
           kind: "paragraph",
           id: "p-evaluation-12",
-          text: "Offline evaluation runs on frozen cases before release. It is fast, cheap and repeatable. Online evaluation reads live traffic and A/B results. It is real, slow and noisy. Use offline to choose and online to confirm.",
+          text: "Offline evaluation runs on frozen cases before release. It is fast, cheap and repeatable. Online evaluation reads live traffic and A/B results. It is real, slow and noisy. Use offline to choose, online to confirm.",
         },
         {
           kind: "paragraph",
           id: "p-evaluation-13",
-          text: "A language model also has a loss score. Entropy measures the uncertainty in a distribution: H equals minus the sum of p times log2 p. Cross-entropy is the average negative log-likelihood of the true tokens. Perplexity is the exponent of cross-entropy; a mean loss of 0.75 nats gives 2.12. Bits per byte divides total bits by the byte count, so two tokenizers compare.",
+          text: "A language model also has a loss score. Entropy measures uncertainty in a distribution: H equals minus the sum of p times log2 p. Cross-entropy is the average negative log-likelihood of true tokens. Perplexity is e raised to the cross-entropy, when cross-entropy is measured in nats; with base-2 entropy it is 2 raised to that value, and a mean loss of 0.75 nats gives 2.12. Bits per byte divides total bits by bytes, so two tokenizers compare.",
         },
         {
           kind: "table",

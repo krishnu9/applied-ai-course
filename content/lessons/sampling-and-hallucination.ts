@@ -54,7 +54,7 @@ export const samplingAndHallucinationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "sampling-p-1",
-          text: "You can set temperature and top-p, explain a non-deterministic run, and diagnose a hallucination. You need lesson 4 on post-training. The task uses a fixed token distribution and a fixed seed.",
+          text: "You can set temperature and top-p, explain a non-deterministic run, and diagnose a hallucination. You need lesson 4 on post-training. The task uses a fixed distribution and a fixed seed.",
         },
       ],
     },
@@ -76,7 +76,7 @@ export const samplingAndHallucinationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "sampling-p-4",
-          text: "A worked example is a price question. The next token after the number has probability 0.6 for 30 and 0.2 for 60. At temperature 0.2, 30 wins almost every run. At temperature 1.2, the two choices are close, and a run can write 60.",
+          text: "A worked example is a price question. The next token has probability 0.6 for 30 and 0.2 for 60. At temperature 0.2, 30 wins almost every run. At 1.2, the choices are close, and a run can write 60.",
         },
         {
           kind: "paragraph",
@@ -135,27 +135,32 @@ export const samplingAndHallucinationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "sampling-p-8",
-          text: "Temperature divides each logit before softmax. A value below 1 sharpens the distribution, and a value above 1 flattens it. At temperature 0 the model is greedy, so it takes the top token. A high value raises variety and raises the chance of a wrong token.",
+          text: "Temperature divides each logit before softmax. Below 1 sharpens the distribution; above 1 flattens it. At temperature 0 the model takes the top token. A high value raises variety and wrong answers.",
         },
         {
           kind: "paragraph",
           id: "sampling-p-9",
-          text: "Top-p cuts the tail. Sort the tokens by probability, keep the smallest set that reaches p, and renormalize. Top-k keeps the k most likely tokens. With p = 0.9, the model ignores the rare tail and keeps the likely set. A low p or a small k narrows the set.",
+          text: "Top-p cuts the tail. Sort by probability, keep the smallest set that reaches p, and renormalize. Top-k keeps the k most likely tokens. With p = 0.9, the model ignores the rare tail. A low p or a small k narrows the set.",
         },
         {
           kind: "paragraph",
           id: "sampling-p-10",
-          text: "A seed fixes the random stream for one run. It does not fix the hardware, the batch order or a model version change. Floating-point sums can differ between two hardware shapes, so a temperature-0 run can still vary. Record the seed and the model version with every eval score.",
+          text: "A seed fixes the random stream for one run. It does not fix the hardware or a model version change. Floating-point sums can differ across hardware, so a temperature-0 run can still vary. Record the seed and the model version.",
         },
         {
           kind: "paragraph",
           id: "sampling-p-11",
-          text: "A hallucination has three common causes. The model has no fact, the prompt is ambiguous, or the evidence is missing. Sampling adds variation, and a low temperature does not add a missing fact. Grounding a claim in retrieved text removes many false facts, and a claim check catches the rest.",
+          text: "A hallucination has three common causes. The model has no fact, the prompt is ambiguous, or the evidence is missing. Sampling adds variation, and a low temperature does not add a missing fact. Grounding a claim in retrieved text removes many false facts.",
         },
         {
           kind: "paragraph",
           id: "sampling-p-12",
           text: "Detection has two levels. A claim check compares each fact with a trusted source. A consistency check samples several answers and looks for disagreement. Neither check proves truth. Mitigation grounds the answer, lowers the temperature, and asks for a citation per claim.",
+        },
+        {
+          kind: "paragraph",
+          id: "sampling-p-12b",
+          text: "Test-time compute spends more inference calls to raise accuracy. Best-of-N samples N answers and returns the best one. A verifier ranks the candidates. Self-consistency samples several reasoning paths and takes the majority answer. A logprob rule picks the candidate with the highest mean token logprob. Cost grows with N, so a small N and a cheap verifier help.",
         },
         {
           kind: "table",
@@ -167,6 +172,7 @@ export const samplingAndHallucinationLesson = deepFreeze({
             ["Top-p, 0.9", "Cuts the tail", "General chat"],
             ["Top-k, 40", "Keeps the top k tokens", "Narrow choices"],
             ["High temperature, 1.2", "Flattens the distribution", "Brainstorming"],
+            ["Best-of-N or self-consistency", "Samples several answers and votes or verifies", "Hard questions"],
           ],
           caption: "One setting, one effect and one use.",
         },
@@ -276,7 +282,7 @@ export const samplingAndHallucinationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "sampling-p-15",
-          text: "A low temperature raises consistency and can lock in a confident wrong answer. Grounding and a claim check raise truth, and they add latency and a dependency. The eval decides which cost is smaller.",
+          text: "A low temperature raises consistency and can lock in a wrong answer. Grounding and a claim check raise truth and add latency. The eval decides which cost is smaller.",
         },
       ],
     },
@@ -288,17 +294,17 @@ export const samplingAndHallucinationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "sampling-p-16",
-          text: "The support assistant answers a refund question with 60 days. The policy says 30 days. The trace shows no policy text in the prompt, a temperature of 0.9, and three different answers in four runs. Two answers say 60 days, and one says 30. The model cites doc-99, which does not exist.",
+          text: "The support assistant answers a refund question with 60 days. The policy says 30 days. The trace shows no policy text, a temperature of 0.9, and three different answers in four runs. The model cites doc-99, which does not exist.",
         },
         {
           kind: "paragraph",
           id: "sampling-p-17",
-          text: "Three faults share one trace. The missing policy text is the main cause of the false fact. The high temperature explains the variation across runs. The invented citation is a separate fluency fault. Lowering the temperature alone would make the wrong answer stable.",
+          text: "Three faults share one trace. The missing policy text is the main cause of the false fact. The high temperature explains the variation. The invented citation is a separate fluency fault. Lowering the temperature alone would make the wrong answer stable.",
         },
         {
           kind: "paragraph",
           id: "sampling-p-18",
-          text: "The decision is to ground the answer and then set the sampling. Add the policy document to the context and require a citation id from the index. Set temperature 0.2 and top-p 0.9 for this extraction task. Re-run the four samples. The false claim falls from 2 of 4 to 0 of 4, and the answers agree.",
+          text: "The decision is to ground the answer, then set the sampling. Add the policy document and require a citation id from the index. Set temperature 0.2 and top-p 0.9 for extraction. Re-run the four samples. The false claim falls from 2 of 4 to 0 of 4, and the answers agree.",
         },
       ],
     },
@@ -310,13 +316,14 @@ export const samplingAndHallucinationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "sampling-p-19",
-          text: "Answer five questions on the setting, the choice, the variation and the cause.",
+          text: "Answer six questions on the setting, the choice, the variation, the cause and test-time compute.",
         },
         { kind: "check", id: "sampling-check-1", checkId: "check-1" },
         { kind: "check", id: "sampling-check-2", checkId: "check-2" },
         { kind: "check", id: "sampling-check-3", checkId: "check-3" },
         { kind: "check", id: "sampling-check-4", checkId: "check-4" },
         { kind: "check", id: "sampling-check-5", checkId: "check-5" },
+        { kind: "check", id: "sampling-check-6", checkId: "check-6" },
       ],
     },
     {
@@ -327,7 +334,7 @@ export const samplingAndHallucinationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "sampling-p-20",
-          text: "Use the fixed distribution and seed 7. Build one script that samples four runs at temperature 1.0 and four at 0.2, then adds a grounding check. At temperature 1.0, one of four samples writes 60. At temperature 0.2, zero of four samples write 60. The grounding check catches the one false claim and writes 30. A second run with seed 7 repeats the same four samples.",
+          text: "Build one script on the fixed distribution and seed 7. Sample four runs at temperature 1.0 and four at 0.2, then add a grounding check. At 1.0, one of four samples writes 60. At 0.2, zero of four write 60. The check catches the false claim and writes 30. A second run with seed 7 repeats the four samples.",
         },
         { kind: "task", id: "task-sampling-and-hallucination" },
       ],
@@ -462,6 +469,21 @@ export const samplingAndHallucinationLesson = deepFreeze({
       correctOptionId: "option-b",
       explanation:
         "The model wrote a source id that does not exist, so the citation is invented. A retrieval miss would return a real document, and the answer would cite that real id.",
+    },
+    {
+      id: "check-6",
+      kind: "calculate",
+      prompt:
+        "A team samples 8 answers and a verifier keeps one. How does the model-call cost compare with one greedy run?",
+      options: [
+        { id: "option-a", label: "About 8 times higher" },
+        { id: "option-b", label: "About the same" },
+        { id: "option-c", label: "About 1/8 as high" },
+        { id: "option-d", label: "Zero, because the verifier runs in code" },
+      ],
+      correctOptionId: "option-a",
+      explanation:
+        "Best-of-N makes N model calls, so 8 samples cost about 8 times one run. A verifier adds its own cost, and it does not remove the extra samples.",
     },
   ],
   task: {

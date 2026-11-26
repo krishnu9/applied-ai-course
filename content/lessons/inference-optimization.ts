@@ -57,7 +57,7 @@ export const inferenceOptimizationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "inference-optimization-p-2",
-          text: "A model with 8 billion parameters needs 16 GB for weights in fp16. At an 8,000-token context and a batch of 8, its KV cache needs 8 GiB. A 4-bit format cuts the weights to 4 GB. Continuous batching keeps the slots full, and prefix caching removes a repeated 1,000-token prefix. Cost and p95 fall, and the eval set checks the quality floor.",
+          text: "A model with 8 billion parameters needs 16 GB for fp16 weights. At an 8,000-token context and a batch of 8, its KV cache needs 8 GiB. A 4-bit format cuts the weights to 4 GB. Continuous batching keeps slots full, and prefix caching removes a repeated prefix. Cost and p95 fall, and the eval checks the quality floor.",
         },
         {
           kind: "paragraph",
@@ -112,7 +112,7 @@ export const inferenceOptimizationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "inference-optimization-p-7",
-          text: "Quantization stores each weight or activation in fewer bits. It cuts memory and bandwidth, which limits decode. The cost is rounding error, and rare tokens carry the most. Check the eval by slice, not only in total.",
+          text: "Quantization stores each weight or activation in fewer bits. It cuts memory and bandwidth, which limits decode. The cost is rounding error, and rare tokens carry the most. Check the eval by slice.",
         },
         {
           kind: "paragraph",
@@ -127,7 +127,7 @@ export const inferenceOptimizationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "inference-optimization-p-10",
-          text: "Prefix caching reuses the prefill of a shared prefix, such as the system prompt. It cuts TTFT and input cost. The key must include the model, the template version and the tenant.",
+          text: "Prefix caching reuses the prefill of a shared prefix, such as the system prompt. It cuts TTFT and input cost. The key includes the model, template version and tenant.",
         },
         {
           kind: "paragraph",
@@ -137,7 +137,7 @@ export const inferenceOptimizationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "inference-optimization-p-12",
-          text: "Continuous batching removes a finished request at a step boundary and adds a waiting one. A free slot never idles, so throughput rises. Replicas copy a model across devices; tensor and pipeline parallelism split one model across devices. KV memory limits the batch before compute does.",
+          text: "Continuous batching removes a finished request at a step boundary and adds a waiting one. A free slot never idles, so throughput rises. Replicas copy a model across devices; tensor and pipeline parallelism split one model across devices. Attention kernels such as FlashAttention cut memory traffic, and prefill/decode decoupling runs each phase on its own pool. KV memory limits the batch before compute does.",
         },
         {
           kind: "table",
@@ -263,7 +263,7 @@ export const inferenceOptimizationLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "inference-optimization-p-15",
-          text: "Every lever trades one resource for another. Quantization trades quality for memory, pruning trades quality for compute, and batching trades tail latency for throughput. A trade is acceptable only when the eval and the p95 target pass.",
+          text: "Every lever trades one resource for another. Quantization trades quality for memory, pruning trades quality for compute, and batching trades tail latency for throughput. A trade is acceptable only when the eval and p95 pass.",
         },
       ],
     },

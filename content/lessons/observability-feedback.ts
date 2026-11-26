@@ -56,17 +56,17 @@ export const observabilityFeedbackLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "observability-feedback-p-1",
-          text: "Observability is the ability to infer system state from logs, metrics and traces. A log records one event. A metric is a number over time. A trace links the work of one request across services. The three answer what happened, how often, and where the time went.",
+          text: "Observability is the ability to infer system state from logs, metrics and traces. A log records one event. A metric is a number over time. A trace links one request across services. The three answer what happened, how often, and where the time went.",
         },
         {
           kind: "paragraph",
           id: "observability-feedback-p-2",
-          text: "A worked example: a support request carries an id. The gateway log, the retrieval span and the model span share it. A histogram shows a p95 of 1,400 ms and an error rate of 0.5 percent. A feedback row shows a thumbs-down on a refund answer. The trace shows which prompt answered.",
+          text: "A worked example: a support request carries an id. The gateway log, the retrieval span and the model span share it. A histogram shows a p95 of 1,400 ms and an error rate of 0.5 percent. A feedback row shows a thumbs-down on a refund answer.",
         },
         {
           kind: "paragraph",
           id: "observability-feedback-p-3",
-          text: "A non-example: a dashboard with one uptime number is not observability for quality. It shows that the service answers and says nothing about whether the answer is correct. Quality needs a labeled sample, a feedback signal or both.",
+          text: "A non-example: a dashboard with one uptime number is not observability for quality. It shows that the service answers, not that the answer is correct. Quality needs a labeled sample, a feedback signal or both.",
         },
       ],
     },
@@ -104,13 +104,13 @@ export const observabilityFeedbackLesson = deepFreeze({
           id: "observability-feedback-list-1",
           ordered: true,
           items: [
-            "Assign the request id at the gateway and pass it to every stage.",
+            "Assign one request id at the gateway.",
             "Emit one structured log line per stage with version, tokens, latency and status.",
-            "Emit one span per stage and join the spans by id and parent id.",
+            "Emit one span per stage and join them by id.",
             "Emit counters, histograms and gauges, and read percentiles from the histogram.",
-            "Alert on an SLO burn: error rate, p95, goodput and the quality score.",
-            "Collect explicit feedback and implicit feedback, then stratify by slice.",
-            "Turn each confirmed failure into an eval case and gate the fix on the eval.",
+            "Alert on an SLO burn: error rate, p95, goodput and quality.",
+            "Collect explicit and implicit feedback, then stratify by slice.",
+            "Turn each confirmed failure into an eval case and gate the fix.",
           ],
         },
         {
@@ -121,17 +121,17 @@ export const observabilityFeedbackLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "observability-feedback-p-7",
-          text: "A trace shows one request end to end. Each span has a name, a start, an end and attributes. Sample routine traffic and keep every error. The trace shows where time went and which versions ran.",
+          text: "A trace shows one request end to end. Each span has a name, a start, an end and attributes. Sample routine traffic and keep every error, because the trace shows where time went.",
         },
         {
           kind: "paragraph",
           id: "observability-feedback-p-8",
-          text: "Three metrics compare releases. MTTD (mean time to detect) runs from the fault to detection. MTTR (mean time to recover) runs from detection to recovery. CFR (change failure rate) is the share of changes that cause a failure. A change at 02:00, detected at 02:20 and repaired at 04:20 gives MTTD 20 minutes and MTTR 2 hours.",
+          text: "Three metrics compare releases. MTTD (mean time to detect) runs from the fault to detection. MTTR (mean time to recover) runs from detection to recovery. CFR (change failure rate) is the share of changes that fail. A change at 02:00, detected at 02:20 and repaired at 04:20 gives MTTD 20 minutes and MTTR 2 hours.",
         },
         {
           kind: "paragraph",
           id: "observability-feedback-p-9",
-          text: "Explicit feedback is a signal the user gives on purpose, such as a rating. Implicit feedback is inferred from behavior, such as a copy, an edit, a retry or an abandoned chat. Explicit is sparse and biased; implicit is dense and ambiguous.",
+          text: "Explicit feedback is a signal the user gives on purpose, such as a rating. Implicit feedback comes from behavior, such as a copy, an edit or a retry. Explicit is sparse and biased; implicit is dense and ambiguous.",
         },
         {
           kind: "paragraph",
@@ -140,13 +140,23 @@ export const observabilityFeedbackLesson = deepFreeze({
         },
         {
           kind: "paragraph",
+          id: "observability-feedback-p-10b",
+          text: "Sycophancy is the model's tendency to agree with the user, so a wrong answer can earn a good rating. Do not score by tone alone. Ask after one clear decision, not every turn, and offer fixed choices.",
+        },
+        {
+          kind: "paragraph",
+          id: "observability-feedback-p-10c",
+          text: "Conversational feedback extraction reads a chat for a signal. A retry, an edit or a thank-you line is a label. A model pass extracts the label and the reason, then a person checks a sample.",
+        },
+        {
+          kind: "paragraph",
           id: "observability-feedback-p-11",
-          text: "A degenerate feedback loop learns only from the system's own output. Rank by clicks, and the model serves more of what it already shows. Keep a human-labeled held-out set.",
+          text: "A degenerate feedback loop learns only from the system's own output. Rank by clicks, and the model serves more of what it already shows. Keep a human-labeled held-out set, and compare each release with it.",
         },
         {
           kind: "paragraph",
           id: "observability-feedback-p-12",
-          text: "Feedback text and logs can carry personal data. Mask names, emails and phones before storage. Keep the minimum fields, set a retention period, and limit access by tenant.",
+          text: "Feedback text and logs can carry personal data. Mask names, emails and phones before storage. Keep few fields, set a retention period, and limit access by tenant.",
         },
         {
           kind: "table",
@@ -158,6 +168,7 @@ export const observabilityFeedbackLesson = deepFreeze({
             ["Log", "The exact event", "Storage", "Hard to aggregate"],
             ["Explicit feedback", "A stated opinion", "Sparse", "Only loud users"],
             ["Implicit feedback", "Behavior", "Dense", "Ambiguous"],
+            ["Conversational feedback", "A retry or edit in chat", "Dense", "Needs extraction"],
           ],
           caption: "Five signals, each with one cost and one blind spot.",
         },
@@ -267,12 +278,12 @@ export const observabilityFeedbackLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "observability-feedback-p-16",
-          text: "The eval set shows the cause. The refund slice falls from 0.88 to 0.66, and the overall score falls only from 0.74 to 0.71. The trace holds the prompt version on every span. The retry rate on refund tickets rises from 0.04 to 0.17. The explicit thumbs-down rate stays at 0.04.",
+          text: "The eval set shows the cause. The refund slice falls from 0.88 to 0.66, and the overall score falls only from 0.74 to 0.71. The trace holds the prompt version on every span. The refund retry rate rises from 0.04 to 0.17, and thumbs-down stays at 0.04.",
         },
         {
           kind: "paragraph",
           id: "observability-feedback-p-17",
-          text: "The detection took nine days because no eval ran on the change, and no alert cut by slice. The team had no per-slice signal, so the slice fell in silence. The decision is a daily eval on a fixed sample, a canary eval gate on every deploy, and a retry-rate alert per slice. The team adds one request id to every log and trace. MTTD falls to 30 minutes, and the silent slice becomes visible.",
+          text: "The detection took nine days because no eval ran on the change or cut by slice. The decision is a daily eval on a fixed sample, a canary eval gate on every deploy, and a retry-rate alert per slice. The team adds one request id to every log and trace. MTTD falls to 30 minutes, and the silent slice becomes visible.",
         },
       ],
     },
@@ -284,12 +295,13 @@ export const observabilityFeedbackLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "observability-feedback-p-18",
-          text: "Answer four checks on the definition, signal choice, failure and incident calculation.",
+          text: "Answer five checks on the definition, signal choice, failure, incident calculation and feedback limits.",
         },
         { kind: "check", id: "observability-feedback-check-1", checkId: "check-1" },
         { kind: "check", id: "observability-feedback-check-2", checkId: "check-2" },
         { kind: "check", id: "observability-feedback-check-3", checkId: "check-3" },
         { kind: "check", id: "observability-feedback-check-4", checkId: "check-4" },
+        { kind: "check", id: "observability-feedback-check-5", checkId: "check-5" },
       ],
     },
     {
@@ -300,7 +312,7 @@ export const observabilityFeedbackLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "observability-feedback-p-19",
-          text: "The task uses 12 fixed requests, one incident and one release log. Build one script that prints latency, error and retry rates, and incident metrics.",
+          text: "The task uses 12 fixed requests, one incident and one release log. Build one script that prints latency, error, retry and incident metrics.",
         },
         { kind: "task", id: "task-observability-feedback" },
         {
@@ -318,7 +330,7 @@ export const observabilityFeedbackLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "observability-feedback-p-21",
-          text: "Write one sentence: I changed X; the result was Y. Name the signal, the old and new detection times, and the slice that could stay hidden.",
+          text: "Write one sentence: I changed X; the result was Y. Name the signal, the two detection times, and the hidden slice.",
         },
         {
           kind: "paragraph",
@@ -344,22 +356,22 @@ export const observabilityFeedbackLesson = deepFreeze({
             {
               question: "What are logs, metrics and traces, and when do you use each?",
               answer:
-                "A log records one event, a metric is a number over time, and a trace links the spans of one request. Use metrics for alerts and trends, traces for where the time went, and logs for the exact event. One request id joins the three, and a histogram gives p50 and p95 without averages.",
+                "A log records one event, a metric is a number over time, and a trace links the spans of one request. Use metrics for alerts, traces for time, and logs for the exact event. One request id joins them, and a histogram gives p50 and p95.",
             },
             {
               question: "When do you trust explicit feedback over implicit feedback?",
               answer:
-                "Trust explicit feedback when the user states the reason and the sample is large enough for the slice. It is sparse and biased to strong opinions, so it rarely covers silent failures. Use implicit feedback for coverage and explicit feedback for meaning. A retry, an edit or an abandoned chat often detects a failure before a rating does.",
+                "Trust explicit feedback when the user states the reason and the sample is large enough. It is sparse and biased to strong opinions, so it rarely covers silent failures. Use implicit feedback for coverage and explicit for meaning. A retry often detects a failure before a rating does.",
             },
             {
               question: "How does feedback bias show up, and what do you check?",
               answer:
-                "Feedback bias shows up as a stable thumbs-down rate while the retry rate rises. Loud users write, and quiet users leave, so the rating sample is not the user base. Compare feedback with implicit signals on the same slice and add a human-labeled sample. Report the gap, not the rating alone.",
+                "Feedback bias shows up as a stable thumbs-down rate while the retry rate rises. Loud users write, and quiet users leave, so the sample is not the user base. Compare feedback with implicit signals on the same slice. Report the gap, not the rating alone.",
             },
             {
               question: "How does observability change at 10x traffic or services?",
               answer:
-                "At 10x traffic, trace sampling and metric aggregation carry the volume, and one request id must cross every service. At 10x services, a trace shows one path and a metric shows the fleet. Watch MTTD, MTTR and CFR together, and gate each deploy on a canary eval. Keep every error trace and sample the routine ones.",
+                "At 10x traffic, trace sampling and metric aggregation carry the volume, with one request id across services. At 10x services, a trace shows one path and a metric shows the fleet. Watch MTTD, MTTR and CFR together, and gate each deploy on a canary eval. Keep every error trace and sample the routine ones.",
             },
           ],
         },
@@ -425,6 +437,21 @@ export const observabilityFeedbackLesson = deepFreeze({
       correctOptionId: "option-a",
       explanation:
         "MTTD is the time from the fault to its detection, which is 20 minutes. Option B is the MTTR when recovery follows two hours after detection.",
+    },
+    {
+      id: "check-5",
+      kind: "diagnose",
+      prompt:
+        "A chat model agrees with every complaint. User ratings rise while the refund slice falls. Which feedback limit does this show?",
+      options: [
+        { id: "option-a", label: "Sycophancy" },
+        { id: "option-b", label: "Position bias" },
+        { id: "option-c", label: "A cold cache" },
+        { id: "option-d", label: "A token budget" },
+      ],
+      correctOptionId: "option-a",
+      explanation:
+        "A sycophantic answer pleases the user and can still be wrong, so a rating hides the slice drop. Position bias belongs to pairwise judges, and a cache cannot change the answer.",
     },
   ],
   task: {

@@ -4,7 +4,7 @@ import { deepFreeze } from "../freeze";
 export const aiStackLesson = deepFreeze({
   slug: "ai-stack",
   order: 1,
-  title: "The AI engineering stack",
+  title: "Three layers of an AI product",
   chapterId: "ch-01",
   chapterOrder: 1,
   status: "live",
@@ -89,7 +89,7 @@ export const aiStackLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "ai-stack-p-6",
-          text: "AI engineering differs from ML engineering and from full-stack work. ML engineering starts from data and trains a model. Full-stack work owns the application and its database. AI engineering starts from a product and also owns the model behavior, its evaluation and its serving cost.",
+          text: "Full-stack work owns the application and its database. The ML workflow starts from data and trains a model. The AI workflow starts from a product and also owns the model behavior, its evaluation and its serving cost.",
         },
         {
           kind: "paragraph",

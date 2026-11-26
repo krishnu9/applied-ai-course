@@ -730,11 +730,6 @@ function validateCourseStructure(data: ContentSnapshot, faults: string[]): void 
       if (chapter.number !== index + 1) {
         faults.push(`${at} field "number": ${chapter.number}, expected ${index + 1}`);
       }
-      if (chapter.bookChapter !== expected.bookChapter) {
-        faults.push(
-          `${at} field "bookChapter": ${chapter.bookChapter}, expected ${expected.bookChapter}`,
-        );
-      }
       if (!chapter.title.trim()) {
         faults.push(`${at} field "title": is empty`);
       }

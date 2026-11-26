@@ -30,7 +30,6 @@ export interface Chapter {
   order: number;
   number: number;
   title: string;
-  bookChapter: number;
   lessonSlugs: readonly LessonSlug[];
 }
 

@@ -155,6 +155,11 @@ export const retrievalLesson = deepFreeze({
           text: "Freshness is a pipeline property. A policy edit needs an incremental upsert, not a monthly rebuild. Keep a review date in the metadata and filter out expired chunks. Access control is a filter, not a rank. A document the reader may not see must leave the candidate list before the model reads it. The citation is also a pipeline property: the chunk text travels with its document id, and the output check rejects a claim without one.",
         },
         {
+          kind: "paragraph",
+          id: "retrieval-p-14b",
+          text: "RAG beyond text covers images, tables and SQL. A multimodal retriever embeds an image or a page layout as a vector, so a query can return a diagram or a scanned form. A text-only prompt cannot read a chart, so keep the caption and the image id with the vector. A table needs a schema and row-level chunks. Keep the header on every chunk and store the table id. A text-to-SQL step reads the schema, writes a query and returns rows, not passages. The answer must cite the table and the filter, and a wrong join is a retrieval fault. The same recall and citation checks apply.",
+        },
+        {
           kind: "table",
           id: "retrieval-table-1",
           columns: ["Stage", "Input", "Output"],

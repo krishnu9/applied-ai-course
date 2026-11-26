@@ -131,6 +131,11 @@ export const modelSelectionLesson = deepFreeze({
         },
         {
           kind: "paragraph",
+          id: "p-model-selection-8b",
+          text: "Named benchmarks cover different skills. MMLU tests broad knowledge, HumanEval tests code, GSM8K tests school maths, and MT-Bench scores multi-turn chat with a judge. HELM aggregates many tasks, LMSYS Arena ranks pairwise votes, and MTEB covers embeddings. A score from one benchmark does not transfer, and contamination can lift any of them, so read the private set first.",
+        },
+        {
+          kind: "paragraph",
           id: "p-model-selection-9",
           text: "Contamination is training data that overlaps the test set. The model has seen the answer, so the benchmark score rises. Check shared n-grams, canary strings and a large gap between the benchmark and the private set. In the fixed data, alpha scores 88 on the benchmark and 78 on the private set, and a leak explains the 10-point gap.",
         },

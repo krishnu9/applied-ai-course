@@ -149,7 +149,7 @@ export const evalCriteriaLesson = deepFreeze({
         {
           kind: "paragraph",
           id: "p-eval-criteria-11",
-          text: "Pass@k is the chance that at least one of k samples is correct. For a per-sample rate p, pass@k is 1 minus (1 minus p) to the power k. At p equal to 0.83 and k equal to 3, pass@3 is 0.995. A high pass@k still says nothing about a safe sample, because it asks for one success.",
+          text: "Pass@k is the chance that at least one of k samples is correct. For a per-sample rate p, pass@k estimates as 1 minus (1 minus p) to the power k, when the samples are independent. At p equal to 0.83 and k equal to 3, pass@3 is 0.995. A high pass@k still says nothing about a safe sample, because it asks for one success.",
         },
         {
           kind: "table",
