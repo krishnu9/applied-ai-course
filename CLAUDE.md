@@ -6,7 +6,8 @@ the original product contract.
 
 ## What this is
 
-A static Next.js course on AI engineering for interview preparation. Each lesson teaches a topic
+A Next.js course on AI engineering for interview preparation, behind a Supabase magic-link login.
+Each lesson teaches a topic
 in plain technical English, adds two or three ELI5 sections with analogies, one static diagram,
 and a four-question interview corner. A support-triage product supplies the evaluation layer:
 checks, a five-item task, a proof note and a repair gate. Eight flagship lessons have one
@@ -29,9 +30,16 @@ interactive lab.
   (`lib/course-registry.ts`) owns slugs, order, chapters, flagships and capstone stages.
 - Content is typed static data under `content/lessons/`. One file per lesson. Never hardcode
   lesson counts, minutes or scores in components.
+- Auth: Supabase magic link. Only `NEXT_PUBLIC_SUPABASE_URL` and
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY`; never a service-role key. `proxy.ts` and the course layout
+  both enforce the session. Protected routes are server-rendered, never static.
+- Content boundary: server components may import `@/content`; client components may import only
+  `@/lib/course-registry` (summaries and chapters), never `@/content`. `content/index.ts` is
+  marked `server-only`.
 - `components/ui/**` is a leaf. Each module is imported through its `index.ts`.
 - Progress lives in `lib/progress/` and is the only code that touches localStorage. The key is
-  `lastminute.progress.v2`; v1 migrates on read.
+  `lastminute.progress.v2`; v1 migrates on read. Signed-in progress syncs per lesson to Supabase
+  (`lesson_progress`, `progress_meta`) under row-level security.
 - Tokens only. No raw hex outside the `:root` block in `app/globals.css`.
 - Every dynamic number is fixed sample data and carries a visible label.
 

@@ -29,7 +29,21 @@ Open http://localhost:3000.
 npm run build
 ```
 
-Static site in `out/`. Deploys to Vercel with zero configuration.
+Next.js server build for Vercel. The landing page is public. Lessons, roadmap and about require
+sign-in.
+
+## Authentication and data
+
+- Supabase Auth, email magic link only. No passwords.
+- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are the only variables. Never use
+  the service-role key in this app.
+- Apply `supabase/migrations/20261126120000_progress.sql` in the Supabase SQL editor. It creates
+  `lesson_progress` and `progress_meta` with row-level security.
+- In Supabase Authentication → URL Configuration, allow:
+  `http://localhost:3000/auth/callback`,
+  `https://applied-ai-course.vercel.app/auth/callback`, and the preview callback pattern.
+- Progress is written locally first, then synced per lesson. Signing out clears the local copy;
+  reset removes both copies.
 
 ## Verify content
 
@@ -50,11 +64,13 @@ a five-item task, four interview questions, citation, word budgets and the ELI5 
   failure table, triage case, concept checks, evaluation task, proof note, interview corner.
 - Six capstone evaluation stages with fixed sample scores.
 - Progress, per-check answers, task ticks and notes in localStorage, with migration from v1.
-- No login, no backend, no live model call.
+- Account required. Progress, checks, task ticks and notes sync to the account and are cached in
+  the browser. No live model call.
 
 ## Stack
 
-Next.js App Router, TypeScript, Tailwind CSS, npm. Static output. No environment variables.
+Next.js App Router with server rendering, TypeScript, Tailwind CSS, Supabase Auth and Postgres,
+npm. Two public environment variables. Row-level security is the authorization boundary.
 
 ## Documents
 

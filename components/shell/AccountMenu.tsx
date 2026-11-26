@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { buttonStyles } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import { useProgress } from "@/lib/progress";
 
 export type AccountMenuProps = {
   className?: string;
@@ -15,6 +16,7 @@ export type AccountMenuProps = {
  */
 export function AccountMenu({ className }: AccountMenuProps) {
   const { user, loading } = useAuth();
+  const { clearLocal } = useProgress();
 
   if (loading) {
     return (
@@ -46,7 +48,14 @@ export function AccountMenu({ className }: AccountMenuProps) {
       >
         {email}
       </span>
-      <form action="/auth/signout" method="post">
+      <form
+        action="/auth/signout"
+        method="post"
+        onSubmit={() => {
+          // Clear this browser's cached copy before the server ends the session.
+          clearLocal();
+        }}
+      >
         <button
           type="submit"
           className={buttonStyles({ variant: "quiet", size: "sm" })}

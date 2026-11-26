@@ -9,8 +9,10 @@ Short version:
 - Course: 24 lessons, 10 chapters, 6 capstone evaluation stages, 8 flagship interactive labs.
 - Content: `content/lessons/` (one file per lesson), typed by `lib/types.ts`, registered in
   `lib/course-registry.ts`. No hardcoded counts in UI.
-- Data: localStorage progress in `lib/progress/` (v2 key, v1 migrates). No backend, no login, no
-  external API.
+- Data: localStorage progress in `lib/progress/` (v2 key, v1 migrates), synced per user to
+  Supabase under RLS. Account required; only the anon public key is used.
+- Auth: Supabase magic link; `proxy.ts` and the course layout gate `/lessons`, `/roadmap` and
+  `/about`. Client code may import `@/lib/course-registry`, never `@/content`.
 - Commands: `npm run dev`, `npm run build`, `npm run lint`, `npx tsc --noEmit`.
 - Strict content gate: `COURSE_FINAL=1 CONTENT_VALIDATE=1 npm run build`.
 - Harness: `docs/idea/HARNESS.md`.

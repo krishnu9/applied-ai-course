@@ -107,12 +107,16 @@ export default function AboutPage() {
         <section aria-labelledby="about-privacy">
           <h2 id="about-privacy">Privacy and stack</h2>
           <p>
-            There is no account, no server, no analytics and no live model call.
-            Progress stays in this browser, in local storage: checks, task
-            ticks, proof notes and your last position. When you clear site
-            data, you remove them. If the browser blocks local storage, the
-            course still works for the session and shows a banner. The stack is
-            Next.js, TypeScript and Tailwind CSS, built as a static export.
+            The course requires an account. You sign in with an email magic
+            link from Supabase Auth. There is no password to store. Your
+            progress, checks, task ticks, proof notes and last position are
+            saved to your account in Supabase and cached in this browser, so
+            they follow you across devices. Reset progress removes both copies;
+            signing out removes this browser&apos;s copy. There is no analytics
+            and no live model call. The app runs on Vercel with server rendering,
+            Next.js, TypeScript, Tailwind CSS and Supabase row-level security.
+            The public anon key is the only Supabase credential in the browser;
+            no service-role key is used.
           </p>
         </section>
       </Prose>
