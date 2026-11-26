@@ -31,10 +31,11 @@ const sans = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "lastminute.dev — Repair one broken AI feature. Watch the score climb.",
+    default: "lastminute.dev — A 24-lesson AI engineering course",
     template: "%s — lastminute.dev",
   },
-  description: "Six short lessons. One afternoon. No login.",
+  description:
+    "24 lessons across ten chapters. Plain explanations, ELI5 analogies, diagrams and interview practice, with one support-triage system as the evaluation.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
