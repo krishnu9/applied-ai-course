@@ -8,9 +8,14 @@ import {
 export { isLessonSlug };
 
 export type StorageStatus = "ok" | "unavailable";
+export type SyncIndex = Record<string, string>;
 
 export const STORAGE_KEY = "lastminute.progress.v2";
 export const LEGACY_STORAGE_KEY = "lastminute.progress.v1";
+/** Safety copy of the local state taken just before the first account merge. */
+export const BACKUP_KEY = "lastminute.progress.backup";
+/** Per-lesson time of the last accepted local write: slug -> ISO timestamp. */
+export const SYNC_INDEX_KEY = "lastminute.progress.sync-index";
 export const MAX_PROOF = 280;
 export const MAX_BYTES = 65536;
 export const EPOCH = "1970-01-01T00:00:00.000Z";
@@ -61,7 +66,8 @@ function isIsoString(value: unknown): value is string {
   }
 }
 
-function normaliseEntry(raw: Record<string, unknown>): LessonProgress {
+/** Validate one untrusted lesson entry. Shared with the remote row converter. */
+export function normaliseEntry(raw: Record<string, unknown>): LessonProgress {
   const status: LessonProgress["status"] =
     raw.status === "repaired" ? "repaired" : "in-progress";
 
@@ -240,6 +246,100 @@ export function resetProgress(): void {
   } catch {
     available = false;
   }
+}
+
+/** Keep a safety copy of the local state just before an account merge. */
+export function backupProgress(state: ProgressState): void {
+  const storage = getStorage();
+  if (!storage) return;
+
+  let json: string;
+  try {
+    json = JSON.stringify(state);
+  } catch {
+    return;
+  }
+
+  let bytes: number;
+  try {
+    bytes = new TextEncoder().encode(json).length;
+  } catch {
+    bytes = json.length;
+  }
+  if (bytes > MAX_BYTES) return;
+
+  try {
+    storage.setItem(BACKUP_KEY, json);
+  } catch {
+    available = false;
+  }
+}
+
+/** Read and validate the per-lesson local write index. Corrupt data reads as empty. */
+export function readSyncIndex(): SyncIndex {
+  const storage = getStorage();
+  if (!storage) return {};
+
+  const raw = readKey(storage, SYNC_INDEX_KEY);
+  if (raw === null) return {};
+
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!isPlainObject(parsed)) return {};
+
+    const index: SyncIndex = {};
+    for (const [slug, value] of Object.entries(parsed)) {
+      if (isLessonSlug(slug) && isIsoString(value)) index[slug] = value;
+    }
+    return index;
+  } catch {
+    return {};
+  }
+}
+
+/** Record the last accepted local write for one lesson. */
+export function writeSyncIndex(slug: string, timestamp: string): void {
+  if (!isLessonSlug(slug) || !isIsoString(timestamp)) return;
+
+  const storage = getStorage();
+  if (!storage) return;
+
+  const index = readSyncIndex();
+  index[slug] = timestamp;
+
+  try {
+    storage.setItem(SYNC_INDEX_KEY, JSON.stringify(index));
+  } catch {
+    available = false;
+  }
+}
+
+function removeKey(storage: Storage, key: string): void {
+  try {
+    storage.removeItem(key);
+  } catch {
+    available = false;
+  }
+}
+
+/**
+ * Clear the local account footprint: an empty v2 state (which also shadows any
+ * legacy v1 payload), the sync index and the pre-merge backup.
+ */
+export function clearProgress(): void {
+  const storage = getStorage();
+  if (!storage) return;
+
+  try {
+    storage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(createEmptyState(new Date().toISOString())),
+    );
+  } catch {
+    available = false;
+  }
+  removeKey(storage, SYNC_INDEX_KEY);
+  removeKey(storage, BACKUP_KEY);
 }
 
 /** Listen for cross-tab storage changes on either key. Returns an unsubscribe function. */

@@ -2,14 +2,12 @@
 
 import Link from "next/link";
 import { buttonStyles } from "@/components/ui";
-import { getAllLessons } from "@/content";
 import { cn } from "@/lib/cn";
+import { LESSONS } from "@/lib/course-registry";
 import { isRepaired, useProgress } from "@/lib/progress";
 
 /** Only a live lesson can be opened or repaired. */
-const LIVE_LESSONS = getAllLessons().filter(
-  (lesson) => lesson.status === "live",
-);
+const LIVE_LESSONS = LESSONS.filter((lesson) => lesson.status === "live");
 
 export type RoadmapActionProps = {
   className?: string;

@@ -1,3 +1,5 @@
+import "server-only";
+
 import type {
   Chapter,
   CostModel,
@@ -15,7 +17,7 @@ import type {
 } from "@/lib/types";
 import { CHAPTERS, getChapterForSlug } from "@/lib/course-registry";
 import { deepFreeze } from "./freeze";
-import { EVALUATION_STAGES, scoreSummary } from "./scores";
+import { EVALUATION_STAGES } from "./scores";
 import { PRESET_QUERIES, RETRIEVAL_DOCS } from "./retrieval";
 import { COST_MODEL } from "./cost-model";
 import { PLANNED_TOPICS } from "./roadmap";
@@ -200,8 +202,6 @@ export function getNeighbours(
     next: nextLesson ? { slug: nextLesson.slug, title: nextLesson.title } : null,
   };
 }
-
-export { scoreSummary };
 
 const SNAPSHOT: ContentSnapshot = {
   course: COURSE,

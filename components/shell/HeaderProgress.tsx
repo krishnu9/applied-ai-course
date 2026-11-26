@@ -1,7 +1,7 @@
 "use client";
 
-import { getCourse } from "@/content";
 import { cn } from "@/lib/cn";
+import { LIVE_LESSON_SLUGS } from "@/lib/course-registry";
 import { isRepaired, useProgress } from "@/lib/progress";
 
 export type HeaderProgressProps = {
@@ -9,7 +9,7 @@ export type HeaderProgressProps = {
 };
 
 /** Live lessons only: a draft lesson cannot be repaired. */
-const LIVE_SLUGS = getCourse().lessons.map((lesson) => lesson.slug);
+const LIVE_SLUGS = LIVE_LESSON_SLUGS;
 const TOTAL = LIVE_SLUGS.length;
 
 /**

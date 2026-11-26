@@ -3,8 +3,11 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
-import { getChapters, getCourse } from "@/content";
-import { getChapterForSlug } from "@/lib/course-registry";
+import {
+  CHAPTERS,
+  LIVE_LESSON_SLUGS,
+  getChapterForSlug,
+} from "@/lib/course-registry";
 import { isRepaired, useProgress } from "@/lib/progress";
 import type { Chapter, LessonSlug, ProgressState } from "@/lib/types";
 import { ChapterNode } from "./ChapterNode";
@@ -13,11 +16,8 @@ export type SpineProps = {
   className?: string;
 };
 
-const CHAPTERS = getChapters();
 const LESSON_PREFIX = "/lessons/";
-const LIVE_SLUGS = new Set<LessonSlug>(
-  getCourse().lessons.map((lesson) => lesson.slug),
-);
+const LIVE_SLUGS = new Set<LessonSlug>(LIVE_LESSON_SLUGS);
 
 /**
  * The link goes to the first live lesson in the chapter that is not repaired.

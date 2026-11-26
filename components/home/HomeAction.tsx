@@ -3,14 +3,12 @@
 import Link from "next/link";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { buttonStyles } from "@/components/ui";
-import { getAllLessons } from "@/content";
 import { cn } from "@/lib/cn";
+import { LESSONS } from "@/lib/course-registry";
 import { isRepaired, useProgress } from "@/lib/progress";
 
 /** Draft lessons are never a target: the course entry opens a live lesson only. */
-const LIVE_LESSONS = getAllLessons().filter(
-  (lesson) => lesson.status === "live",
-);
+const LIVE_LESSONS = LESSONS.filter((lesson) => lesson.status === "live");
 const FIRST_LIVE = LIVE_LESSONS[0] ?? null;
 
 export type HomeActionProps = {

@@ -89,6 +89,9 @@ create policy "own meta delete" on public.progress_meta
 for delete to authenticated
 using ((select auth.uid()) = user_id);
 
+-- RLS is the only gate, so the public and anonymous roles get no table access.
+-- Revoking from PUBLIC keeps a future default grant from leaking table access.
+revoke all on public.lesson_progress, public.progress_meta from public;
 revoke all on public.lesson_progress, public.progress_meta from anon;
 grant select, insert, update, delete
   on public.lesson_progress, public.progress_meta

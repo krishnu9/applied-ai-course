@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { Badge, Panel, ScoreValue } from "@/components/ui";
-import { getEvaluationStages, scoreSummary } from "@/content";
 import { cn } from "@/lib/cn";
+import { CAPSTONE_STAGES } from "@/lib/course-registry";
 import { formatPercent, formatSeconds, formatUsd } from "@/lib/format";
 import { isRepaired, useProgress } from "@/lib/progress";
+import { scoreSummary } from "@/lib/score-summary";
 
-const STAGES = getEvaluationStages();
+const STAGES = CAPSTONE_STAGES;
 const STAGE_COUNT = STAGES.length;
 
 export type RunPanelProps = {

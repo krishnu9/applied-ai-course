@@ -22,10 +22,11 @@ import {
   INTERACTIVE_WIDGET_IDS,
   LESSONS as REGISTRY_LESSONS,
   LESSON_SLUGS,
+  LIVE_LESSON_SLUGS,
   MAX_CHECKS_PER_LESSON,
   TASK_ITEM_IDS,
 } from "@/lib/course-registry";
-import { scoreSummary } from "./scores";
+import { scoreSummary } from "@/lib/score-summary";
 
 export interface ContentSnapshot {
   course: Course;
@@ -228,6 +229,59 @@ function validateIdentity(lesson: Lesson, index: number, faults: string[]): void
   } else if (lesson.layerId !== undefined) {
     faults.push(
       `${at} field "layerId": "${lesson.layerId}" on a lesson with no capstone stage`,
+    );
+  }
+}
+
+/**
+ * The registry is the client-safe summary of every lesson. It must never drift
+ * from the lesson data, so the validator compares each summary field.
+ */
+function validateRegistrySummaries(
+  allLessons: readonly Lesson[],
+  faults: string[],
+): void {
+  const entryBySlug = new Map(
+    REGISTRY_LESSONS.map((entry) => [entry.slug, entry]),
+  );
+
+  for (const lesson of allLessons) {
+    const at = `lesson "${lesson.slug}"`;
+    const entry = entryBySlug.get(lesson.slug);
+    if (!entry) {
+      faults.push(`${at} field "summary": has no registry entry`);
+      continue;
+    }
+    if (entry.title !== lesson.title) {
+      faults.push(`${at} field "title": registry holds "${entry.title}"`);
+    }
+    if (entry.status !== lesson.status) {
+      faults.push(`${at} field "status": registry holds "${entry.status}"`);
+    }
+    if (entry.readingMinutes !== lesson.readingMinutes) {
+      faults.push(
+        `${at} field "readingMinutes": registry holds ${entry.readingMinutes}`,
+      );
+    }
+    if (entry.outcome !== lesson.outcome) {
+      faults.push(`${at} field "outcome": registry summary does not match`);
+    }
+    if (entry.chapterId !== lesson.chapterId) {
+      faults.push(
+        `${at} field "chapterId": registry holds "${entry.chapterId}"`,
+      );
+    }
+    if (entry.order !== lesson.order) {
+      faults.push(`${at} field "order": registry holds ${entry.order}`);
+    }
+  }
+
+  const liveSlugs = allLessons
+    .filter((lesson) => lesson.status === "live")
+    .map((lesson) => lesson.slug);
+  if (LIVE_LESSON_SLUGS.join(",") !== liveSlugs.join(",")) {
+    faults.push(
+      `course field "liveLessons": registry holds ${LIVE_LESSON_SLUGS.join(", ")}, expected ${liveSlugs.join(", ")}`,
     );
   }
 }
@@ -986,6 +1040,7 @@ export function validateContent(data: ContentSnapshot): string[] {
   const final = isFinalCourse();
 
   validateCourseStructure(data, faults);
+  validateRegistrySummaries(data.allLessons, faults);
 
   data.allLessons.forEach((lesson, index) => {
     validateIdentity(lesson, index, faults);

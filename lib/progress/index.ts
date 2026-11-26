@@ -7,5 +7,10 @@ export {
   repairedCount,
   resumeTarget,
 } from "./selectors";
-export type { ProgressSnapshot, ProgressStore } from "./store";
+export type {
+  ProgressSnapshot,
+  ProgressStore,
+  ProgressUser,
+  SyncStatus,
+} from "./store";
 export type { StorageStatus } from "./storage";

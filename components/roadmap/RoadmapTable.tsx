@@ -2,18 +2,20 @@
 
 import Link from "next/link";
 import { Badge } from "@/components/ui";
-import { getChapters, getLesson } from "@/content";
+import {
+  CHAPTERS,
+  getLessonEntry,
+  type LessonEntry,
+} from "@/lib/course-registry";
 import { cn } from "@/lib/cn";
 import { isRepaired, useProgress } from "@/lib/progress";
-import type { Lesson, ProgressState } from "@/lib/types";
-
-const CHAPTERS = getChapters();
+import type { ProgressState } from "@/lib/types";
 
 export type RoadmapTableProps = {
   className?: string;
 };
 
-function stateWord(lesson: Lesson, state: ProgressState): string {
+function stateWord(lesson: LessonEntry, state: ProgressState): string {
   if (lesson.status === "draft") return "Writing";
   const status = state.lessons[lesson.slug]?.status;
   if (status === "repaired") return "Repaired";
@@ -33,8 +35,8 @@ export function RoadmapTable({ className }: RoadmapTableProps) {
     <div className={cn("space-y-10", className)}>
       {CHAPTERS.map((chapter) => {
         const lessons = chapter.lessonSlugs
-          .map((slug) => getLesson(slug))
-          .filter((lesson): lesson is Lesson => lesson !== undefined);
+          .map((slug) => getLessonEntry(slug))
+          .filter((lesson): lesson is LessonEntry => lesson !== undefined);
 
         return (
           <section
