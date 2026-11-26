@@ -1,7 +1,20 @@
 import type { NextConfig } from "next";
 
+const PROTECTED_HEADERS = [
+  { key: "Cache-Control", value: "private, no-store, max-age=0" },
+  { key: "Vary", value: "Cookie" },
+];
+
+const PROTECTED_SOURCES = [
+  "/lessons",
+  "/lessons/:path*",
+  "/roadmap",
+  "/roadmap.txt",
+  "/about",
+  "/about.txt",
+];
+
 const nextConfig: NextConfig = {
-  output: "export",
   agentRules: false,
   devIndicators: false,
   images: {
@@ -14,6 +27,12 @@ const nextConfig: NextConfig = {
         as: "*.css",
       },
     },
+  },
+  async headers() {
+    return PROTECTED_SOURCES.map((source) => ({
+      source,
+      headers: PROTECTED_HEADERS,
+    }));
   },
 };
 

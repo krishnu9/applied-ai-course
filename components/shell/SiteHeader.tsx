@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { cn } from "@/lib/cn";
+import { AccountMenu } from "./AccountMenu";
 import { HeaderProgress } from "./HeaderProgress";
 
 export type SiteHeaderProps = {
@@ -18,6 +20,7 @@ const NAV_ITEMS = [
 export function SiteHeader({ className }: SiteHeaderProps) {
   const pathname = usePathname();
   const headerRef = useRef<HTMLElement>(null);
+  const { user } = useAuth();
 
   // Publish the measured header height so anchor jumps land below it at any
   // text size. The CSS fallback is the fixed `--header-h` token.
@@ -56,7 +59,7 @@ export function SiteHeader({ className }: SiteHeaderProps) {
         >
           lastminute.dev
         </Link>
-        <div className="ml-auto flex items-center gap-1 sm:gap-2">
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-1 sm:gap-2">
           <nav aria-label="Primary" className="flex items-center">
             {NAV_ITEMS.map((item) => {
               const isActive = pathname === item.href;
@@ -77,7 +80,8 @@ export function SiteHeader({ className }: SiteHeaderProps) {
               );
             })}
           </nav>
-          <HeaderProgress className="shrink-0" />
+          {user ? <HeaderProgress className="shrink-0" /> : null}
+          <AccountMenu className="shrink-0" />
         </div>
       </div>
     </header>

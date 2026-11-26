@@ -1,6 +1,8 @@
 export { SkipLink } from "./SkipLink";
 export { SiteHeader } from "./SiteHeader";
 export type { SiteHeaderProps } from "./SiteHeader";
+export { AccountMenu } from "./AccountMenu";
+export type { AccountMenuProps } from "./AccountMenu";
 export { SiteFooter } from "./SiteFooter";
 export type { SiteFooterProps } from "./SiteFooter";
 export { StorageBanner } from "./StorageBanner";

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  getAllLessons,
   getChapterForLesson,
   getCourse,
   getLayerForLesson,
@@ -19,12 +18,6 @@ import {
   LessonToc,
 } from "@/components/lesson";
 import { EXPECTED_LESSON_COUNT } from "@/lib/course-registry";
-
-export const dynamicParams = false;
-
-export function generateStaticParams(): { slug: string }[] {
-  return getAllLessons().map(({ slug }) => ({ slug }));
-}
 
 type PageProps = {
   params: Promise<{ slug: string }>;

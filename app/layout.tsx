@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Source_Serif_4 } from "next/font/google";
 import type { ReactNode } from "react";
+import { AuthProvider } from "@/components/auth";
 import {
   SiteFooter,
   SiteHeader,
@@ -42,17 +43,19 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
   return (
     <html lang="en" className={`${serif.variable} ${mono.variable} ${sans.variable}`}>
       <body className="bg-[var(--bg)] text-[var(--ink)] antialiased">
-        {/* PROGRESS-PROVIDER:START — owned by lib/progress. Mount line only. */}
-        <ProgressProvider>
-          <SkipLink />
-          <SiteHeader />
-          <StorageBanner />
-          <main id="main" tabIndex={-1}>
-            {children}
-          </main>
-          <SiteFooter />
-        </ProgressProvider>
-        {/* PROGRESS-PROVIDER:END */}
+        <AuthProvider>
+          {/* PROGRESS-PROVIDER:START — owned by lib/progress. Mount line only. */}
+          <ProgressProvider>
+            <SkipLink />
+            <SiteHeader />
+            <StorageBanner />
+            <main id="main" tabIndex={-1}>
+              {children}
+            </main>
+            <SiteFooter />
+          </ProgressProvider>
+          {/* PROGRESS-PROVIDER:END */}
+        </AuthProvider>
       </body>
     </html>
   );

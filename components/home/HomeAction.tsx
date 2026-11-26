@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { buttonStyles } from "@/components/ui";
 import { getAllLessons } from "@/content";
 import { cn } from "@/lib/cn";
@@ -17,14 +18,37 @@ export type HomeActionProps = {
 };
 
 /**
- * The course entry controls. The primary target is the last live lesson that
- * is still open, then the first live lesson. "Start with lesson 1" points at
- * the first live lesson, so the control never sends a reader to a draft. The
- * server snapshot is empty, so the first paint reads "Start with lesson 1" and
- * hydration upgrades it.
+ * The course entry controls. Signed-out visitors get the sign-in action, which
+ * carries the roadmap as the post-login target. Signed-in readers get the last
+ * live lesson that is still open, then the first live lesson. The server
+ * snapshot is signed out, so the first paint is stable and hydration upgrades
+ * it.
  */
 export function HomeAction({ className }: HomeActionProps) {
   const { state } = useProgress();
+  const { user, loading } = useAuth();
+
+  if (loading || !user) {
+    return (
+      <div
+        role="group"
+        aria-label="Course actions"
+        className={cn("flex flex-col items-start gap-3", className)}
+      >
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            href="/login?next=/roadmap"
+            className={buttonStyles({ variant: "primary" })}
+          >
+            Sign in to start
+          </Link>
+          <Link href="/roadmap" className={buttonStyles({ variant: "quiet" })}>
+            See the roadmap
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const lastSlug = state.lastLessonSlug;
   const resume = lastSlug
